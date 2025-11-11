@@ -3,25 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 
-class Vehicle extends Model
+class Booking extends Model
 {
-    use SoftDeletes;
     protected $fillable = [
         'user_id',
-        'vehicle_make_id',
-        'vehicle_type',
-        'vehicle_number',
-        'model',
-        'vehicle_year',
-        'fuel_type',
-        'transmission',
-        'mileage',
+        'booking_amount',
+        'booking_discount',
+        'date',
+        'time',
+        'pickup_type',
         'user_address_id',
         'status',
-        'additional_note'
+        'booking_status'
     ];
 
     public static function boot()

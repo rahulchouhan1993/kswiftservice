@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,4 +29,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-address/{uuid}', [ProfileController::class, 'updateAddress']);
     Route::get('/get-address-list', [ProfileController::class, 'getAddressList']);
     Route::get('/delete-address/{uuid}', [ProfileController::class, 'deleteAddress']);
+
+    Route::prefix('/vehicle')->group(function () {
+        Route::post('/add', [VehicleController::class, 'add']);
+        Route::post('/update/{uuid}', [VehicleController::class, 'update']);
+        Route::get('/view-details/{uuid}', [VehicleController::class, 'viewVehicleDetails']);
+        Route::get('/get-vehicles-list', [VehicleController::class, 'getVehicleList']);
+        Route::get('/delete/{uuid}', [VehicleController::class, 'delete']);
+        Route::get('/update-status/{uuid}/{status}', [VehicleController::class, 'updateStatus']);
+    });
+
+    Route::prefix('/booking')->group(function () {
+        Route::post('/service-book', [BookingController::class, 'bookService']);
+    });
 });
