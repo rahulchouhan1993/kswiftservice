@@ -1,0 +1,44 @@
+# IDE and OS-specific files
+.fleet/
+.idea/
+.nova/
+.vscode/
+.zed/
+.DS_Store # macOS specific
+Thumbs.db # Windows specific
+
+# Dependency directories
+/node_modules/
+/vendor/
+
+# Environment and sensitive files
+.env
+.env.backup
+.env.production
+.auth.json # Composer authentication
+
+# Ignore the .history folder and all its files
+.history/
+
+# Build artifacts and caches
+public/build/
+public/hot
+/.phpunit.cache/
+.phpunit.result.cache
+npm-debug.log
+yarn-error.log
+
+
+# Project-specific configurations
+Homestead.json
+Homestead.yaml
+.phpactor.json
+
+
+# ZIP files (all of them)
+*.zip
+
+
+# Storage folder (and its contents)
+/storage/
+public/storage/ # For symlinked public storage

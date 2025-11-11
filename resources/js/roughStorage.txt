@@ -1,0 +1,21 @@
+Dashboar ka Welcome card: 
+
+{/* Congratulations Card */}
+<div className="bg-white dark:bg-[#1b213a] rounded-xl p-4 relative overflow-hidden shadow-md flex flex-col justify-between">
+    <div className="flex flex-col">
+        <span className="text-sm text-gray-700 dark:text-gray-300">Congratulations John!</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">You are the best seller of this month</span>
+        <h2 className="text-3xl font-bold mt-4 bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            $168.5K
+        </h2>
+        <span className="text-xs text-gray-500 dark:text-gray-400">58% of sales target</span>
+        <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs rounded-full px-4 py-1.5 mt-3 w-fit hover:opacity-90 transition-opacity">
+            View Details
+        </button>
+    </div>
+    <div className="absolute right-2 bottom-2">
+        <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-3 rounded-lg">
+            <FaGift className="text-white text-xl" />
+        </div>
+    </div>
+</div> 
