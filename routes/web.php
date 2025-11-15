@@ -2,31 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Branch\BranchAuthController;
-use App\Http\Controllers\Branch\BranchDashboardController;
-use App\Http\Controllers\Branch\BranchUsersController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Front\EnquiryController;
-use App\Http\Controllers\Front\FrontCardController;
-use App\Http\Controllers\Front\SurveyEnquiryController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Partner\PartnerAuthController;
-use App\Http\Controllers\Partner\PartnerDashboardController;
-use App\Http\Controllers\Partner\PartnerOrderController;
-use App\Http\Controllers\Partner\PartnerSchoolController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
-use App\Http\Controllers\SuperAdmin\PartnerController;
-use App\Models\ImportProcess;
+use App\Http\Controllers\SuperAdmin\UsersController;
+use App\Http\Controllers\SuperAdmin\VehicleMakeController;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-
-use function App\getCurrentGuardAndUser;
+use PHPUnit\Metadata\Group;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
-
-
+Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('aboutus');
+Route::get('/our-services', [HomeController::class, 'services'])->name('services');
+Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactus');
+Route::get('/privacy-and-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-ploicy');
+Route::get('/terms-and-conditions', [HomeController::class, 'termsConditions'])->name('terms-condition');
 
 
 
@@ -40,6 +30,23 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
     Route::middleware('auth.superadmin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
+
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::prefix('vehicle-makes')->name('vehicle.make.')->group(function () {
+                Route::get('list', [VehicleMakeController::class, 'index'])->name('list');
+                Route::post('/create', [VehicleMakeController::class, 'add'])->name('create');
+                Route::post('/update/{uuid?}', [VehicleMakeController::class, 'update'])->name('update');
+                Route::post('/{uuid}/update-status', [VehicleMakeController::class, 'updateStatus'])->name('update.status');
+                Route::post('/{uuid}/delete', [VehicleMakeController::class, 'delete'])->name('delete');
+            });
+        });
+
+
+        Route::prefix('user')->name('user.')->group(function () {
+            Route::get('list', [UsersController::class, 'index'])->name('list');
+            Route::post('/{uuid}/update-status', [UsersController::class, 'updateStatus'])->name('update.status');
+            Route::post('/{uuid}/delete', [UsersController::class, 'delete'])->name('delete');
+        });
     });
 });
 // SUPERADMIN ROUTES END HERE

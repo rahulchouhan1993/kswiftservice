@@ -8,10 +8,11 @@ import { IoLogOut, IoMoon } from "react-icons/io5";
 import { FaSun, FaBell, FaIdCard, FaBars, FaTimes } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 import NavDropdown from '@/Components/NavDropdown';
-import { MdDashboard } from "react-icons/md";
+import { MdDashboard, MdOutlineSettingsSuggest } from "react-icons/md";
 import Tooltip from '@/Components/Tooltip';
 import NotificationPanel from "../../../Components/NotificationPanel";
 import { useTheme } from 'next-themes';
+import { FaUsers } from 'react-icons/fa6';
 
 export default function AuthenticatedLayout({ header, children }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -84,7 +85,9 @@ export default function AuthenticatedLayout({ header, children }) {
     }, [menuRef]);
 
     const navLinks = [
-        { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard }
+        { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard },
+        { href: route('superadmin.settings.vehicle.make.list'), active: route().current('vehicle.make'), label: 'Settings', icon: MdOutlineSettingsSuggest },
+        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Users', icon: FaUsers }
     ];
 
     return (
