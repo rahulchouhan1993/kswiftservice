@@ -25,15 +25,27 @@ class UsersController extends Controller
     {
         $search = $request->query('search');
         $status = $request->query('status');
+        $type = $request->query('type');
+
+        if ($status === 'active') {
+            $statusValue = 1;
+        } elseif ($status === 'inactive') {
+            $statusValue = 0;
+        } else {
+            $statusValue = null;
+        }
 
         $baseQuery = User::orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
+                    $q->where('name', 'LIKE', "%{$search}%");
                 });
             })
-            ->when(!is_null($status) && $status !== '', function ($q) use ($status) {
-                $q->where('status', $status);
+            ->when(!is_null($statusValue), function ($q) use ($statusValue) {
+                $q->where('status', $statusValue);
+            })
+            ->when(!is_null($type) && $type !== '', function ($q) use ($type) {
+                $q->where('role', $type);
             });
 
         $makes = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
@@ -41,6 +53,7 @@ class UsersController extends Controller
             'list' => $makes,
             'search' => $search,
             'status' => $status,
+            'type' => $type,
         ]);
     }
 

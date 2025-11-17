@@ -1,32 +1,23 @@
 import { Head, router, usePage } from "@inertiajs/react";
-import { useEffect, useRef } from "react";
+import { MdGroups, MdOutlineUpdate } from "react-icons/md";
+import { useState, useEffect, useRef } from "react";
 import Tooltip from "@/Components/Tooltip";
 import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
 import { useHelpers } from "@/Components/Helpers";
+import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
+import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
+import SettingsLayout from "../../Layouts/SettingsLayout";
+import Edit from "./Edit";
+import Add from "./Add";
 import DeleteUserAction from "@/Components/DeleteUserAction";
 import DataNotExist from "@/Components/DataNotExist";
-import UsersLayout from "../Layouts/UsersLayout";
-import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
-import SelectInput from "@/Components/SelectInput";
-import UserAvatarCard from "@/Components/UserAvatarCard";
 
-export default function List({ list, search, status, type }) {
+export default function List({ list, search }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { toTitleCase } = useHelpers();
-    const auth = usePage().props.auth.user;
-
-    const userTypeOptions = [
-        { value: "customer", label: "Customer" },
-        { value: "mechanic", label: "Mechanic" },
-    ];
-
-    const statusOptions = [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "InActive" },
-    ];
+    const { toTitleCase, displayInRupee } = useHelpers();
 
     useEffect(() => {
         initTooltips();
@@ -44,7 +35,7 @@ export default function List({ list, search, status, type }) {
 
             if (!sval || sval.length > 0) {
                 timerRef.current = setTimeout(() => {
-                    router.visit(route('superadmin.user.list', {
+                    router.visit(route('superadmin.settings.service.type.list', {
                         search: sval,
                     }), {
                         only: ['list', 'search'],
@@ -55,65 +46,20 @@ export default function List({ list, search, status, type }) {
         }
     };
 
-    const handleUserTypeChange = (e) => {
-        const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
-                    type: sval,
-                }), {
-                    only: ['list', 'search', 'type'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
-    };
-
-    const handleStatusChange = (e) => {
-        const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
-                    status: sval,
-                }), {
-                    only: ['list', 'search', 'type', 'status'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
-    };
-
 
     return (
         <AuthenticatedLayout>
-            <Head title="Manage Users List " />
+            <Head title="Manage Service Types " />
             <div className="pt-[60px]">
-                {/* <UsersLayout /> */}
+                <SettingsLayout />
             </div>
-
             <div className="sm:p-4 p-1 w-full">
                 <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
-                    <div className="mb-4 flex flex-wrap items-center gap-4">
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
-                            <SelectInput
-                                id="type"
-                                value={type}
-                                onChange={handleUserTypeChange}
-                                options={userTypeOptions}
-                                placeholder="Filter By Type"
-                            />
-                        </div>
 
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
-                            <SelectInput
-                                id="status"
-                                value={status}
-                                onChange={handleStatusChange}
-                                options={statusOptions}
-                                placeholder="Filter By Status"
-                            />
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex-shrink-0">
+                            <Add />
                         </div>
-
                         <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
                             <input
                                 ref={searchRef}
@@ -133,8 +79,8 @@ export default function List({ list, search, status, type }) {
                                 <tr>
                                     <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
                                     <th className="p-2 text-start whitespace-nowrap">Name</th>
-                                    <th className="p-2 text-center whitespace-nowrap">D.O.B</th>
-                                    <th className="p-2 text-center whitespace-nowrap">KYC Status</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Vehicle Type</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Base Price</th>
                                     <th className="p-2 text-center whitespace-nowrap">Action</th>
                                 </tr>
                             </thead>
@@ -156,35 +102,47 @@ export default function List({ list, search, status, type }) {
                                             className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
                                         >
                                             <td className="p-2">{index + 1}</td>
-                                            <td className="p-2 text-start">
-                                                <UserAvatarCard user={l} />
-                                            </td>
-                                            <td className="p-2 text-center">{l?.dob || '--'}</td>
-                                            <td className="p-2 text-center">{l?.kyc_status}</td>
+                                            <td className="p-2 text-start">{toTitleCase(l?.name)}</td>
+                                            <td className="p-2 text-start">{toTitleCase(l?.vehicle_type) || '--'}</td>
+                                            <td className="p-2 text-start">{displayInRupee(l?.base_price)}</td>
+
                                             <td className="p-1 flex justify-center items-baseline gap-4">
+                                                <div data-tooltip-target={`tooltip-edit-service-type-${l?.uuid}`}>
+                                                    <Edit make={l} />
+                                                    <Tooltip
+                                                        targetEl={`tooltip-edit-service-type-${l?.uuid}`}
+                                                        title="Update Vehicle Make"
+                                                    />
+                                                </div>
+
                                                 <div data-tooltip-target={`tooltip-status-${l?.uuid}`} className="flex">
                                                     <StatusToggle
-                                                        action={route("superadmin.user.update.status", { uuid: l?.uuid }
+                                                        action={route(
+                                                            "superadmin.settings.service.type.update.status",
+                                                            { uuid: l?.uuid }
                                                         )}
                                                         checked={l?.status === 1}
                                                         className="!mb-0"
                                                     />
                                                     <Tooltip
                                                         targetEl={`tooltip-status-${l?.uuid}`}
-                                                        title={l?.status ? "InActive User" : "Activate User"}
+                                                        title={l?.status ? "InActive Vehicle Make" : "Activate Vehicle Make"}
                                                     />
                                                 </div>
 
-                                                <div data-tooltip-target={`tooltip-delete-user-${l?.uuid}`}>
+                                                <div data-tooltip-target={`tooltip-delete-service-type-${l?.uuid}`}>
                                                     <DeleteUserAction
-                                                        action={route("superadmin.user.delete", { uuid: l?.uuid || "" })}
-                                                        message="Are you sure you want to delete this user?"
+                                                        action={route(
+                                                            "superadmin.settings.service.type.delete",
+                                                            { uuid: l?.uuid || "" }
+                                                        )}
+                                                        message="Are you sure you want to delete this service type?"
                                                     />
                                                 </div>
 
                                                 <Tooltip
-                                                    targetEl={`tooltip-delete-user-${l?.uuid}`}
-                                                    title="Delete User"
+                                                    targetEl={`tooltip-delete-service-type-${l?.uuid}`}
+                                                    title="Delete Service Type"
                                                 />
                                             </td>
                                         </tr>

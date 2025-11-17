@@ -95,13 +95,15 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'phone' => 'required|digits:10'
+                'phone' => 'required|digits:10',
+                'user_type' => 'required|in:customer,mechanic',
             ]);
 
             $user = User::where('phone', $request->phone)->first();
             if (!$user) {
                 $user = User::create([
-                    'phone' => $request->phone
+                    'phone' => $request->phone,
+                    'role' => $request->user_type,
                 ]);
             }
 

@@ -24,14 +24,15 @@ class ProfileController extends Controller
             $user = $request->user();
 
             $request->validate([
-                'email' => [
-                    'required',
-                    Rule::unique('users', 'email')->ignore($user)
-                ],
-                'phone' => [
-                    'required',
-                    Rule::unique('users', 'phone')->ignore($user)
-                ]
+                'name' => ['required'],
+                'email' => ['required', Rule::unique('users', 'email')->ignore($user)],
+                'phone' => ['required', Rule::unique('users', 'phone')->ignore($user)],
+                'dob' => ['required'],
+                'country' => ['required'],
+                'state' => ['required'],
+                'city' => ['required'],
+                'address' => ['required'],
+                'pincode' => ['required'],
             ]);
 
             $user->update([
@@ -40,18 +41,26 @@ class ProfileController extends Controller
                 'dob' => Carbon::parse($request->dob)->format('Y-m-d'),
                 'email' => $request->email,
                 'phone' => $request->phone,
-                'whatsapp_number' => $request->whatsapp_number,
-                'country_id' => $request->country_id,
-                'state_id' => $request->state_id,
-                'city_id' => $request->city_id,
-                'address' => $request->address,
-                'pincode' => $request->pincode,
+                'whatsapp_number' => $request->whatsapp_number
             ]);
+
+            $address = UserAddress::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'is_default_address' => 1,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'address' => $request->address,
+                    'pincode' => $request->pincode,
+                ]
+            );
 
             return response()->json([
                 'status' => true,
                 'message' => 'Profile updated successfully',
                 'user' => $user,
+                'address' => $address
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -60,6 +69,7 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+
 
 
     /**

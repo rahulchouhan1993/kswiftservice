@@ -13,7 +13,7 @@ export default function UsersLayout() {
             <div className="pb-[5px] pt-[5px] sm:px-4 px-3 w-full flex flex-row items-center justify-start gap-2 bg-white dark:bg-[#0a0e25] border-b border-gray-300 dark:border-blue-950 overflow-x-auto whitespace-nowrap">
                 <div className="flex-shrink-0 inline-flex">
                     <NavLink
-                        href={'superadmin.user.list'}
+                        href={route('superadmin.user.list')}
                         active={route().current("category")}
                     >
                         <GiSwordBrandish className="h-5 w-5 mr-2" /> Customers

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
+use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
 use Illuminate\Support\Facades\Artisan;
@@ -38,6 +39,15 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
                 Route::post('/update/{uuid?}', [VehicleMakeController::class, 'update'])->name('update');
                 Route::post('/{uuid}/update-status', [VehicleMakeController::class, 'updateStatus'])->name('update.status');
                 Route::post('/{uuid}/delete', [VehicleMakeController::class, 'delete'])->name('delete');
+            });
+
+
+            Route::prefix('service-type')->name('service.type.')->group(function () {
+                Route::get('list', [ServiceTypeController::class, 'index'])->name('list');
+                Route::post('/create', [ServiceTypeController::class, 'add'])->name('create');
+                Route::post('/update/{uuid?}', [ServiceTypeController::class, 'update'])->name('update');
+                Route::post('/{uuid}/update-status', [ServiceTypeController::class, 'updateStatus'])->name('update.status');
+                Route::post('/{uuid}/delete', [ServiceTypeController::class, 'delete'])->name('delete');
             });
         });
 

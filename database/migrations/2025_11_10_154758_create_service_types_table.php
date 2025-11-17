@@ -16,6 +16,8 @@ return new class extends Migration
             $table->uuid();
             $table->string('name');
             $table->string('slug')->nullable();
+            $table->string('vehicle_type')->nullable()->comment('two_wheeler', 'three_wheeler', 'four_wheeler');
+            $table->double('base_price')->default(0);
             $table->tinyInteger('status')->comment('0-InActive, 1-Active')->default(1);
             $table->timestamps();
             $table->softDeletes();
