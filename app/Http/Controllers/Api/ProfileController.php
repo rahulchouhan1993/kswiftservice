@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\UserAddress;
 use Carbon\Carbon;
 use Exception;
@@ -86,6 +87,35 @@ class ProfileController extends Controller
         }
     }
 
+
+    /**
+     * Get User Details
+     * @param string $uuid user UUID
+     * @return mixed
+     */
+    public function getUserDetails($uuid)
+    {
+        try {
+            $user =  User::with(['addresses', 'vehicles'])->firstWhere('uuid', $uuid);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "User does not exist",
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User details fetched.',
+                'user' => $user,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
 
     /**

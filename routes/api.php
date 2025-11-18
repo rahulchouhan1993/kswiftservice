@@ -24,6 +24,7 @@ Route::prefix('common')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/update-profile', [ProfileController::class, 'updateProfile']);
+    Route::get('/user-details/{uuid}', [ProfileController::class, 'getUserDetails']);
     Route::post('/update-profile-image', [ProfileController::class, 'updateProfileImage']);
     Route::post('/save-address', [ProfileController::class, 'saveAddress']);
     Route::post('/update-address/{uuid}', [ProfileController::class, 'updateAddress']);
