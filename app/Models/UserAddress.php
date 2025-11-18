@@ -17,7 +17,8 @@ class UserAddress extends Model
         'address',
         'pincode',
         'is_default_address',
-        'status'
+        'status',
+        'address_type'
     ];
 
     public static function boot()

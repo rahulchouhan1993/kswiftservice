@@ -50,6 +50,7 @@ class User extends Authenticatable
         'kyc_response',
         'status',
         'password',
+        'is_profile_updated'
     ];
 
     public static function boot()

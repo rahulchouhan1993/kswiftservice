@@ -48,6 +48,7 @@ return new class extends Migration
 
             $table->string('password')->nullable();
             $table->tinyInteger('status')->default(1)->comment('0-InActive, 1-Active');
+            $table->tinyInteger('is_profile_updated')->default(0)->comment('0-No, 1-Yes');
 
             $table->rememberToken();
             $table->timestamps();

@@ -18,6 +18,7 @@ return new class extends Migration
         Schema::create('user_addresses', function (Blueprint $table) {
             $table->id();
             $table->uuid();
+            $table->string('address_type')->comment('office, home');
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Country::class)->nullable();
             $table->foreignIdFor(State::class)->nullable();

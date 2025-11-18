@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\UserAddress;
 use App\Models\Vehicle;
+use App\Models\VehiclePhoto;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+
+use function App\uploadRequestFile;
 
 class VehicleController extends Controller
 {
@@ -42,16 +46,20 @@ class VehicleController extends Controller
                     Rule::unique('vehicles', 'vehicle_number'),
                 ],
                 'additional_note' => 'required',
+                'vehicle_photos' => 'required|array|min:1',
+                'vehicle_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
             if ($request->parking_address === 'new_address') {
+                $rules['address_type'] = 'required';
                 $rules['country'] = 'required';
                 $rules['state'] = 'required';
                 $rules['city'] = 'required';
                 $rules['address'] = 'required';
                 $rules['pincode'] = 'required';
             } else {
-                $rules['country'] = 'required';
+                $rules['address_type'] = 'nullable';
+                $rules['country'] = 'nullable';
                 $rules['state'] = 'nullable';
                 $rules['city'] = 'nullable';
                 $rules['address'] = 'nullable';
@@ -63,6 +71,7 @@ class VehicleController extends Controller
             $user = $request->user();
             if ($request->parking_address === 'new_address') {
                 $address = UserAddress::create([
+                    'address_type' => $request->address_type,
                     'user_id' => $user->id,
                     'country_id' => $request->country,
                     'state_id' => $request->state,
@@ -94,6 +103,17 @@ class VehicleController extends Controller
                 "additional_note" => $request->additional_note,
             ]);
 
+            foreach ($request->vehicle_photos as $photo) {
+                $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('vehicle_photos', $fileName, 'public');
+                VehiclePhoto::create([
+                    'user_id'    => $user->id,
+                    'vehicle_id' => $vehicle->id,
+                    'photo'      => $fileName,
+                ]);
+            }
+
+            $vehicle->load('vehicle_photos');
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle added successfully.',

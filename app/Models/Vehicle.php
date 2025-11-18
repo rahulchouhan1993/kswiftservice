@@ -31,4 +31,9 @@ class Vehicle extends Model
             $model->uuid = Uuid::uuid4();
         });
     }
+
+    public function vehicle_photos()
+    {
+        return $this->hasMany(VehiclePhoto::class, 'vehicle_id', 'id');
+    }
 }
