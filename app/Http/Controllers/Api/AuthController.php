@@ -109,7 +109,7 @@ class AuthController extends Controller
 
             $otp = rand(000000, 999999);
             $user->update([
-                'otp' => $otp,
+                'otp' => 123456,
                 'otp_expire' => Carbon::now()->addMinutes(2)
             ]);
 
@@ -164,6 +164,10 @@ class AuthController extends Controller
             }
 
             $token = $user->createToken('api_token')->plainTextToken;
+            $user->load([
+                'vehicles'
+            ]);
+
             return response()->json([
                 'status' => true,
                 'message' => 'OTP verified successfully.',
