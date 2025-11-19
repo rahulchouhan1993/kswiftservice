@@ -77,6 +77,32 @@ class UsersController extends Controller
     }
 
 
+
+
+    /**
+     * Update User password
+     * @param strign UUID $uuid User UUID
+     * */
+
+    public function updatePassword(Request $request, $uuid)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = User::firstWhere('uuid', $uuid);
+        if (!$user) {
+            return back()->with('error', 'User not found!');
+        }
+
+        $user->update([
+            'password' => $request->password,
+        ]);
+
+        return back()->with('success', 'Password updated successfully.');
+    }
+
+
     /**
      * Delete User
      * @param string $uuid UUID User UUID
@@ -91,5 +117,23 @@ class UsersController extends Controller
         $user->delete();
 
         return redirect()->back()->with('success', 'User deleted successfully');
+    }
+
+
+    /**
+     * User Details
+     * @param string $uuid UUID User UUID
+     * @return mixed
+     */
+    public function details($uuid)
+    {
+        $user = User::with(['addresses', 'vehicles', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
+        if (!$user) {
+            return back()->with('error', "User does not exist");
+        }
+
+        return Inertia::render('SuperAdmin/Users/Details', [
+            'user' => $user
+        ]);
     }
 }

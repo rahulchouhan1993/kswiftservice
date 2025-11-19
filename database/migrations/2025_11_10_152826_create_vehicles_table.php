@@ -19,7 +19,7 @@ return new class extends Migration
             $table->uuid();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(VehicleMake::class);
-            $table->string('vehicle_type')->nullable()->comment('two_wheeler', 'three_wheeler', 'four_wheeler');
+            $table->string('vehicle_type')->nullable()->comment('two_wheeler ,three_wheeler, four_wheeler');
             $table->string('vehicle_number')->nullable();
             $table->string('model')->nullable();
             $table->string('vehicle_year')->nullable();

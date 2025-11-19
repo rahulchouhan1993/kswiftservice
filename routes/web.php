@@ -55,7 +55,13 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::prefix('user')->name('user.')->group(function () {
             Route::get('list', [UsersController::class, 'index'])->name('list');
             Route::post('/{uuid}/update-status', [UsersController::class, 'updateStatus'])->name('update.status');
+            Route::post('/{uuid}/update-password', [UsersController::class, 'updatePassword'])->name('update.password');
+            Route::get('/{uuid}/details', [UsersController::class, 'details'])->name('details');
             Route::post('/{uuid}/delete', [UsersController::class, 'delete'])->name('delete');
+
+            Route::prefix('address')->name('address.')->group(function () {
+                Route::get('list', [UsersController::class, 'addressList'])->name('list');
+            });
         });
     });
 });

@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use App\Models\VehiclePhoto;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 use function App\uploadRequestFile;
@@ -138,12 +139,12 @@ class VehicleController extends Controller
     public function update(Request $request, $uuid)
     {
         try {
-            $vehicle = Vehicle::firstWhere('uuid', $uuid);
+            $vehicle = Vehicle::where('uuid', $uuid)->first();
             if (!$vehicle) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Vehicle does not exist',
-                ], 500);
+                    'message' => "Vehicle does not exist",
+                ], 404);
             }
 
             $rules = [
@@ -166,30 +167,30 @@ class VehicleController extends Controller
                 'parking_address' => 'required',
                 'vehicle_number' => [
                     'required',
-                    Rule::unique('vehicles', 'vehicle_number')->ignore($vehicle),
+                    Rule::unique('vehicles', 'vehicle_number')->ignore($vehicle->id),
                 ],
                 'additional_note' => 'required',
+                'vehicle_photos' => 'nullable|array|min:0',
+                'vehicle_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
             if ($request->parking_address === 'new_address') {
+                $rules['address_type'] = 'required';
                 $rules['country'] = 'required';
                 $rules['state'] = 'required';
                 $rules['city'] = 'required';
                 $rules['address'] = 'required';
                 $rules['pincode'] = 'required';
-            } else {
-                $rules['country'] = 'required';
-                $rules['state'] = 'nullable';
-                $rules['city'] = 'nullable';
-                $rules['address'] = 'nullable';
-                $rules['pincode'] = 'nullable';
             }
 
             $request->validate($rules);
 
             $user = $request->user();
+
+            // Update or create address
             if ($request->parking_address === 'new_address') {
                 $address = UserAddress::create([
+                    'address_type' => $request->address_type,
                     'user_id' => $user->id,
                     'country_id' => $request->country,
                     'state_id' => $request->state,
@@ -199,14 +200,25 @@ class VehicleController extends Controller
                 ]);
             } else {
                 $address = UserAddress::find($request->parking_address);
+
                 if (!$address) {
                     return response()->json([
                         'status' => false,
                         'message' => "Address does not exist",
-                    ], 500);
+                    ], 404);
                 }
+
+                $address->update([
+                    'address_type' => $request->address_type ?? $address->address_type,
+                    'country_id' => $request->country ?? $address->country_id,
+                    'state_id' => $request->state ?? $address->state_id,
+                    'city_id' => $request->city ?? $address->city_id,
+                    'address' => $request->address ?? $address->address,
+                    'pincode' => $request->pincode ?? $address->pincode,
+                ]);
             }
 
+            // Update vehicle
             $vehicle->update([
                 "vehicle_type" => $request->vehicle_type,
                 "vehicle_make_id" => $request->vehicle_make,
@@ -219,6 +231,36 @@ class VehicleController extends Controller
                 "vehicle_number" => $request->vehicle_number,
                 "additional_note" => $request->additional_note,
             ]);
+
+            /**
+             * ---------------------------------------
+             * DELETE OLD VEHICLE PHOTOS IF NEW GIVEN
+             * ---------------------------------------
+             */
+            if ($request->has('vehicle_photos')) {
+
+                // 1. Delete old photos from storage
+                foreach ($vehicle->vehicle_photos as $oldPhoto) {
+                    Storage::disk('public')->delete('vehicle_photos/' . $oldPhoto->photo);
+                }
+
+                // 2. Delete from DB
+                VehiclePhoto::where('vehicle_id', $vehicle->id)->delete();
+
+                // 3. Upload new photos
+                foreach ($request->vehicle_photos as $photo) {
+                    $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('vehicle_photos', $fileName, 'public');
+
+                    VehiclePhoto::create([
+                        'user_id'    => $user->id,
+                        'vehicle_id' => $vehicle->id,
+                        'photo'      => $fileName,
+                    ]);
+                }
+            }
+
+            $vehicle->load('vehicle_photos');
 
             return response()->json([
                 'status' => true,
@@ -242,7 +284,13 @@ class VehicleController extends Controller
     {
         try {
             $user = $request->user();
-            return $user->vehicles ?? [];
+            $vehicles = Vehicle::with(['vehicle_photos'])->whereUserId($user->id)->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Vehicle list fetched succesfully",
+                'vehicles' => $vehicles
+            ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -260,7 +308,7 @@ class VehicleController extends Controller
     public function viewVehicleDetails($uuid)
     {
         try {
-            $vehicle = Vehicle::firstWhere('uuid', $uuid);
+            $vehicle = Vehicle::with(['vehicle_photos'])->firstWhere('uuid', $uuid);
             if (!$vehicle) {
                 return response()->json([
                     'status' => false,
@@ -323,15 +371,22 @@ class VehicleController extends Controller
     public function delete($uuid)
     {
         try {
-            $vehicle = Vehicle::firstWhere('uuid', $uuid);
+            $vehicle = Vehicle::with('vehicle_photos')->firstWhere('uuid', $uuid);
+
             if (!$vehicle) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Vehicle does not exist',
-                ], 500);
+                ], 404);
             }
 
+            foreach ($vehicle->vehicle_photos as $photo) {
+                Storage::disk('public')->delete('vehicle_photos/' . $photo->photo);
+            }
+
+            VehiclePhoto::where('vehicle_id', $vehicle->id)->delete();
             $vehicle->delete();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle deleted successfully.',

@@ -17,7 +17,7 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
-        external: ['@emoji-mart/react']
+            external: ['@emoji-mart/react']
         }
     }
 });

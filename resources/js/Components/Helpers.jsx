@@ -608,6 +608,19 @@ export const useHelpers = () => {
     }
 
 
+    const generateRandomPassword = (length = 12) => {
+        const chars =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]";
+
+        let pwd = "";
+        for (let i = 0; i < length; i++) {
+            pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        return pwd;
+    }
+
+
 
     return {
         dateFormat,
@@ -648,7 +661,8 @@ export const useHelpers = () => {
         formatCount,
         replaceDashWithDot,
         toUpperCaseAll,
-        toTitleCase
+        toTitleCase,
+        generateRandomPassword
     };
 
 }
