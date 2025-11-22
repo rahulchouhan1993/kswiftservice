@@ -31,6 +31,11 @@ class Vehicle extends Model
         });
     }
 
+    public function vehile_make()
+    {
+        return $this->hasOne(VehicleMake::class, 'id', 'vehicle_make_id');
+    }
+
     public function vehicle_photos()
     {
         return $this->hasMany(VehiclePhoto::class, 'vehicle_id', 'id');

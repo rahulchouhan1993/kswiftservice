@@ -189,33 +189,38 @@ if (!function_exists('isServiceActive')) {
  * @param string|null $folderPrefix // Folder Name Prefix Where (School Name) For Create School FOlder Seperate Folders
  * @param string|null $fileName // File Name
  */
-if (!function_exists('uploadRequestFile')) {
-    function uploadRequestFile(Request $request, string $requestField, $model, string $folder, ?string $modelField = null, $folderPrefix = null, $fileName = null): void
-    {
-        if ($request->hasFile($requestField)) {
-            $modelField = $modelField ?? $requestField;
+function uploadRequestFile(Request $request, string $requestField, $model, string $folder, ?string $modelField = null, $folderPrefix = null, $fileName = null)
+{
+    if ($request->hasFile($requestField)) {
 
-            if (!empty($folderPrefix)) {
-                $folder = $folderPrefix . '_' . $folder;
-            }
+        $modelField = $modelField ?? $requestField;
 
-            $oldFile = $model->{$modelField};
-            if ($oldFile && Storage::disk('public')->exists("{$folder}/{$oldFile}")) {
-                Storage::disk('public')->delete("{$folder}/{$oldFile}");
-            }
-
-            $file = $request->file($requestField);
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (!$fileName) {
-                $fileName = Helpers::shortUuid() . '.' . $extension;
-            }
-
-            Storage::disk('public')->put("{$folder}/{$fileName}", file_get_contents($file));
-            $model->{$modelField} = $fileName;
-            $model->save();
+        if (!empty($folderPrefix)) {
+            $folder = $folderPrefix . '_' . $folder;
         }
+
+        $oldFile = $model->{$modelField};
+        if ($oldFile && Storage::disk('public')->exists("{$folder}/{$oldFile}")) {
+            Storage::disk('public')->delete("{$folder}/{$oldFile}");
+        }
+
+        $file = $request->file($requestField);
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!$fileName) {
+            $fileName = Helpers::shortUuid() . '.' . $extension;
+        }
+
+        Storage::disk('public')->put("{$folder}/{$fileName}", file_get_contents($file));
+
+        $model->{$modelField} = $fileName;
+        $model->save();
+
+        return $fileName; // ← IMPORTANT RETURN
     }
+
+    return null;
 }
+
 
 
 if (!function_exists('getClassNameByPrefixType')) {

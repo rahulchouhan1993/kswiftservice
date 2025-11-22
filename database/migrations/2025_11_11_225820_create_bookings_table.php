@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\Vehicle;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,14 +17,16 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->uuid();
+            $table->string('booking_id');
             $table->foreignIdFor(User::class);
-            $table->double('booking_amount')->nullable();
-            $table->double('booking_discount')->nullable();
-
+            $table->foreignIdFor(Vehicle::class);
             $table->date('date')->nullable();
-            $table->string('time')->nullable();
+            $table->time('time')->nullable();
             $table->string('pickup_type')->comment('pick_up, self_drop');
-            $table->foreignIdFor(UserAddress::class)->nullable()->comment('user_address_id if pickup_type is-pick_up');
+            $table->foreignId('pickup_id')->nullable()->comment('user_address_id for pickup');
+            $table->foreignId('drop_id')->nullable()->comment('user_address_id for drop');
+            $table->longText('additional_note')->nullable();
+            $table->longText('extra_services')->nullable();
 
             $table->tinyInteger('status')->comment('0-InActive, 1-Active')->default(1);
             $table->string('booking_status')->comment('requested, pending, accepted, rejected, completed')->default('requested');

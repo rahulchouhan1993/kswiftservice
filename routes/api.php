@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CommonController;
+use App\Http\Controllers\Api\GarageController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,7 +42,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/update-status/{uuid}/{status}', [VehicleController::class, 'updateStatus']);
     });
 
+    Route::prefix('/garage')->group(function () {
+        Route::post('/add', [GarageController::class, 'add']);
+        Route::post('/update/{uuid}', [GarageController::class, 'update']);
+        Route::get('/view-details/{uuid}', [GarageController::class, 'viewGarageDetails']);
+        Route::get('/get-garage-list', [GarageController::class, 'getGarageList']);
+        Route::get('/delete/{uuid}', [GarageController::class, 'delete']);
+        Route::get('/update-status/{uuid}/{status}', [GarageController::class, 'updateStatus']);
+    });
+
     Route::prefix('/booking')->group(function () {
         Route::post('/service-book', [BookingController::class, 'bookService']);
+        Route::get('/fetch-bookings/{status?}', [BookingController::class, 'fetchBookings']);
+        Route::get('/get-booking-details/{uuid}', [BookingController::class, 'getBookingDetails']);
+    });
+
+    Route::prefix('/ticket')->group(function () {
+        Route::post('/submit', [TicketController::class, 'submitTicket']);
     });
 });

@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
+
+class Ticket extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'user_role',
+        'ticketId',
+        'subject',
+        'description',
+        'attachment',
+        'status',
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->uuid = Uuid::uuid4();
+            $model->ticketId = 'TC-' . rand(000000000, 999999999);
+        });
+    }
+
+    protected $appends = [
+        'attachment_url',
+    ];
+
+
+    public function getAttachmentUrlAttribute()
+    {
+        $photo = $this->attachment ?? null;
+
+        if ($photo) {
+            return asset('storage/attachment_photos/' . $photo);
+        }
+
+        return null;
+    }
+}

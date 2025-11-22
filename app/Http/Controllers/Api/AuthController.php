@@ -99,7 +99,7 @@ class AuthController extends Controller
                 'user_type' => 'required|in:customer,mechanic',
             ]);
 
-            $user = User::where('phone', $request->phone)->first();
+            $user = User::where('phone', $request->phone)->whereRole($request->user_type)->first();
             if (!$user) {
                 $user = User::create([
                     'phone' => $request->phone,
