@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
+use App\Models\ServiceType;
 use App\Models\State;
+use App\Models\VehicleMake;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -90,6 +92,97 @@ class CommonController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Get All Vehile Males List
+     * @return mixed
+     */
+    public function getVehicleMakes()
+    {
+        try {
+            $makes = VehicleMake::select('id', 'uuid', 'name', 'logo_path')
+                ->whereStatus(1)
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Vehicle makes list fetched',
+                'list' => $makes
+            ], 200); // <-- change from 500 to 200
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get All Vehicles List for a Vehicle Make
+     * @param string $uuid Vehicle Make UUID
+     * @return mixed
+     */
+    public function getVehicleMakeAllVehiclesList($uuid)
+    {
+        try {
+            $make = VehicleMake::with([
+                'vehicles',
+                'vehicles.vehicle_photos'
+            ])
+                ->where('uuid', $uuid)
+                ->first();
+
+            if (!$make) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vehicle make not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Vehicle make vehicles list fetched',
+                'list' => $make
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Fetch Services List
+     * @return mixed
+     */
+    public function getServicesList()
+    {
+        try {
+            $services = ServiceType::select('id', 'name', 'base_price', 'vehicle_type')
+                ->whereStatus(1)
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Services list fetched',
+                'list'    => $services
+            ], 200);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

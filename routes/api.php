@@ -20,10 +20,13 @@ Route::prefix('common')->group(function () {
     Route::get('/countries-list', [CommonController::class, 'getAllCountries']);
     Route::get('/states-list/{country_id?}', [CommonController::class, 'getCountryStates']);
     Route::get('/cities-list/{state_id?}', [CommonController::class, 'getStateCities']);
+    Route::get('/get-all-vehicle-makes', [CommonController::class, 'getVehicleMakes']);
+    Route::get('/get-vehicle-make-all-vehicles/{uuid?}', [CommonController::class, 'getVehicleMakeAllVehiclesList']);
+    Route::get('/fetch-services-list', [CommonController::class, 'getServicesList']);
 });
 
 // Protected routes (require login)
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('apiauth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/update-profile', [ProfileController::class, 'updateProfile']);
     Route::get('/user-details/{uuid}', [ProfileController::class, 'getUserDetails']);
@@ -32,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-address/{uuid}', [ProfileController::class, 'updateAddress']);
     Route::get('/get-address-list', [ProfileController::class, 'getAddressList']);
     Route::get('/delete-address/{uuid}', [ProfileController::class, 'deleteAddress']);
+
 
     Route::prefix('/vehicle')->group(function () {
         Route::post('/add', [VehicleController::class, 'add']);
@@ -55,9 +59,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/service-book', [BookingController::class, 'bookService']);
         Route::get('/fetch-bookings/{status?}', [BookingController::class, 'fetchBookings']);
         Route::get('/get-booking-details/{uuid}', [BookingController::class, 'getBookingDetails']);
+        Route::get('/get-home-page-bookings-list', [BookingController::class, 'getHomePageBooksList']);
     });
 
     Route::prefix('/ticket')->group(function () {
+        Route::get('/get-tickets-list', [TicketController::class, 'getTicketsList']);
         Route::post('/submit', [TicketController::class, 'submitTicket']);
+        Route::get('/get-ticket-details/{uuid}', [TicketController::class, 'getTicketDetails']);
     });
 });

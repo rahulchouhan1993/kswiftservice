@@ -23,4 +23,10 @@ class VehicleMake extends Model
             $model->slug = Str::slug($model->name);
         });
     }
+
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'vehicle_make_id', 'id');
+    }
 }

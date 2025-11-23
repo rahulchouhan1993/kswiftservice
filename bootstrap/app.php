@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Middleware\BranchMiddleware;
+use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\PartnerMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SuperAdminMiddleware;
 use Illuminate\Foundation\Application;
@@ -32,9 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'auth.superadmin' => SuperAdminMiddleware::class,
-            'auth.partner' => PartnerMiddleware::class,
-            'auth.branch' => BranchMiddleware::class,
             'authorized' => RedirectIfAuthenticated::class,
+            'apiauth' => ApiAuthenticate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

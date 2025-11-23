@@ -12,6 +12,31 @@ use function App\uploadRequestFile;
 class TicketController extends Controller
 {
     /**
+     * Fetch Tickets List
+     * @return mixed
+     */
+    public function getTicketsList(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $tickets = Ticket::whereUserId($user->id)->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Tickets list fetched succesfully",
+                'tickets' => $tickets
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
      * Submit Ticket
      * @param Request $request
      * @return mixed
@@ -52,6 +77,38 @@ class TicketController extends Controller
                 'status' => false,
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+
+
+
+    /**
+     * Fetch Ticket Details
+     * @param string $uuid Ticket UUID
+     * @return mixed
+     */
+    public function getTicketDetails($uuid)
+    {
+        try {
+            $ticket = Ticket::where('uuid', $uuid)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Ticket does not exist",
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Ticket details fetched succesfully",
+                'ticket' => $ticket
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

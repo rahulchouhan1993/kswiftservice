@@ -62,7 +62,7 @@ class GarageController extends Controller
                 'message' => 'Garage added successfully.',
                 'garage' => $garage,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

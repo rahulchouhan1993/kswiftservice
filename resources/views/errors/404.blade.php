@@ -11,7 +11,7 @@
 <body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex items-center justify-center px-4">
 
     <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-10 max-w-lg w-full text-center">
-        <img src="{{ asset('images/common/idmitra_logo_wbg.png') }}" alt="Logo" class="mx-auto mb-6 w-auto h-28">
+        <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="mx-auto mb-6 w-auto h-28">
 
         <h1 class="text-6xl font-extrabold text-gray-800 dark:text-white mb-4">404</h1>
         <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">Oops! Page Not Found</h2>
@@ -20,7 +20,7 @@
         </p>
 
         <div class="flex justify-center space-x-4 mt-6">
-            <a href="{{ route('submit.enquiry') }}"
+            <a href="#"
                 class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 font-semibold">
                 Go Back
             </a>

@@ -54,15 +54,10 @@ return [
             'provider' => 'superadmin',
         ],
 
-        'partner' => [
-            'driver' => 'session',
-            'provider' => 'partner',
-        ],
-
-        'branch' => [
-            'driver' => 'session',
-            'provider' => 'branch',
-        ],
+        'sanctum' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ]
     ],
 
     /*
@@ -91,16 +86,6 @@ return [
         'superadmin' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', SuperAdmin::class),
-        ],
-
-        'partner' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', Partner::class),
-        ],
-
-        'branch' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', Branch::class),
         ]
     ],
 
