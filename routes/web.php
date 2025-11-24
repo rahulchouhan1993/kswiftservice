@@ -18,6 +18,9 @@ Route::get('/our-services', [HomeController::class, 'services'])->name('services
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactus');
 Route::get('/privacy-and-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-ploicy');
 Route::get('/terms-and-conditions', [HomeController::class, 'termsConditions'])->name('terms-condition');
+Route::get('/partner-terms-conditions', [HomeController::class, 'partnerTermsConditions'])->name('partner-terms-conditions');
+Route::get('/customer-terms-conditions', [HomeController::class, 'customerTermsConditions'])->name('customer-terms-conditions');
+Route::get('/business-policy', [HomeController::class, 'businessPolicy'])->name('business-policy');
 
 
 
