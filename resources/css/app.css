@@ -14,6 +14,16 @@ h1{
 @layer base{
   *{@apply border-border;}
   body{@apply bg-background text-foreground;}
+  
+  /* Responsive images and media */
+  img, video {
+    @apply block max-w-full h-auto;
+  }
+  
+  /* Prevent horizontal scroll - use sparingly */
+  html {
+    @apply overflow-x-hidden;
+  }
 }
 
 @keyframes fading-effect {
@@ -39,6 +49,22 @@ h1{
 .dark .custom-scrollbar::-webkit-scrollbar-thumb{background-color:#4B5563;border-radius:10px;}
 .custom-scrollbar::-webkit-scrollbar-thumb{background-color:#E5E7EB;border-radius:10px;}
 .custom-scrollbar::-webkit-scrollbar-thumb:hover{background:#a0a0a0;}
+
+/* Responsive Typography Utilities */
+.text-fluid-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
+.text-fluid-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+.text-fluid-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
+.text-fluid-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+.text-fluid-2xl { font-size: clamp(1.5rem, 4vw, 1.875rem); }
+.text-fluid-3xl { font-size: clamp(1.875rem, 5vw, 2.25rem); }
+.text-fluid-4xl { font-size: clamp(2.25rem, 6vw, 3rem); }
+.text-fluid-5xl { font-size: clamp(3rem, 7vw, 4rem); }
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe\:animate-none { animation: none !important; }
+  .motion-safe\:transition-none { transition: none !important; }
+}
 }
 /* for dark mode of text editor */
 .ProseMirror{@apply bg-white text-black;}
