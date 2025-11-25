@@ -50,4 +50,11 @@ return [
         'region' => env('REGION'),
     ],
 
+    'aadhar' => [
+        'key' => env('SENDBOX_API_KEY'),
+        'secret' => env('SENDBOX_API_SECRET'),
+        'version' => env('SENDBOX_API_VERSION'),
+        'base_path' => env('SENDBOX_BASE_PATH'),
+    ],
+
 ];

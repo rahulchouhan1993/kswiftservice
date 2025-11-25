@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AadharCardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\GarageController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\VehicleController;
@@ -66,5 +68,16 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-tickets-list', [TicketController::class, 'getTicketsList']);
         Route::post('/submit', [TicketController::class, 'submitTicket']);
         Route::get('/get-ticket-details/{uuid}', [TicketController::class, 'getTicketDetails']);
+    });
+
+
+    Route::prefix('/payment')->group(function () {
+        Route::post('/submit-payment-details', [PaymentController::class, 'submitPaymentDetails']);
+    });
+
+
+    Route::prefix('/aadhar-card')->group(function () {
+        Route::post('/send-verification-otp', [AadharCardController::class, 'sendVerificationOTP']);
+        Route::post('/verify-otp', [AadharCardController::class, 'verifyVerificationOTP']);
     });
 });

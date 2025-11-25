@@ -99,25 +99,38 @@ class AuthController extends Controller
                 'user_type' => 'required|in:customer,mechanic',
             ]);
 
-            $user = User::where('phone', $request->phone)->whereRole($request->user_type)->first();
-            if (!$user) {
+            $existingUser = User::where('phone', $request->phone)->first();
+
+            if ($existingUser) {
+                if ($existingUser->role !== $request->user_type) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => "You are already registered as {$existingUser->role}",
+                    ], 403);
+                }
+
+                $user = $existingUser;
+            } else {
                 $user = User::create([
                     'phone' => $request->phone,
                     'role' => $request->user_type,
                 ]);
             }
 
-            $otp = rand(000000, 999999);
+            $otp = rand(100000, 999999);
             $user->update([
+                // 'otp' => $otp,
                 'otp' => 123456,
                 'otp_expire' => Carbon::now()->addMinutes(2)
             ]);
 
             return response()->json([
-                'message' => 'OTP Sent Successful',
+                'status' => true,
+                'message' => 'OTP Sent Successfully',
                 'user' => $user,
             ]);
         } catch (Exception $e) {
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

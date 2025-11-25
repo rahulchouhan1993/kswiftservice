@@ -23,6 +23,12 @@ class GarageController extends Controller
     {
         try {
             $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can add a garage.",
+                ], 500);
+            }
             $rules = [
                 'name' => [
                     'required',
@@ -82,6 +88,14 @@ class GarageController extends Controller
     public function update(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can update garage.",
+                ], 500);
+            }
+
             $garage = Garage::where('uuid', $uuid)->first();
             if (!$garage) {
                 return response()->json([
@@ -146,6 +160,13 @@ class GarageController extends Controller
     {
         try {
             $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can fetch garage list.",
+                ], 500);
+            }
+
             $garage = Garage::whereUserId($user->id)->get();
 
             return response()->json([
@@ -167,9 +188,17 @@ class GarageController extends Controller
      * @param string $uuid Garage UUID
      * @return mixed
      */
-    public function viewGarageDetails($uuid)
+    public function viewGarageDetails(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can fetch garage details.",
+                ], 500);
+            }
+
             $garage = Garage::firstWhere('uuid', $uuid);
             if (!$garage) {
                 return response()->json([
@@ -198,9 +227,17 @@ class GarageController extends Controller
      * @param string $status active / inactive
      * @return mixed
      */
-    public function updateStatus($uuid, $status)
+    public function updateStatus(Request $request, $uuid, $status)
     {
         try {
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can update garage status.",
+                ], 500);
+            }
+
             $garage = Garage::firstWhere('uuid', $uuid);
             if (!$garage) {
                 return response()->json([
@@ -230,9 +267,17 @@ class GarageController extends Controller
      * @param string $uuid Garage UUID
      * @return mixed
      */
-    public function delete($uuid)
+    public function delete(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechanic can delete garage.",
+                ], 500);
+            }
+
             $garage = Garage::firstWhere('uuid', $uuid);
 
             if (!$garage) {
