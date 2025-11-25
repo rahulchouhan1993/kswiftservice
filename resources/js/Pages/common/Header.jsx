@@ -102,7 +102,7 @@ export default function Header() {
         {/* Mobile Menu Panel */}
         <div
           id="mobile-menu"
-          className={`md:hidden absolute top-full inset-x-0 z-50 transition-all duration-200 ${
+          className={`md:hidden absolute top-full inset-x-0 z-50 transition-all duration-200 left-[5%] max-w-[90%] ${
             mobileOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
           }`}
         >

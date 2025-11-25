@@ -4,17 +4,17 @@ import service2 from '../../img/service2.png';
 export default function HomeServices() {
   return (
     <>
-      <div className='container mx-auto'>
+      <div className='container mx-auto '>
           <div className="rounded-[25px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-          <div className="bg-black rounded-[25px] pt-8 flex  items-center">
-              <div className='relative serivice-left w-full max-w-[45%] flex justify-center'>
+          <div className="bg-black rounded-[25px] lg:pt-8 lg:flex  items-center">
+              <div className='relative serivice-left w-full lg:max-w-[45%] flex justify-center'>
                   <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] mx-auto bg-blue-500 rounded-full 
                   filter blur-3xl opacity-1  "></div>
-                  <img data-aos="fade-right" className='z-[1]' src={service1}  />
+                  <img  className='z-[1]' src={service1}  />
               </div>
-              <div className='p-12  serivice-right w-full max-w-[55%]'>
+              <div className='mt-4 lg:mt-0 p-6 lg:p-12 serivice-right w-full lg:max-w-[55%]'>
                   <h2 className='text-main font-bold uppercase text-lg fading' fading>FOR CUSTOMERS</h2>
-                  <h3 className='text-white font-bold text-[40px] leading-[39px] mt-2 fading'>Designed for Drivers Who Value Transparency & Convenience</h3>
+                  <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>Designed for Drivers Who Value Transparency & Convenience</h3>
                   <ul className='text-gray-400 list-disc ps-4 mt-4'>
                     <li className='mt-2 text-[18px] fading'>Book any service in seconds</li>
                     <li className='mt-2 text-[18px] fading'>Get doorstep pickup & drop</li>
@@ -31,11 +31,16 @@ export default function HomeServices() {
           </div>
 
 
-          <div className="mt-[60px] rounded-[25px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-          <div className="bg-black rounded-[25px] pt-8 flex  items-center">
-              <div className='p-12 serivice-right w-full max-w-[55%]'>
+          <div className="mt-[20px] lg:mt-[60px] rounded-[25px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
+          <div className="bg-black rounded-[25px] lg:pt-8 lg:flex lg:flex-row-reverse  items-center">
+              <div className='relative serivice-left w-full lg:max-w-[45%] flex justify-center'>
+                  <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] mx-auto bg-blue-500 rounded-full 
+                  filter blur-3xl opacity-1  "></div>
+                  <img className='z-[1]'  src={service2}  />
+              </div>
+              <div className='p-6 mt-4 lg:mt-0 lg:p-12 serivice-right w-full lg:max-w-[55%]'>
                   <h2 className='text-main font-bold uppercase text-lg'>FOR PARTNERS </h2>
-                  <h3 className='text-white font-bold text-[40px] leading-[39px] mt-2'>Grow Your Earnings with a Platform Built for You</h3>
+                  <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>Grow Your Earnings with a Platform Built for You</h3>
                   <ul className='text-gray-400 list-disc ps-4 mt-4'>
                     <li className='mt-2 text-[18px] fading'>Receive daily leads from customers near you</li>
                     <li className='mt-2 text-[18px] fading'>Get car & bike jobs that match your skills</li>
@@ -48,11 +53,7 @@ export default function HomeServices() {
                         <span className='btn text-gray-300 border-gray-700 block text-[18px]'>Book Service</span>
                   </button>
               </div>
-              <div className='relative serivice-left w-full max-w-[45%] flex justify-center'>
-                  <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] mx-auto bg-blue-500 rounded-full 
-                  filter blur-3xl opacity-1  "></div>
-                  <img className='z-[1]' data-aos="fade-left" src={service2}  />
-              </div>
+              
           </div>
           </div>
       </div>

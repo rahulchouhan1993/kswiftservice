@@ -2,6 +2,7 @@ import React from 'react'
 
 export default function YourCustomers() {
   return (
+    <div className='container mx-auto'>
     <div className='py-20 bg-black relative'>
 
           <div className=" flex items-center w-[700px] h-[400px] justify-center absolute top-[0px] left-[25%] p-6 z-[-1px]">
@@ -23,6 +24,7 @@ export default function YourCustomers() {
 
          
 
+    </div>
     </div>
   )
 }

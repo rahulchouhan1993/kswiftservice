@@ -7,7 +7,7 @@ import { IoLogoWhatsapp } from "react-icons/io";
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white py-16">
+    <footer className="bg-black text-white   pt-4 md:pt-12 lg:pt-16 pb-16">
           <div className="container mx-auto px-6">
             {/* Main Footer Container */}
             <div className="rounded-2xl !p-[1px] mb-8 bg-gradient-to-r from-gray-500 to-gray-900">

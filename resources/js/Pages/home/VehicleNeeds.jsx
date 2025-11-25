@@ -60,13 +60,14 @@ export default function VehicleNeeds() {
    ];
 
   return (
-     <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-         <div data-aos="fade-up" className="text-center mb-8">
+   <div className='container mx-auto'>
+     <section className="relative z-10 py-20">
+         <div data-aos="fade-up" className="text-center mb-8 px-4">
             <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">Everything Your Vehicle Needs</h2>
             <p className='text-gray-500 mb-8'>From routine maintenance to urgent repairs, get the right service delivered by verified experts</p>
         </div>
 
-        <div className='grid grid-cols-2 md:grid-cols-3 gap-5'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
          {features && features.map((feature, index) => {
             return <>
                <div className="fading rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
@@ -82,5 +83,6 @@ export default function VehicleNeeds() {
          })}
         </div>
     </section>
+   </div>
   )
 }

@@ -33,9 +33,9 @@ export default function Welcome() {
 
       <HomeServices />
 
-      <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+      <div className='container mx-auto'>
           <div className="mt-12 sm:mt-16 md:mt-20 rounded-[25px] p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 text-center">
+            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-16 md:py-20 text-center">
               
                 {/* Background blur effect - responsive positioning */}
                 <div className="hidden sm:block absolute top-[100px] sm:top-[120px] md:top-[150px] left-[20%] sm:left-[25%] w-[60%] sm:w-[50%] h-[120px] sm:h-[150px] md:h-[200px] mx-auto bg-main rounded-full filter blur-3xl opacity-1"></div>

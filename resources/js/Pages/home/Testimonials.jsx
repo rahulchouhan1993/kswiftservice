@@ -5,7 +5,7 @@ export default function Testimonials() {
     <>
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 px-4">
           <h2 className="fading text-white text-3xl lg:text-4xl font-bold mb-2">This is what is said.</h2>
           <p className='fading text-gray-500 mb-8'>See what we’ve built and how we’ve helped businesses just like yours crush it online.</p>
         </div>
