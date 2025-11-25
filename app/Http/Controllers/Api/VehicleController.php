@@ -41,7 +41,6 @@ class VehicleController extends Controller
                     Rule::in(['manual', 'automatic']),
                 ],
                 'mileage' => 'required',
-                'parking_address' => 'required',
                 'vehicle_number' => [
                     'required',
                     Rule::unique('vehicles', 'vehicle_number'),
@@ -51,44 +50,9 @@ class VehicleController extends Controller
                 'vehicle_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
-            if ($request->parking_address === 'new_address') {
-                $rules['address_type'] = 'required';
-                $rules['country'] = 'required';
-                $rules['state'] = 'required';
-                $rules['city'] = 'required';
-                $rules['address'] = 'required';
-                $rules['pincode'] = 'required';
-            } else {
-                $rules['address_type'] = 'nullable';
-                $rules['country'] = 'nullable';
-                $rules['state'] = 'nullable';
-                $rules['city'] = 'nullable';
-                $rules['address'] = 'nullable';
-                $rules['pincode'] = 'nullable';
-            }
-
             $request->validate($rules);
 
             $user = $request->user();
-            if ($request->parking_address === 'new_address') {
-                $address = UserAddress::create([
-                    'address_type' => $request->address_type,
-                    'user_id' => $user->id,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
-                    'address' => $request->address,
-                    'pincode' => $request->pincode,
-                ]);
-            } else {
-                $address = UserAddress::find($request->parking_address);
-                if (!$address) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => "Address does not exist",
-                    ], 500);
-                }
-            }
 
             $vehicle = Vehicle::create([
                 'user_id' => $user->id,
@@ -99,7 +63,6 @@ class VehicleController extends Controller
                 "fuel_type" => $request->fuel_type,
                 "transmission" => $request->transmission,
                 "mileage" => $request->mileage,
-                "user_address_id" => $address->id,
                 "vehicle_number" => $request->vehicle_number,
                 "additional_note" => $request->additional_note,
             ]);
@@ -164,7 +127,6 @@ class VehicleController extends Controller
                     Rule::in(['manual', 'automatic']),
                 ],
                 'mileage' => 'required',
-                'parking_address' => 'required',
                 'vehicle_number' => [
                     'required',
                     Rule::unique('vehicles', 'vehicle_number')->ignore($vehicle->id),
@@ -174,49 +136,8 @@ class VehicleController extends Controller
                 'vehicle_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
-            if ($request->parking_address === 'new_address') {
-                $rules['address_type'] = 'required';
-                $rules['country'] = 'required';
-                $rules['state'] = 'required';
-                $rules['city'] = 'required';
-                $rules['address'] = 'required';
-                $rules['pincode'] = 'required';
-            }
-
             $request->validate($rules);
-
             $user = $request->user();
-
-            // Update or create address
-            if ($request->parking_address === 'new_address') {
-                $address = UserAddress::create([
-                    'address_type' => $request->address_type,
-                    'user_id' => $user->id,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
-                    'address' => $request->address,
-                    'pincode' => $request->pincode,
-                ]);
-            } else {
-                $address = UserAddress::find($request->parking_address);
-
-                if (!$address) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => "Address does not exist",
-                    ], 404);
-                }
-
-                $address->update([
-                    'address_type' => $request->address_type ?? $address->address_type,
-                    'country_id' => $request->country ?? $address->country_id,
-                    'state_id' => $request->state ?? $address->state_id,
-                    'city_id' => $request->city ?? $address->city_id,
-                    'address' => $request->address ?? $address->address,
-                    'pincode' => $request->pincode ?? $address->pincode,
-                ]);
-            }
 
             // Update vehicle
             $vehicle->update([
@@ -227,16 +148,10 @@ class VehicleController extends Controller
                 "fuel_type" => $request->fuel_type,
                 "transmission" => $request->transmission,
                 "mileage" => $request->mileage,
-                "user_address_id" => $address->id,
                 "vehicle_number" => $request->vehicle_number,
                 "additional_note" => $request->additional_note,
             ]);
 
-            /**
-             * ---------------------------------------
-             * DELETE OLD VEHICLE PHOTOS IF NEW GIVEN
-             * ---------------------------------------
-             */
             if ($request->has('vehicle_photos')) {
 
                 // 1. Delete old photos from storage

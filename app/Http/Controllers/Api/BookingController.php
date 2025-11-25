@@ -22,7 +22,7 @@ class BookingController extends Controller
     {
         try {
             $validated = $request->validate([
-                'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
+                'vehicle_id' => ['required', 'integer'],
 
                 'services' => ['required', 'array', 'min:1'],
                 'services.*' => ['integer', 'exists:service_types,id'],
@@ -51,9 +51,7 @@ class BookingController extends Controller
             ]);
 
             $user = $request->user();
-
-            // verify vehicle belongs to user
-            $vehicle = Vehicle::where('id', $request->vehicle_id)
+            $vehicle = Vehicle::find($request->vehicle_id)
                 ->where('user_id', $user->id)
                 ->first();
 
@@ -242,7 +240,7 @@ class BookingController extends Controller
         if (!$booking) {
             return response()->json([
                 'status' => false,
-                'message' => 'Booking not found.',
+                'message' => [],
             ], 404);
         }
 
