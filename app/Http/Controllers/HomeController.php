@@ -41,4 +41,19 @@ class HomeController extends Controller
     {
         return Inertia::render('TermsConditions');
     }
+
+    public function partnerTermsConditions()
+    {
+        return Inertia::render('PartnerTermsConditions');
+    }
+
+    public function customerTermsConditions()
+    {
+        return Inertia::render('CustomerTermsConditions');
+    }
+
+    public function businessPolicy()
+    {
+        return Inertia::render('BusinessPolicy');
+    }
 }

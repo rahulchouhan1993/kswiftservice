@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $guards = ['superadmin', 'partner', 'web'];
+        $guards = ['superadmin', 'web'];
         $user = null;
         $activeGuard = null;
 

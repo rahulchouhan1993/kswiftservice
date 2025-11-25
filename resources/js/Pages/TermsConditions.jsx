@@ -1,143 +1,113 @@
 import { Head } from '@inertiajs/react';
+import Layout from './layout/Layout';
 
 export default function TermsConditions() {
 
     return (
-        <>
+        <Layout>
             <Head title="Terms & Conditions - KSwift Services" />
 
-            <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 py-12">
-                <div className="max-w-4xl mx-auto px-6 py-10 bg-white dark:bg-gray-800 shadow-lg rounded-xl">
-
-                    {/* Title */}
-                    <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-                        Terms & Conditions
-                    </h1>
-                    <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-10">
-                        Last updated: {new Date().getFullYear()}
-                    </p>
-
-                    <div className="space-y-8 text-lg leading-relaxed">
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">1. Introduction</h2>
-                            <p>
-                                Welcome to <strong>KSwift Services</strong>. These Terms & Conditions outline the rules and
-                                regulations for using our website, mobile applications, and services. By accessing or using our
-                                services, you agree to comply with these terms.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">2. Acceptance of Terms</h2>
-                            <p>
-                                By using our services, you acknowledge that you have read, understood, and agreed to these Terms
-                                & Conditions. If you do not agree, you must discontinue using our website or services immediately.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">3. Services Provided</h2>
-                            <p>
-                                KSwift Services provides digital services, tools, and solutions as listed on our website or platform.
-                                We reserve the right to modify, update, or discontinue any service at any time without prior notice.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">4. User Responsibilities</h2>
-                            <p>By using our platform, you agree that you will:</p>
-                            <ul className="list-disc pl-6 mt-2 space-y-1">
-                                <li>Provide accurate, complete information during registration</li>
-                                <li>Not engage in any illegal or harmful activities</li>
-                                <li>Not misuse or attempt to hack our website or systems</li>
-                                <li>Maintain the confidentiality of your account and password</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">5. Payments & Billing</h2>
-                            <p>
-                                All payments made to KSwift Services are secure and processed through trusted payment gateways.
-                                Once a service is purchased, the user is responsible for providing accurate billing information.
-                            </p>
-                            <p className="mt-3">
-                                Refunds are subject to our <strong>Refund Policy</strong> (provided separately).
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">6. Intellectual Property Rights</h2>
-                            <p>
-                                All content, designs, graphics, and code on our website are the intellectual property of
-                                KSwift Services unless otherwise stated. You may not copy, reproduce, or redistribute our content
-                                without written permission from us.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">7. Limitation of Liability</h2>
-                            <p>
-                                KSwift Services is not liable for any direct, indirect, or incidental damages arising from:
-                            </p>
-                            <ul className="list-disc pl-6 mt-2 space-y-1">
-                                <li>Service interruptions or downtime</li>
-                                <li>Data loss or security breaches</li>
-                                <li>Errors, bugs, or inaccuracies</li>
-                            </ul>
-                            <p className="mt-3">
-                                Use of our services is at your own risk.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">8. Termination of Use</h2>
-                            <p>
-                                We reserve the right to suspend or terminate access to our services without prior notice if:
-                            </p>
-                            <ul className="list-disc pl-6 mt-2 space-y-1">
-                                <li>User violates these Terms & Conditions</li>
-                                <li>User engages in harmful or suspicious activity</li>
-                                <li>User provides false information</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">9. Third-Party Links</h2>
-                            <p>
-                                Our platform may include links to third-party websites. KSwift Services is not responsible for
-                                the content, privacy policies, or practices of those external sites.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">10. Changes to Terms</h2>
-                            <p>
-                                We may update these Terms & Conditions at any time. Updates will be posted on this page with the
-                                updated date. Continued use of our services means you accept the revised terms.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-semibold mb-3">11. Contact Us</h2>
-                            <p>
-                                If you have any questions about these Terms & Conditions, please contact:
-                            </p>
-                            <p className="mt-3">
-                                📧 <strong>Email:</strong> support@kswiftservices.com <br />
-                                🌐 <strong>Website:</strong> kswiftservices.com
-                            </p>
-                        </section>
-
+            <div className='relative  bg-black'>
+                    <div className=" flex items-center w-[90%] h-[600px] justify-center absolute top-[-70px] left-[5%] p-6 z-[-1px]">
+                        <div className='gridmap w-full h-full absolute top-0 left-0 z-[2px]'></div>
+                        <div class=" opacity-[50%] absolute w-full h-full  rounded-2xl overflow-hidden z-[1px]
+                        [background-image:linear-gradient(to_right,#686868_1px,transparent_1px),linear-gradient(to_bottom,#686868_1px,transparent_1px)]
+                        bg-[length:70px_70px]" ></div>
                     </div>
+                  <div className=" pt-[100px] relative overflow-hidden">
+                      {/* Glowing Grid Pattern Background */}
+                      <div className="absolute inset-0 opacity-20">
+                          <div className="absolute inset-0" style={{
+                              backgroundImage: `
+                                  linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                                  linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+                              `,
+                              backgroundSize: '50px 50px'
+                          }}></div>
+                          <div className="absolute inset-0" style={{
+                              background: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)'
+                          }}></div>
+                      </div>
 
-                    {/* Footer */}
-                    <footer className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                        © {new Date().getFullYear()} KSwift Services. All rights reserved.
-                    </footer>
+                      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
+                          
+                          {/* Title */}
+                          <h1 className="text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
+                              Terms & Conditions
+                          </h1>
+                          <p className="text-center text-normal text-main mb-16 uppercase tracking-wider">
+                              LAST UPDATED: OCT 24, 2025
+                          </p>
 
-                </div>
+                          <div className="space-y-12 text-white leading-relaxed">
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">1. ACCEPTANCE OF TERMS</h2>
+                                  <p className="text-gray-200">
+                                      By accessing or using this website or mobile application, the user agrees to comply with and be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately.
+                                  </p>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">2. SERVICE SCOPE</h2>
+                                  <p className="text-gray-200">
+                                      KOUSTUBHA FAST SERVICES operates as an intermediary platform connecting customers with verified Partners. The Company does not perform any vehicle repair or servicing directly. Services are rendered independently by the Partners.
+                                  </p>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">3. ELIGIBILITY</h2>
+                                  <p className="text-gray-200">
+                                      Users must be at least 18 years old and capable of entering into legally binding contracts under Indian law.
+                                  </p>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">4. USER RESPONSIBILITIES</h2>
+                                  <p className="text-gray-200">
+                                      Users must provide accurate details while booking services and shall not misuse the platform for illegal or fraudulent purposes.
+                                  </p>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">5. PAYMENT TERMS</h2>
+                                  <div className="text-gray-200 space-y-2">
+                                      <p>- All charges for services will be displayed before booking confirmation.</p>
+                                      <p>- Payments are processed through authorized payment gateways integrated into the platform.</p>
+                                      <p>- Applicable GST (18%) is included in service invoices as per SAC 9987 and HSN codes.</p>
+                                  </div>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">6. BANKS & PAYMENT GATEWAYS CLAUSE</h2>
+                                  <div className="text-gray-200 space-y-2">
+                                      <p>a) All payments are processed through RBI-regulated gateways such as Razorpay and PayU.</p>
+                                      <p>b) Accepted modes include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.</p>
+                                      <p>c) Funds collected from customers are routed to KOUSTUBHA DAIRY & FARMS' official current account and then transferred to the respective Partner after deductions (commission, GST, platform fees).</p>
+                                      <p>d) The Company complies with PCI-DSS and RBI's data security guidelines.</p>
+                                      <p>e) Refunds, where applicable, will be processed within 7-10 working days through the original payment mode.</p>
+                                      <p>f) The Company is not responsible for delays caused by banks or payment intermediaries.</p>
+                                      <p>g) Any fraudulent or disputed transactions will be handled as per the Payment & Settlement Systems Act, 2007.</p>
+                                  </div>
+                              </section>
+
+                              <section>
+                                  <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">7. CANCELLATION & REFUND POLICY</h2>
+                                  <p className="text-gray-200">
+                                      Details regarding cancellation and refund policies will be provided separately and form an integral part of these terms.
+                                  </p>
+                              </section>
+
+                          </div>
+
+                          {/* Footer */}
+                          <footer className="mt-16 text-center text-sm text-gray-400">
+                              © 2025 KOUSTUBHA FAST SERVICES. All rights reserved.
+                          </footer>
+
+                      </div>
+                  </div>
             </div>
-        </>
+        </Layout>
     );
 }
