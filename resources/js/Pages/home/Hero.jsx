@@ -19,7 +19,7 @@ export default function Hero() {
             <div className="pt-[30px] lg:pt-[0px] hero-content mx-auto lg:mx-0 lg:mx-0">
               <h1 
                 data-aos="fade-right" 
-                className="mx-auto lg:mx-[0] max-w-[500px] text-center lg:text-start text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-white"
+                className="mx-auto lg:mx-[0] max-w-[500px] xl:max-w-full text-center lg:text-start text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-white"
               >
                 Reliable Car & Bike Service — Whenever You Need It.
               </h1>
