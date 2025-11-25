@@ -64,11 +64,10 @@ export default function HowWorks() {
         </div>
         </div>
         
-         <div className='flex flex-col lg:flex-row items-start gap-10 mt-8'>
-            <div className='relative max-w-[520px] w-full handbox rounded-[30px] bg-dark flex-shrink-0'>
-               <img src={hand2} alt="how it works visual" className='rounded-[30px] w-full h-auto object-cover' />
+         <div className='flex flex-col lg:flex-row items-center gap-10 mt-8'>
+            <div data-aos="zoom-out-right" className='  relative max-w-[520px] w-full handbox rounded-[30px] bg-dark flex-shrink-0'>
+               <img src={hand2} alt="how it works visual" className=' rounded-[30px] w-full h-auto object-cover' />
                <button className='absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full  bg-main text-white font-medium   transition-all duration-300 shadow-inset shadow-lg flex items-center justify-center  '> <IoMdCloudDownload className="me-2" size='20' /> Download</button>
-
             </div>
             <div className='max-w-[640px] w-full  accordians'>
 
@@ -119,7 +118,7 @@ function AccordionItem({ idx, title, description, isOpen, onToggle }){
    }, [isOpen])
 
    return (
-      <div className='relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
+      <div className='fading relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
          <div className='bg-black p-[22px] relative overflow-hidden rounded-[19px]'>
             <div className='flex items-start gap-4 w-full'>
                <div className="flex-shrink-0">

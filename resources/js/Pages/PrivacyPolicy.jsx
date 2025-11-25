@@ -15,7 +15,6 @@ export default function PrivacyPolicy() {
                         bg-[length:70px_70px]" ></div>
                     </div>
                     <div className=" relative overflow-hidden">
-                        {/* Glowing Grid Pattern Background */}
                         <div className="absolute inset-0 opacity-20">
                             <div className="absolute inset-0" style={{
                                 backgroundImage: `

@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import logo from '../../img/swiftlogo.png'
 import { Link } from '@inertiajs/react'
-
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 export default function Header() {
+  useEffect(()=>{ 
+    AOS.init();
+  },[]);
+
   return (
     <div className=' !fixed top-4 left-0 w-full  !z-[999]'>
       <div className=' container mx-auto w-full '>

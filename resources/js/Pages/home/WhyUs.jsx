@@ -16,11 +16,11 @@ export default function WhyUs() {
 
         <div className='z-10 relative'>
           <div className="text-center mb-8">
-            <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">Why Choose Us?</h2>
-            <p className='text-gray-500 mb-8'>Discover how partnering with us can elevate your car and bike repair experience, helping you thrive in the digital world.</p>
+            <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2 fading">Why Choose Us?</h2>
+            <p className='text-gray-500 mb-8 fading'>Discover how partnering with us can elevate your car and bike repair experience, helping you thrive in the digital world.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
+            <div className="fading rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
               <div className="bg-dark rounded-[20px] p-6 text-start">
                 <div className="w-14 h-14  mb-4">
                 <img src={icon1} />
@@ -30,7 +30,7 @@ export default function WhyUs() {
               </div>
             </div>
 
-            <div className="rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
+            <div className="fading rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
               <div className="bg-dark rounded-[20px] p-6 text-start">
                 <div className="w-14 h-14  mb-4">
                 <img src={icon2} />
@@ -40,7 +40,7 @@ export default function WhyUs() {
               </div>
             </div>
 
-            <div className="rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
+            <div className="fading rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-500 to-gray-700">
               <div className="bg-dark rounded-[20px] p-6 text-start">
                 <div className="w-14 h-14  mb-4">
                 <img src={icon3} />

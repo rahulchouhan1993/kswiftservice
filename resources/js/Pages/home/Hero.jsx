@@ -22,22 +22,22 @@ export default function Hero() {
                         <span className="text-sm text-cyan-400">How it Works</span>
                      </div> */}
                      
-                     <h1 className="text-4xl lg:text-[65px] font-bold mb-6 leading-[0.9] heading-lg">
+                     <h1 data-aos="fade-right" className="text-4xl lg:text-[65px] font-bold mb-6 leading-[0.9] heading-lg">
                      Reliable Car & Bike Service — Whenever You Need It.
                      </h1>
                      
-                     <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                     <p data-aos="fade-right" className="text-gray-300 text-lg mb-8 leading-relaxed">
                      Skip the garage visits. Get verified Partners, real-time updates, and doorstep pickup/drop — <span className='text-main font-bold'>all from one powerful app.</span>
                      </p>
                      
-                     <button className="rounded-full !p-[1px] bg-gradient-to-r from-gray-400 to-gray-900/40"> 
+                     <button data-aos="fade-right" className="rounded-full !p-[1px] bg-gradient-to-r from-gray-400 to-gray-900/40"> 
                         <span className='btn text-white border-gray-700 block'>Download the App</span>
                      </button>
                   </div>
                </div>
                <div className="max-w-[66%] flex justify-center">
                   <div className="relative relative right-[-100px] ">
-                     <img src={handimage} alt="KSwift App Mockup" className="w-80 md:w-96 lg:w-full rounded-xl shadow-2xl shadow-black/30" />
+                     <img data-aos="fade-up" src={handimage} alt="KSwift App Mockup" className="w-80 md:w-96 lg:w-full rounded-xl shadow-2xl shadow-black/30" />
                   </div>
                </div>
             </div>

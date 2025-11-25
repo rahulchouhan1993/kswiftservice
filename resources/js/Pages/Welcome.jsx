@@ -35,30 +35,30 @@ export default function Welcome() {
 
       <div className='container mx-auto'>
           <div className="mt-[60px] rounded-[25px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-            <div className="bg-black rounded-[25px] relative z-10 max-w-7xl mx-auto px-6 py-20 text-center overflow-hidden">
+            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-6 py-20 text-center">
               
                 <div className="absolute top-[150px] left-[25%] w-[50%] h-[200px] mx-auto bg-main rounded-full 
                 filter blur-3xl opacity-1  "></div>
                         
                 <div className="rounded-2xl p-12 relative z-1">
-                  <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">
+                  <h2 className="fading text-3xl lg:text-4xl font-bold mb-4 text-white">
                     Join the Network. Grow Your Business.
                   </h2>
-                  <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                  <p className="fading text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
                     Thousands of Partners  and garages trust to bring them verified customers daily.
                   </p>
 
                   <div className='live-bar bg-black p-2 mb-8'>
                     <ul className='flex justify-center gap-6'>
-                      <li className='text-white flex items-center uppercase ' ><img src={n1}  className='w-[20px] h-[20px] me-2'  /> Build 5 star reputation</li>
-                      <li className='text-white flex items-center uppercase ' > <img src={n2} className='w-[20px] h-[20px] me-2'   /> Instant customer leads</li>
-                      <li className='text-white flex items-center uppercase ' ><img src={n3}  className='w-[20px] h-[20px] me-2'  /> Dedicated garage dashboard</li>
-                      <li className='text-white flex items-center uppercase ' ><img src={n4}  className='w-[20px] h-[20px] me-2'  /> Weekly payments</li>
+                      <li className='fading text-white flex items-center uppercase ' ><img src={n1}  className='w-[20px] h-[20px] me-2'  /> Build 5 star reputation</li>
+                      <li className='fading text-white flex items-center uppercase ' > <img src={n2} className='w-[20px] h-[20px] me-2'   /> Instant customer leads</li>
+                      <li className='fading text-white flex items-center uppercase ' ><img src={n3}  className='w-[20px] h-[20px] me-2'  /> Dedicated garage dashboard</li>
+                      <li className='fading text-white flex items-center uppercase ' ><img src={n4}  className='w-[20px] h-[20px] me-2'  /> Weekly payments</li>
                     </ul>
                   </div>
 
 
-                  <button className="btn bg-white text-lg text-main px-[40px]">
+                  <button className="fading btn bg-white text-lg text-main px-[40px]">
                     Partner With Us
                   </button>
                 </div>

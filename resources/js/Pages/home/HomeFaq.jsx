@@ -110,13 +110,13 @@ export default function HomeFaq({ items = FAQ_ITEMS }) {
       <div className="max-w-3xl mx-auto">
         
         <div className="text-center mb-8">
-          <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">Frequently Asked Questions</h2>
-          <p className='text-gray-500 mb-8'>Explore our FAQ section to discover how we've empowered businesses like yours to thrive online.</p>
+          <h2 className="fading text-white text-3xl lg:text-4xl font-bold mb-2">Frequently Asked Questions</h2>
+          <p className='fading text-gray-500 mb-8'>Explore our FAQ section to discover how we've empowered businesses like yours to thrive online.</p>
         </div>
 
         <div className="space-y-4">
           {items.map((item, idx) => (
-            <div  key={idx} className='relative p-[1px] mb-4  rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800/50'>
+            <div  key={idx} className='fading relative p-[1px] mb-4  rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800/50'>
                <div  className="rounded-2xl bg-dark rounded-[19px] overflow-hidden">
                <div
                   id={`faq-header-${idx}`}

@@ -38,15 +38,15 @@ export default function AboutFeatures() {
 
   return (
      <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-         <div className="text-center mb-8">
-            <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">Our Approach</h2>
-            <p className='text-gray-500 mb-8'>A System, Not Just an App. Every feature exists to reduce friction:</p>
+         <div className="text-center mb-8 "  >
+            <h2 className="fading text-white text-3xl lg:text-4xl font-bold mb-2">Our Approach</h2>
+            <p className='fading text-gray-500 mb-8'>A System, Not Just an App. Every feature exists to reduce friction:</p>
         </div>
 
         <div className='grid grid-cols-2 md:grid-cols-3 gap-5'>
          {features && features.map((feature, index) => {
             return <>
-               <div className="rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
+               <div className="fading rounded-[20px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
                   <div className="bg-black h-full rounded-[20px] p-6 text-start">
                      <div className="w-14 h-14 ">
                         <img src={feature.icon} />
