@@ -17,7 +17,7 @@ export default function AboutUs() {
             <div className='container mx-auto'> 
             <div className=''> 
                     {/* Background Grid - Responsive positioning */}
-                    <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%] p-6 z-[-1]">
+                    <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%]  z-[-1]">
                         <div className='gridmap w-full h-full absolute top-0 left-0 z-[2] pointer-events-none'></div>
                         <div className="absolute w-full h-full rounded-2xl overflow-hidden z-[1] pointer-events-none
                         [background-image:linear-gradient(to_right,#686868_1px,transparent_1px),linear-gradient(to_bottom,#686868_1px,transparent_1px)]
