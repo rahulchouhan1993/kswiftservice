@@ -26,8 +26,8 @@ export default function ContactUs() {
         </div>
 
         {/* Content */}
-        <div className="flex pt-[200px] relative z-[10]">
-          <div className="contacts w-full max-w-[50%] pe-[100px]">
+        <div  className="flex pt-[200px] relative z-[10]">
+          <div  data-aos="fade-right" className="contacts w-full max-w-[50%] pe-[100px]">
             <h2 className="text-white font-bold text-4xl mb-2">
               Get in Touch With Us
             </h2>
@@ -63,7 +63,7 @@ export default function ContactUs() {
           </div>
 
 
-        <div className='w-full relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
+        <div  data-aos="fade-left" className='w-full relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
         <div className='w-full bg-black h-full rounded-[19px]'>
           <div className="px-6 py-4 border-b border-gray-700 text-start">
             <p className="text-white text-lg">Send Us a Message</p>
@@ -111,7 +111,7 @@ export default function ContactUs() {
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        <div data-aos="fade-down" className="overflow-hidden">
           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.734389226267!2d75.77203235!3d26.881791899999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db4576fa22b87%3A0x9018511eb679742f!2sNew%20Aatish%20Market!5e0!3m2!1sen!2sin!4v1764013678218!5m2!1sen!2sin" width="600" height="350"  className="border-0 w-full mt-8 rounded-[20px]" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>

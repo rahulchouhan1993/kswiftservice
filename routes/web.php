@@ -21,6 +21,7 @@ Route::get('/terms-and-conditions', [HomeController::class, 'termsConditions'])-
 Route::get('/partner-terms-conditions', [HomeController::class, 'partnerTermsConditions'])->name('partner-terms-conditions');
 Route::get('/customer-terms-conditions', [HomeController::class, 'customerTermsConditions'])->name('customer-terms-conditions');
 Route::get('/business-policy', [HomeController::class, 'businessPolicy'])->name('business-policy');
+Route::get('/offers', [HomeController::class, 'offers'])->name('offers');
 
 
 

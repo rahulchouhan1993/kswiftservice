@@ -59,9 +59,11 @@ Route::middleware('apiauth')->group(function () {
 
     Route::prefix('/booking')->group(function () {
         Route::post('/service-book', [BookingController::class, 'bookService']);
+        Route::post('/update-booking-status', [BookingController::class, 'updateBookingStatus']);
         Route::get('/fetch-bookings/{status?}', [BookingController::class, 'fetchBookings']);
         Route::get('/get-booking-details/{uuid}', [BookingController::class, 'getBookingDetails']);
         Route::get('/get-home-page-bookings-list', [BookingController::class, 'getHomePageBooksList']);
+        Route::post('/upload-service-video-or-photo', [BookingController::class, 'uploadBookingVideos']);
     });
 
     Route::prefix('/ticket')->group(function () {
@@ -73,9 +75,12 @@ Route::middleware('apiauth')->group(function () {
 
     Route::prefix('/payment')->group(function () {
         Route::post('/submit-payment-details', [PaymentController::class, 'submitPaymentDetails']);
+        Route::get('/fetch-invoice-and-receipts', [PaymentController::class, 'paymentInvoicesAndReceipts']);
+        Route::get('/fetch-transaction-history', [PaymentController::class, 'transactionHistory']);
     });
 
 
+    // Mechanic API's
     Route::prefix('/aadhar-card')->group(function () {
         Route::post('/send-verification-otp', [AadharCardController::class, 'sendVerificationOTP']);
         Route::post('/verify-otp', [AadharCardController::class, 'verifyVerificationOTP']);

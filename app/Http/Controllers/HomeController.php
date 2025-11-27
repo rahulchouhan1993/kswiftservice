@@ -56,4 +56,9 @@ class HomeController extends Controller
     {
         return Inertia::render('BusinessPolicy');
     }
+
+    public function offers()
+    {
+        return Inertia::render('Offers');
+    }
 }

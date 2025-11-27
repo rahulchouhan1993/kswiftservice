@@ -2,6 +2,7 @@ import React from 'react'
 
 export default function YourCustomers() {
   return (
+    <div className='container mx-auto'>
     <div className='py-20 bg-black relative'>
 
           <div className=" flex items-center w-[700px] h-[400px] justify-center absolute top-[0px] left-[25%] p-6 z-[-1px]">
@@ -12,17 +13,18 @@ export default function YourCustomers() {
          </div>
 
          <div className='relative z-[30]'>
-            <h2 className='text-white text-center text-[50px] font-bold leading-[40px]'>Your Car. Your Customers. <br></br> <span className='text-main'>One App.</span></h2>
-            <p className='text-white text-center mt-2'>Download the <a href='#' className='text-main2'>kswiftservices</a> and experience the easiest way to connect drivers and Partners .</p>
+            <h2 className='text-white text-center text-[50px] font-bold leading-[40px] fading'>Your Car. Your Customers. <br></br> <span className='text-main'>One App.</span></h2>
+            <p className='text-white text-center mt-2 fading'>Download the <a href='#' className='text-main2'>kswiftservices</a> and experience the easiest way to connect drivers and Partners .</p>
             <div className='flex justify-center mt-8'>
-               <button className="rounded-full !p-[1px] bg-gradient-to-r from-gray-400 to-gray-900/40"> 
-                  <span className='btn text-white border-gray-700 block'>Download our app today!</span>
+               <button className="rounded-full !p-[1px] bg-gradient-to-r fading from-gray-400 to-gray-900/40"> 
+                  <span className='btn text-white border-gray-700 block '>Download our app today!</span>
                </button>
             </div>
          </div>
 
          
 
+    </div>
     </div>
   )
 }

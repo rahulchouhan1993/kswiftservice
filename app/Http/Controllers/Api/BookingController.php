@@ -21,7 +21,7 @@ class BookingController extends Controller
     public function bookService(Request $request)
     {
         try {
-            $validated = $request->validate([
+            $request->validate([
                 'vehicle_id' => ['required', 'integer'],
 
                 'services' => ['required', 'array', 'min:1'],
@@ -581,5 +581,69 @@ class BookingController extends Controller
             'message' => 'Bookings fetched successfully.',
             'bookings' => $response,
         ]);
+    }
+
+
+
+    /**
+     * Update Booking Status
+     * @param Request $request
+     * @return mixed
+     */
+    public function updateBookingStatus(Request $request)
+    {
+        try {
+            $request->validate([
+                'booking_id' => [
+                    'required'
+                ],
+                'status' => [
+                    'required'
+                ],
+            ]);
+
+            $user = $request->user();
+            $booking = Booking::find($request->booking_id);
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Booking does not exist",
+                ], 500);
+            }
+
+            $booking->update([
+                'booking_status' => $request->status
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => "Booking status updated as " . $request->status,
+                'booking' => $booking
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Upload Booking Service Video Or Photo
+     * @param Request $request
+     * @return mixed
+     */
+    public function uploadBookingVideos(Request $request)
+    {
+        try {
+            $request->validate([]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -12,7 +12,9 @@ class BookingService extends Model
         'booking_id',
         'service_type_id',
         'service_amount',
-        'service_discount'
+        'service_discount',
+        'video_path',
+        'photo_path'
     ];
 
     public static function boot()

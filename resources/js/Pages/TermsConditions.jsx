@@ -10,7 +10,7 @@ export default function TermsConditions() {
             <div className='relative  bg-black'>
                     <div className=" flex items-center w-[90%] h-[600px] justify-center absolute top-[-70px] left-[5%] p-6 z-[-1px]">
                         <div className='gridmap w-full h-full absolute top-0 left-0 z-[2px]'></div>
-                        <div class=" opacity-[50%] absolute w-full h-full  rounded-2xl overflow-hidden z-[1px]
+                        <div class=" opacity-[70%] md:opacity-[50%] absolute w-full h-full  rounded-2xl overflow-hidden z-[1px]
                         [background-image:linear-gradient(to_right,#686868_1px,transparent_1px),linear-gradient(to_bottom,#686868_1px,transparent_1px)]
                         bg-[length:70px_70px]" ></div>
                     </div>
@@ -32,7 +32,7 @@ export default function TermsConditions() {
                       <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
                           
                           {/* Title */}
-                          <h1 className="text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
+                          <h1 className="px-4 text-2xl md:text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
                               Terms & Conditions
                           </h1>
                           <p className="text-center text-normal text-main mb-16 uppercase tracking-wider">

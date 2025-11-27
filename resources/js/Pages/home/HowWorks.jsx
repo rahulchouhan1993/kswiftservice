@@ -50,9 +50,9 @@ export default function HowWorks() {
    }, [activeTab])
 
   return (
-    <>
-       <section className="relative z-10 max-w-7xl mx-auto px-6 ">
-        <div className="text-center mb-8">
+    <div className='container mx-auto'>
+       <section className="relative pt-[50px] sm:pt-[70px] lg:pt-[100px] z-10   ">
+        <div className="text-center mb-8 mx-auto max-w-[400px] md:max-w-[700px]">
           <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">How it <span className='text-main'>Works</span></h2>
           <p className='text-gray-500 mb-8'>Discover how our platform empowers car and bike repair services to thrive in the digital world.</p>
         </div>
@@ -64,13 +64,12 @@ export default function HowWorks() {
         </div>
         </div>
         
-         <div className='flex flex-col lg:flex-row items-start gap-10 mt-8'>
-            <div className='relative max-w-[520px] w-full handbox rounded-[30px] bg-dark flex-shrink-0'>
-               <img src={hand2} alt="how it works visual" className='rounded-[30px] w-full h-auto object-cover' />
+         <div className='lg:flex flex-col lg:flex-row items-center gap-10 mt-8'>
+            <div data-aos="zoom-out-right" className='mx-auto  relative md:max-w-[520px] w-full handbox rounded-[30px] bg-dark flex-shrink-0'>
+               <img src={hand2} alt="how it works visual" className=' rounded-[30px] w-full h-auto object-cover' />
                <button className='absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full  bg-main text-white font-medium   transition-all duration-300 shadow-inset shadow-lg flex items-center justify-center  '> <IoMdCloudDownload className="me-2" size='20' /> Download</button>
-
             </div>
-            <div className='max-w-[640px] w-full  accordians'>
+            <div className='mt-[20px] lg:mt-[40px] lg:mt-0 lg:max-w-[640px] w-full  accordians'>
 
                { activeTab === 'customers' && (
                   <AccordionList items={customers} openIndex={openIndex} setOpenIndex={setOpenIndex} />
@@ -82,7 +81,7 @@ export default function HowWorks() {
             </div>
          </div>
       </section>
-    </>
+    </div>
   )
 }
 
@@ -119,13 +118,12 @@ function AccordionItem({ idx, title, description, isOpen, onToggle }){
    }, [isOpen])
 
    return (
-      <div className='relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
+      <div className='fading relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
          <div className='bg-black p-[22px] relative overflow-hidden rounded-[19px]'>
-            <div className='flex items-start gap-4 w-full'>
-               <div className="flex-shrink-0">
+               <div className="flex-shrink-0 mt-[-5px]">
                   <span className="text-transparent text-[20px] font-bold bg-clip-text bg-black border-text">{`0${idx + 1}`}</span>
                </div>
-
+            <div className='flex mt-[-15px] items-center gap-4 w-full'>
                <div className='flex-1'>
                   <button
                      onClick={onToggle}
@@ -134,7 +132,6 @@ function AccordionItem({ idx, title, description, isOpen, onToggle }){
                      className='w-full text-left'
                   >
                      <h3 className='relative z-10 text-gray-200 font-bold text-[20px]'>{title}</h3>
-                     {/* <p className='text-gray-400 mt-1 text-[14px] line-clamp-1'>{description}</p> */}
                   </button>
                </div>
 
@@ -155,10 +152,10 @@ function AccordionItem({ idx, title, description, isOpen, onToggle }){
                id={`panel-${idx}`}
                ref={contentRef}
                style={{ maxHeight: maxH }}
-               className='overflow-hidden transition-[max-height] duration-300 ease-in-out mt-4'
+               className='overflow-hidden transition-[max-height] duration-300 ease-in-out mt-0'
                aria-hidden={!isOpen}
             >
-               <div className='pt-2 pb-4'>
+               <div className='pt-2 pb-0'>
                   <p className='text-gray-300 text-sm'>{description}</p>
                </div>
             </div>

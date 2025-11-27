@@ -34,31 +34,44 @@ export default function Welcome() {
       <HomeServices />
 
       <div className='container mx-auto'>
-          <div className="mt-[60px] rounded-[25px] !p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-            <div className="bg-black rounded-[25px] relative z-10 max-w-7xl mx-auto px-6 py-20 text-center overflow-hidden">
+          <div className="mt-12 sm:mt-16 md:mt-20 rounded-[25px] p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
+            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-16 md:py-20 text-center">
               
-                <div className="absolute top-[150px] left-[25%] w-[50%] h-[200px] mx-auto bg-main rounded-full 
-                filter blur-3xl opacity-1  "></div>
+                {/* Background blur effect - responsive positioning */}
+                <div className="hidden sm:block absolute top-[100px] sm:top-[120px] md:top-[150px] left-[20%] sm:left-[25%] w-[60%] sm:w-[50%] h-[120px] sm:h-[150px] md:h-[200px] mx-auto bg-main rounded-full filter blur-3xl opacity-1"></div>
                         
-                <div className="rounded-2xl p-12 relative z-1">
-                  <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">
+                <div className="rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 relative z-1">
+                  <h2 className="fading text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-white max-w-4xl mx-auto leading-tight">
                     Join the Network. Grow Your Business.
                   </h2>
-                  <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
-                    Thousands of Partners  and garages trust to bring them verified customers daily.
+                  <p className="fading text-gray-300 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Thousands of Partners and garages trust us to bring them verified customers daily.
                   </p>
 
-                  <div className='live-bar bg-black p-2 mb-8'>
-                    <ul className='flex justify-center gap-6'>
-                      <li className='text-white flex items-center uppercase ' ><img src={n1}  className='w-[20px] h-[20px] me-2'  /> Build 5 star reputation</li>
-                      <li className='text-white flex items-center uppercase ' > <img src={n2} className='w-[20px] h-[20px] me-2'   /> Instant customer leads</li>
-                      <li className='text-white flex items-center uppercase ' ><img src={n3}  className='w-[20px] h-[20px] me-2'  /> Dedicated garage dashboard</li>
-                      <li className='text-white flex items-center uppercase ' ><img src={n4}  className='w-[20px] h-[20px] me-2'  /> Weekly payments</li>
+                  {/* Features list - responsive grid */}
+                  <div className='mb-6 sm:mb-8'>
+                    <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto'>
+                      <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
+                        <img src={n1} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
+                        <span className="break-words">Build 5 star reputation</span>
+                      </li>
+                      <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' > 
+                        <img src={n2} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
+                        <span className="break-words">Instant customer leads</span>
+                      </li>
+                      <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
+                        <img src={n3} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
+                        <span className="break-words">Dedicated garage dashboard</span>
+                      </li>
+                      <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
+                        <img src={n4} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
+                        <span className="break-words">Weekly payments</span>
+                      </li>
                     </ul>
                   </div>
 
-
-                  <button className="btn bg-white text-lg text-main px-[40px]">
+                  {/* CTA Button - responsive */}
+                  <button className="fading w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 bg-white text-base sm:text-lg text-main font-semibold rounded-full transition-all duration-300 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black">
                     Partner With Us
                   </button>
                 </div>
