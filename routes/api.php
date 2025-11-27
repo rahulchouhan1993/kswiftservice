@@ -64,6 +64,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-booking-details/{uuid}', [BookingController::class, 'getBookingDetails']);
         Route::get('/get-home-page-bookings-list', [BookingController::class, 'getHomePageBooksList']);
         Route::post('/upload-service-video-or-photo', [BookingController::class, 'uploadBookingVideos']);
+        Route::get('/fetch-service-video-or-photo/{uuid}', [BookingController::class, 'fetchServicesVideos']);
     });
 
     Route::prefix('/ticket')->group(function () {

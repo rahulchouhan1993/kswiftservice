@@ -34,6 +34,7 @@ class User extends Authenticatable
         'last_name',
         'dob',
         'phone',
+        'role',
         'otp',
         'otp_expire',
         'phone_verified_at',

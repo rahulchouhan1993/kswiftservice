@@ -9,6 +9,7 @@ class Booking extends Model
 {
     protected $fillable = [
         'user_id',
+        'mechanic_id',
         'booking_id',
         'vehicle_id',
         'date',
@@ -45,9 +46,19 @@ class Booking extends Model
         return $this->hasMany(BookingService::class, 'booking_id', 'id');
     }
 
+    public function mechanic()
+    {
+        return $this->hasOne(User::class, 'id', 'mechanic_id');
+    }
+
     public function vehicle()
     {
         return $this->hasOne(Vehicle::class, 'id', 'vehicle_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id', 'id');
     }
 
     public function pickup_address()

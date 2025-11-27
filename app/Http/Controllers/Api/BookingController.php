@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingService;
+use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Vehicle;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+
+use function App\uploadRequestFile;
 
 class BookingController extends Controller
 {
@@ -638,7 +641,137 @@ class BookingController extends Controller
     public function uploadBookingVideos(Request $request)
     {
         try {
-            $request->validate([]);
+
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechnaic can upload service videos or photos.",
+                ], 500);
+            }
+            $request->validate([
+                'customer_id' => [
+                    'required',
+                    Rule::exists('users', 'id')->where(fn($q) => $q->where('role', 'customer')),
+                ],
+
+                'service_id' => [
+                    'required',
+                    Rule::exists('booking_services', 'id'),
+                ],
+
+                'file' => [
+                    'required',
+                    'file',
+                    'max:10240',
+                    'mimetypes:image/jpeg,image/png,image/jpg,video/mp4,video/quicktime,video/x-msvideo'
+                ],
+            ]);
+
+            $customer = User::find($request->customer_id);
+            if (!$customer) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Customer does not exist",
+                ], 404);
+            }
+
+            $service = BookingService::with(['service_type'])->find($request->service_id);
+            if (!$service) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Service does not exist",
+                ], 404);
+            }
+
+            if ($request->hasFile('file')) {
+
+                $mime = $request->file('file')->getMimeType();
+                if (str_contains($mime, 'image')) {
+                    uploadRequestFile($request, 'file', $service, 'service_photos', 'photo_path');
+                }
+
+                if (str_contains($mime, 'video')) {
+                    uploadRequestFile($request, 'file', $service, 'service_videos', 'video_path');
+                }
+            }
+
+            $data = [
+                'service_title' => $service->service_type->name,
+                'photo_url' => $service->photo_url,
+                'video_url' => $service->video_url
+            ];
+
+            return response()->json([
+                'status' => true,
+                'message' => "File uploaded successfully",
+                'service' => $data
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Fetch Services Videos Or Photos
+     * @param string $uuid Booking UUID
+     * @param Request $request
+     * @return mixed
+     */
+    public function fetchServicesVideos(Request $request, $uuid)
+    {
+        try {
+            $booking = Booking::with([
+                'services.service_type',
+                'mechanic',
+                'vehicle',
+                'vehicle.vehicle_photos',
+                'payment'
+            ])
+                ->where('uuid', $uuid)
+                ->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Booking not found'
+                ], 404);
+            }
+
+            // Format services
+            $services = $booking->services->map(function ($service) {
+                return [
+                    'service_type_name' => $service->service_type->name ?? null,
+                    'photo_url' => $service->photo_url,
+                    'video_url' => $service->video_url,
+                ];
+            });
+
+            // Format vehicle photos
+            $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($p) {
+                return $p->photo_url;
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => "Booking data fetched",
+                'data' => [
+                    'booking_id' => $booking->booking_id,
+                    'date' => $booking->date,
+                    'time' => $booking->time,
+
+                    // NEW FIELDS
+                    'mechanic_name' => $booking->mechanic->name ?? null,
+                    'vehicle_number' => $booking->vehicle->vehicle_number ?? null,
+                    'vehicle_photos' => $vehiclePhotos,
+                    'services' => $services,
+                    'invoice_url' => $booking->payment->invoice_url,
+                ],
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
