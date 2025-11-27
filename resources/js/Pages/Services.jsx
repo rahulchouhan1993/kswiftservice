@@ -1,19 +1,32 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import Layout from './layout/Layout';
 
 export default function Services() {
 
     return (
         <>
-            <Head title="Welcome" />
-            <div className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
-                <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-                    <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                        <footer className="py-16 text-center text-sm text-black dark:text-white/70">
-                            Services Page
-                        </footer>
+            <Layout>
+                <Head title="Our Services" />
+                <div className='container mx-auto'>
+                    <div className=''>
+                        <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%]  z-[-1]">
+                            <div className='gridmap w-full h-full absolute top-0 left-0 z-[2] pointer-events-none'></div>
+                            <div className="absolute w-full h-full rounded-2xl overflow-hidden z-[1] pointer-events-none [background-image:linear-gradient(to_right,#686868_1px,transparent_1px),linear-gradient(to_bottom,#686868_1px,transparent_1px)] bg-[length:50px_50px] md:bg-[length:70px_70px]" ></div>
+                        </div>
+
+                        {/* Hero Section */}
+                        <div className='relative z-10 pt-32 sm:pt-32 md:pt-40 lg:pt-48'>
+                            <h1
+                                data-aos="fade-up"
+                                className='text-white mx-auto text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center max-w-4xl leading-tight font-bold'
+                            >
+                                We are updating our services.
+                            </h1>
+
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Layout>
         </>
     );
 }
