@@ -16,6 +16,7 @@ Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('aboutus');
 Route::get('/our-services', [HomeController::class, 'services'])->name('services');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactus');
+Route::post('/submit-contactus', [HomeController::class, 'submitContactUs'])->name('submit.contactus');
 Route::get('/privacy-and-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-ploicy');
 Route::get('/terms-and-conditions', [HomeController::class, 'termsConditions'])->name('terms-condition');
 Route::get('/partner-terms-conditions', [HomeController::class, 'partnerTermsConditions'])->name('partner-terms-conditions');

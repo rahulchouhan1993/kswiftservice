@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactUsMessage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Inertia\Inertia;
@@ -30,6 +31,42 @@ class HomeController extends Controller
     public function contactUs()
     {
         return Inertia::render('ContactUs');
+    }
+
+
+    /**
+     * Submit Contact Us Form
+     * @param Request $request
+     * @return mixed
+     */
+    public function submitContactUs(Request $request)
+    {
+        $request->validate([
+            'name' => [
+                'required'
+            ],
+            'phone' => [
+                'required',
+                'digits:10'
+            ],
+            'email' => [
+                'required',
+                'email:DNS'
+            ],
+            'message' => [
+                'required',
+                'min:50'
+            ],
+        ]);
+
+        ContactUsMessage::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'message' => $request->message,
+        ]);
+
+        return back()->with('success', "Thank you! We’ll get in touch with you shortly.");
     }
 
     public function privacyPolicy()
