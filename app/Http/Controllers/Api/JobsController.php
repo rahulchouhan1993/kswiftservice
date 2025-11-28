@@ -13,19 +13,27 @@ class JobsController extends Controller
     /**
      * Fetch Jobs Request List
      * @param Request $request
+     * @param string $status
      * @return mixed
      */
-    public function fetchJobsRequestList(Request $request)
+    public function fetchJobsList(Request $request, $status)
     {
         try {
             $user = $request->user();
+            if (!in_array($status, ['pending', 'accepted', 'rejected', 'completed'])) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Status can be [pending, accepted, rejected, completed]"
+                ], 500);
+            }
+
 
             $jobs = MechanicJob::with([
                 'booking',
                 'booking.services.service_type',
                 'booking.vehicle.vehicle_photos'
             ])
-                ->whereStatus('pending')
+                ->whereStatus($status)
                 ->whereUserId($user->id)
                 ->orderBy('created_at', 'DESC')
                 ->get();
@@ -94,12 +102,19 @@ class JobsController extends Controller
             }
 
             $request->validate([
-                'status' => 'required|in:pending,accepted,rejected'
+                'status' => 'required|in:pending,accepted,rejected,completed',
+                'rejection_reason' => $request->status == 'rejected' ? 'required' : 'nullable'
             ]);
 
             $job->update([
-                'status' => $request->status
+                'status' => $request->status,
             ]);
+
+            if ($request->status == 'rejected') {
+                $job->update([
+                    'rejection_reason' => $request->rejection_reason
+                ]);
+            }
 
             if ($job->status == 'accepted') {
                 $booking->update([

@@ -10,7 +10,8 @@ class MechanicJob extends Model
     protected $fillable = [
         'user_id',
         'booking_id',
-        'status'
+        'status',
+        'rejection_reason'
     ];
 
     public static function boot()

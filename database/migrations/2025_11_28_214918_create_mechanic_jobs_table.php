@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->comment('mechanic id');
             $table->foreignIdFor(Booking::class);
             $table->string('status')->comment('pending, accepted, rejected');
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

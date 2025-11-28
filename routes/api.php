@@ -91,7 +91,7 @@ Route::middleware('apiauth')->group(function () {
 
 
     Route::prefix('/jobs')->group(function () {
-        Route::get('/fetch-jobs-request-list', [JobsController::class, 'fetchJobsRequestList']);
+        Route::get('/fetch-jobs-list/{status}', [JobsController::class, 'fetchJobsList']);
         Route::post('/update-status/{uuid}', [JobsController::class, 'updateStatus']);
     });
 });
