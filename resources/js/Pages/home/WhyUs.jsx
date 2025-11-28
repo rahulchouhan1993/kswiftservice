@@ -6,7 +6,7 @@ import icon2 from '../../img/why2.png'
 export default function WhyUs() {
   return (
     <>
-      <section className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+      <section id='why-choose-us' className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
         {/* Background Grid - Responsive and hidden on mobile */}
         <div className="hidden md:flex items-center max-w-2xl h-80 md:h-96 justify-center absolute top-0 left-0 right-0 mx-auto p-6 z-[-1] pointer-events-none">
             <div className='gridmap w-full h-full absolute top-0 left-0 z-[2]'></div>

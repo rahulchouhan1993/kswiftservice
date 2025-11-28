@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import logo from '../../img/swiftlogo.png'
-import { Link } from '@inertiajs/react'
+import { Link, router } from '@inertiajs/react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -42,33 +42,49 @@ export default function Header() {
     setMobileOpen(false);
   };
 
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/about-us', label: 'About Us' },
-    { href: '/our-services', label: 'Services' },
-    { href: '/contact-us', label: 'Contact' },
-  ];
+  const scrollToSection = (sectionId) => {
+    const section = document.querySelector(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  const handleNavigation = (path, sectionId) => {
+    router.visit(path);
+    setTimeout(() => {
+      scrollToSection(sectionId);
+    }, 100);
+    setMobileOpen(false)
+  };
+
+  
 
   return (
     <div className="fixed top-4 left-0 w-full z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <header className="relative flex items-center justify-between p-3 sm:p-4 rounded-[50px] border border-gray-500 backdrop-blur-[5px] bg-black/20">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <Link href={'/'} className="flex-shrink-0">
             <img src={logo} alt="KSwift Logo" className="h-8 w-auto sm:h-9 md:h-10" />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-bold text-gray-300 hover:text-white py-2 px-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded"
-              >
-                {link.label}
-              </Link>
-            ))}
+            <button 
+                 onClick={() => handleNavigation('/', '#services')}   
+                  className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded"
+                >
+                   Services
+                </button>
+            <button 
+                 onClick={() => handleNavigation('/offers', '')}   
+                  className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded" >
+                   Offers
+                </button>
+            <button 
+                 onClick={() => handleNavigation('/about-us', '')}   
+                  className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded" >
+                   About Us
+              </button>
           </nav>
 
           {/* Desktop CTA Button */}
@@ -108,16 +124,22 @@ export default function Header() {
         >
           <div className="rounded-b-xl shadow-lg bg-black border border-gray-500 border-t-0 backdrop-blur-md divide-y divide-gray-700">
             <nav className="px-4 py-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
+               <button 
+                 onClick={() => handleNavigation('/', '#services')}   
                   className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded"
-                >
-                  {link.label}
-                </Link>
-              ))}
+                    >
+                      Services
+                    </button>
+                <button 
+                    onClick={() => handleNavigation('/offers', '')}   
+                      className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded" >
+                      Offers
+                    </button>
+                <button 
+                    onClick={() => handleNavigation('/about-us', '')}   
+                      className="block font-bold text-gray-300 hover:text-white py-3 px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main rounded" >
+                      About Us
+                  </button>
             </nav>
             
             {/* Mobile CTA Button */}

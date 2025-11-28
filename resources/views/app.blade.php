@@ -4,8 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title >KSwift Services – Reliable Car & Bike Service with Doorstep Pickup & Verified Partners</title>
+    <title inertia >KSwift Services – Reliable Car & Bike Service with Doorstep Pickup & Verified Partners</title>
+    <meta name="description" content="Get fast, transparent, and hassle-free car and bike servicing with verified Partners. Enjoy live tracking, instant estimates, and doorstep pickup/drop — all from one powerful app.">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
 

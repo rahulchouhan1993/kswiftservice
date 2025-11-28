@@ -99,7 +99,7 @@ export default function HomeFaq({ items = FAQ_ITEMS }) {
   };
 
   return (
-    <div
+    <div id='faq'
       className="  py-6 md:py-12 lg:py-16 px-6 md:px-12 lg:px-24 bg-black text-white"
       style={{
         backgroundImage: `url(${BACKGROUND_IMAGE})`,
