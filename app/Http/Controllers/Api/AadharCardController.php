@@ -120,8 +120,8 @@ class AadharCardController extends Controller
 
                 return response()->json([
                     "status" => true,
-                    "message" => "OTP Verified succesfully",
-                    'user_data' => $resp['data']
+                    "message" => "KYC Verified succesfully",
+                    'user' => $user
                 ]);
             } else {
                 return response()->json([

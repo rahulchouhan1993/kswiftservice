@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Garage;
+use App\Models\GaragePhoto;
 use App\Models\Vehicle;
 use Exception;
 use Illuminate\Http\Request;
@@ -34,20 +36,52 @@ class GarageController extends Controller
                     'required',
                     Rule::unique('garages', 'name')->where(fn($query) => $query->where('user_id', $user->id)),
                 ],
-                'email' => 'nullable',
-                'phone' => 'nullable',
+                'owner_name' => 'required',
+                'email' => 'required',
+                'phone' => 'required',
                 'country' => 'required',
                 'state' => 'required',
                 'city' => 'required',
                 'address' => 'required',
                 'pincode' => 'required',
-                'garage_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'bay_count' => 'required',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'garage_photos' => 'required|array|min:1',
+                'garage_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
             $validated = $request->validate($rules);
+            $timings = [
+                'monday' => [
+                    'status' => $request->monday_status,
+                    'timing' => $request->monday_timing,
+                ],
+                'tuesday' => [
+                    'status' => $request->tuesday_status,
+                    'timing' => $request->tuesday_timing,
+                ],
+                'wednesday' => [
+                    'status' => $request->wednesday_status,
+                    'timing' => $request->wednesday_timing,
+                ],
+                'thursday' => [
+                    'status' => $request->thursday_status,
+                    'timing' => $request->thursday_timing,
+                ],
+                'friday' => [
+                    'status' => $request->friday_status,
+                    'timing' => $request->friday_timing,
+                ],
+                'sunday' => [
+                    'status' => $request->sunday_status,
+                    'timing' => $request->sunday_timing,
+                ],
+            ];
+
             $garage = Garage::create([
                 'user_id' => $user->id,
                 'name' => $validated['name'],
+                'owner_name' => $validated['owner_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
                 'country_id' => $validated['country'],
@@ -55,18 +89,30 @@ class GarageController extends Controller
                 'city_id' => $validated['city'],
                 'address' => $validated['address'],
                 'pincode' => $validated['pincode'],
+                'bay_count' => $validated['bay_count'],
+                'timings' => $timings,
             ]);
 
             // Handle photo upload
-            if ($request->hasFile('garage_photo')) {
-                $photoPath = uploadRequestFile($request, 'garage_photo', $garage, 'garage_photos', 'photo');
-                $garage->update(['photo' => $photoPath]);
+            if ($request->hasFile('logo')) {
+                $photoPath = uploadRequestFile($request, 'logo', $garage, 'garage_photos', 'logo');
+                $garage->update(['logo' => $photoPath]);
             }
 
+            foreach ($request->garage_photos as $photo) {
+                $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('garage_photos', $fileName, 'public');
+                GaragePhoto::create([
+                    'garage_id'    => $garage->id,
+                    'photo'      => $fileName,
+                ]);
+            }
+
+            $garage->load('garage_photos');
             return response()->json([
                 'status' => true,
                 'message' => 'Garage added successfully.',
-                'garage' => $garage,
+                'garage' => $garage
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -92,7 +138,7 @@ class GarageController extends Controller
             if ($user->role != 'mechanic') {
                 return response()->json([
                     'status' => false,
-                    'message' => "Only mechanic can update garage.",
+                    'message' => "Only mechanic can add a garage.",
                 ], 500);
             }
 
@@ -100,48 +146,91 @@ class GarageController extends Controller
             if (!$garage) {
                 return response()->json([
                     'status' => false,
-                    'message' => "Garage does not exist",
-                ], 404);
+                    'message' => "Garage does not exist.",
+                ], 500);
             }
 
             $rules = [
                 'name' => [
                     'required',
-                    Rule::unique('garages', 'name')->ignore($garage->id),
+                    Rule::unique('garages', 'name')->where(fn($query) => $query->where('user_id', $user->id))->ignore($garage->id),
                 ],
-                'email' => 'nullable|email',
-                'phone' => 'nullable',
+                'owner_name' => 'required',
+                'email' => 'required',
+                'phone' => 'required',
                 'country' => 'required',
                 'state' => 'required',
                 'city' => 'required',
                 'address' => 'required',
                 'pincode' => 'required',
-                'garage_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'bay_count' => 'required',
+                'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'garage_photos' => 'required|array|min:1',
+                'garage_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 
             $validated = $request->validate($rules);
+            $timings = [
+                'monday' => [
+                    'status' => $request->monday_status,
+                    'timing' => $request->monday_timing,
+                ],
+                'tuesday' => [
+                    'status' => $request->tuesday_status,
+                    'timing' => $request->tuesday_timing,
+                ],
+                'wednesday' => [
+                    'status' => $request->wednesday_status,
+                    'timing' => $request->wednesday_timing,
+                ],
+                'thursday' => [
+                    'status' => $request->thursday_status,
+                    'timing' => $request->thursday_timing,
+                ],
+                'friday' => [
+                    'status' => $request->friday_status,
+                    'timing' => $request->friday_timing,
+                ],
+                'sunday' => [
+                    'status' => $request->sunday_status,
+                    'timing' => $request->sunday_timing,
+                ],
+            ];
 
             $garage->update([
                 'name' => $validated['name'],
+                'owner_name' => $validated['owner_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'country' => $validated['country'],
-                'state' => $validated['state'],
-                'city' => $validated['city'],
+                'country_id' => $validated['country'],
+                'state_id' => $validated['state'],
+                'city_id' => $validated['city'],
                 'address' => $validated['address'],
                 'pincode' => $validated['pincode'],
+                'bay_count' => $validated['bay_count'],
+                'timings' => $timings,
             ]);
 
-            if ($request->hasFile('garage_photo')) {
-                $photoPath = uploadRequestFile($request, 'garage_photo', $garage, 'garage_photos', 'photo');
-                $garage->update(['photo' => $photoPath]);
+            // Handle photo upload
+            if ($request->hasFile('logo')) {
+                $photoPath = uploadRequestFile($request, 'logo', $garage, 'garage_photos', 'logo');
+                $garage->update(['logo' => $photoPath]);
             }
 
+            foreach ($request->garage_photos as $photo) {
+                $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('garage_photos', $fileName, 'public');
+                GaragePhoto::create([
+                    'garage_id'    => $garage->id,
+                    'photo'      => $fileName,
+                ]);
+            }
 
+            $garage->load('garage_photos');
             return response()->json([
                 'status' => true,
                 'message' => 'Garage updated successfully.',
-                'vehicle' => $garage
+                'garage' => $garage
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -167,7 +256,7 @@ class GarageController extends Controller
                 ], 500);
             }
 
-            $garage = Garage::whereUserId($user->id)->get();
+            $garage = Garage::with(['garage_photos'])->whereUserId($user->id)->get();
 
             return response()->json([
                 'status' => true,
@@ -199,7 +288,7 @@ class GarageController extends Controller
                 ], 500);
             }
 
-            $garage = Garage::firstWhere('uuid', $uuid);
+            $garage = Garage::with(['garage_photos'])->firstWhere('uuid', $uuid);
             if (!$garage) {
                 return response()->json([
                     'status' => false,
@@ -267,7 +356,48 @@ class GarageController extends Controller
      * @param string $uuid Garage UUID
      * @return mixed
      */
-    public function delete(Request $request, $uuid)
+    public function delete($uuid)
+    {
+        try {
+            $garage = Garage::with('garage_photos')->firstWhere('uuid', $uuid);
+
+            if (!$garage) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Garage does not exist',
+                ], 404);
+            }
+
+            if ($garage->logo) {
+                Storage::disk('public')->delete('garage_photos/' . $garage->logo);
+            }
+
+            foreach ($garage->garage_photos as $photo) {
+                Storage::disk('public')->delete('garage_photos/' . $photo->photo);
+            }
+
+            GaragePhoto::where('garage_id', $garage->id)->delete();
+            $garage->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Garage deleted successfully.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Delete Garage photo
+     * @param string $uuid Garage Photo UUID
+     * @return mixed
+     */
+    public function deleteGaragePhoto(Request $request, $uuid)
     {
         try {
             $user = $request->user();
@@ -278,21 +408,21 @@ class GarageController extends Controller
                 ], 500);
             }
 
-            $garage = Garage::firstWhere('uuid', $uuid);
+            $garagePhoto = GaragePhoto::firstWhere('uuid', $uuid);
 
-            if (!$garage) {
+            if (!$garagePhoto) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Garage does not exist',
+                    'message' => 'Garage photo does not exist',
                 ], 404);
             }
 
-            Storage::disk('public')->delete('garage_photos/' . $garage->photo);
-            $garage->delete();
+            Storage::disk('public')->delete('garage_photos/' . $garagePhoto->photo);
+            $garagePhoto->delete();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Garage deleted successfully.',
+                'message' => 'Photo deleted successfully.',
             ]);
         } catch (Exception $e) {
             return response()->json([

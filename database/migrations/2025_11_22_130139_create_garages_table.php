@@ -21,6 +21,7 @@ return new class extends Migration
             $table->uuid();
             $table->foreignIdFor(User::class)->comment('merchant id');
             $table->string('name');
+            $table->string('owner_name')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->foreignIdFor(Country::class);
@@ -28,7 +29,9 @@ return new class extends Migration
             $table->foreignIdFor(City::class);
             $table->string('address');
             $table->string('pincode');
-            $table->string('photo')->nullable();
+            $table->string('logo')->nullable();
+            $table->string('bay_count')->nullable();
+            $table->longText('timings')->nullable();
             $table->tinyInteger('status')->default(1)->comment('1-Actice, 0-InActive');
             $table->timestamps();
             $table->softDeletes();

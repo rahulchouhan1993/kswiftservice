@@ -10,15 +10,20 @@ class Garage extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'email',
+        'owner_name',
         'phone',
+        'email',
         'country_id',
         'state_id',
         'city_id',
         'address',
         'pincode',
-        'status',
+        'logo',
+        'bay_count',
+        'timings',
+        'status'
     ];
+
 
     public static function boot()
     {
@@ -29,18 +34,28 @@ class Garage extends Model
     }
 
     protected $appends = [
-        'photo_url',
+        'logo_url',
+    ];
+
+    protected $casts = [
+        'timings' => 'array',
     ];
 
 
-    public function getPhotoUrlAttribute()
+    public function getLogoUrlAttribute()
     {
-        $photo = $this->photo ?? null;
+        $logo = $this->logo ?? null;
 
-        if ($photo) {
-            return asset('storage/garage_photos/' . $photo);
+        if ($logo) {
+            return asset('storage/garage_photos/' . $logo);
         }
 
         return null;
+    }
+
+
+    public function garage_photos()
+    {
+        return $this->hasMany(GaragePhoto::class, 'garage_id', 'id');
     }
 }
