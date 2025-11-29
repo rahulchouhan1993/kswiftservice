@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import logo from '../../img/swiftlogo.png'
-import { Link } from '@inertiajs/react'
+import { Link, router } from '@inertiajs/react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 

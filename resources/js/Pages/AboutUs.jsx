@@ -16,7 +16,6 @@ export default function AboutUs() {
             <Head title="About" />
             <div className='container mx-auto'> 
             <div className=''> 
-                    {/* Background Grid - Responsive positioning */}
                     <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%]  z-[-1]">
                         <div className='gridmap w-full h-full absolute top-0 left-0 z-[2] pointer-events-none'></div>
                         <div className="absolute w-full h-full rounded-2xl overflow-hidden z-[1] pointer-events-none
@@ -24,7 +23,6 @@ export default function AboutUs() {
                         bg-[length:50px_50px] md:bg-[length:70px_70px]" ></div>
                     </div>
                     
-                    {/* Hero Section */}
                     <div className='relative z-10 pt-32 sm:pt-32 md:pt-40 lg:pt-48'>
                         <h1 
                             data-aos="fade-up" 

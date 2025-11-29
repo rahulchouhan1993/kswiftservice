@@ -12,6 +12,7 @@ import n1 from '../img/n1.png';
 import Testimonials from './home/Testimonials';
 import YourCustomers from './home/YourCustomers';
 import HomeFaq from './home/HomeFaq';
+import { Link } from '@inertiajs/react';
 
 export default function Welcome() {
   return (
@@ -35,7 +36,7 @@ export default function Welcome() {
 
       <div className='container mx-auto'>
           <div className="mt-12 sm:mt-16 md:mt-20 rounded-[25px] p-[1px] bg-gradient-to-r from-gray-600 to-gray-800">
-            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-16 md:py-20 text-center">
+            <div className="w-full bg-black rounded-[25px] relative z-10 mx-auto px-4 py-4 sm:py-16 md:py-20 text-center">
               
                 {/* Background blur effect - responsive positioning */}
                 <div className="hidden sm:block absolute top-[100px] sm:top-[120px] md:top-[150px] left-[20%] sm:left-[25%] w-[60%] sm:w-[50%] h-[120px] sm:h-[150px] md:h-[200px] mx-auto bg-main rounded-full filter blur-3xl opacity-1"></div>
@@ -50,7 +51,7 @@ export default function Welcome() {
 
                   {/* Features list - responsive grid */}
                   <div className='mb-6 sm:mb-8'>
-                    <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto'>
+                    <ul className=' text-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto'>
                       <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                         <img src={n1} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
                         <span className="break-words">Build 5 star reputation</span>
@@ -61,7 +62,7 @@ export default function Welcome() {
                       </li>
                       <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                         <img src={n3} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
-                        <span className="break-words">Dedicated garage dashboard</span>
+                        <span className="break-words leading-[16px]">Dedicated garage dashboard</span>
                       </li>
                       <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                         <img src={n4} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" /> 
@@ -71,9 +72,9 @@ export default function Welcome() {
                   </div>
 
                   {/* CTA Button - responsive */}
-                  <button className="fading w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 bg-white text-base sm:text-lg text-main font-semibold rounded-full transition-all duration-300 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+                  <Link href={'/contact-us'} className="fading w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 bg-white text-base sm:text-lg text-main font-semibold rounded-full transition-all duration-300 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black">
                     Partner With Us
-                  </button>
+                  </Link>
                 </div>
             </div>
           </div>

@@ -11,7 +11,8 @@ class ContactUsMessage extends Model
         'name',
         'email',
         'phone',
-        'message'
+        'message',
+        'is_read'
     ];
 
     public static function boot()

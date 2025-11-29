@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ContactUsMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -56,16 +57,12 @@ class HandleInertiaRequests extends Middleware
                 // 'permissions' => $user ? $user->getAllPermissions()->pluck('name')->toArray() : [],
             ],
 
+            'enquiryCount' => ContactUsMessage::whereIsRead(0)->count(),
             'flash' => [
                 'success' => $request->session()->pull('success'),
                 'error' => $request->session()->pull('error'),
                 'warning' => $request->session()->pull('warning'),
                 'info' => $request->session()->pull('info'),
-            ],
-
-            'emulate' => [
-                'is_emulating' => Session('is_emulating'),
-                'emulated_school' => Session('emulated_school'),
             ],
         ]);
     }

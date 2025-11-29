@@ -1,11 +1,30 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import logo from '../../img/swiftlogo.png'
 import { FaInstagram } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 import { IoLogoWhatsapp } from "react-icons/io";
 
 export default function Footer() {
+
+    const phone = "918747998747";
+    const encodedMessage = encodeURIComponent("Hi there, I would like to request for service, can you help me out?!");
+    const waLink = `https://wa.me/${phone}?text=${encodedMessage}`;
+const scrollToSection = (sectionId) => {
+    const section = document.querySelector(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  const handleNavigation = (path, sectionId) => {
+    router.visit(path);
+    setTimeout(() => {
+      scrollToSection(sectionId);
+    }, 100);
+    setMobileOpen(false)
+  };
+
+
   return (
     <footer className="bg-black text-white   pt-4 md:pt-12 lg:pt-16 pb-16">
           <div className="container mx-auto px-6">
@@ -24,7 +43,9 @@ export default function Footer() {
                         <ul className='flex space-x-2 ps-2 mt-2'>
                           <li><a className=' fading w-8 h-8 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors' href='#'><FaInstagram size='20' /></a></li>
                           <li><a className=' fading w-8 h-8 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors' href='#'><FaTwitter size='20' /></a></li>
-                          <li><a className=' fading w-8 h-8 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors' href='#'><IoLogoWhatsapp size='20' /></a></li>
+                          <li><a href={waLink}
+            target="_blank"
+            rel="noreferrer" className=' fading w-8 h-8 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors'><IoLogoWhatsapp size='20' /></a></li>
                         </ul>
                       </div>
                     </div>
@@ -34,9 +55,9 @@ export default function Footer() {
                   <div className="space-y-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm">Quick Links</h3>
                     <ul className="space-y-3">
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Why choose us</a></li>
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">About</a></li>
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Contact</a></li>
+                      <li><button onClick={() => handleNavigation('/', '#why-choose-us')}  className="fading text-gray-300 hover:text-white transition-colors">Why choose us</button></li>
+                      <li><Link href="/about-us" className="fading text-gray-300 hover:text-white transition-colors">About</Link></li>
+                      <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">Contact</Link></li>
                     </ul>
                   </div>
 
@@ -44,9 +65,9 @@ export default function Footer() {
                   <div className="space-y-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm">For Customers</h3>
                     <ul className="space-y-3">
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Services</a></li>
+                      <li><button onClick={() => handleNavigation('/', '#services')} className="fading text-gray-300 hover:text-white transition-colors">Services</button></li>
                       <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">FAQs</a></li>
+                      <li><button onClick={() => handleNavigation('/', '#faq')} className="fading text-gray-300 hover:text-white transition-colors">FAQs</button></li>
                       <li><Link href="/customer-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Customer Terms & Conditions</Link></li>
                     </ul>
                   </div>
@@ -55,8 +76,8 @@ export default function Footer() {
                   <div className="space-y-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm">For Partners</h3>
                     <ul className="space-y-3">
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Partner Signup</a></li>
-                      <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Support</a></li>
+                      {/* <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Partner Signup</a></li> */}
+                      <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">Support</Link></li>
                       <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
                       <li><Link href="/partner-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Partner Terms & Conditions</Link></li>
                     </ul>

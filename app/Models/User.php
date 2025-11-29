@@ -29,6 +29,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'uuid',
         'profile_pic',
         'name',
         'last_name',
@@ -77,7 +78,7 @@ class User extends Authenticatable
 
     protected $appends = [
         'profile_photo_url',
-        'received_at',
+        'member_since',
         'trashed_at',
     ];
 
@@ -86,12 +87,16 @@ class User extends Authenticatable
         'created_at' => 'datetime',
     ];
 
-    public function receivedAt(): Attribute
+    public function memberSince(): Attribute
     {
         return Attribute::make(
-            get: fn() => empty($this->created_at) ? '--/--/----' : $this->created_at->format('d-m-Y h:i A')
+            get: fn() =>
+            empty($this->created_at)
+                ? '--'
+                : $this->created_at->diffForHumans()
         );
     }
+
 
     public function trashedAt(): Attribute
     {

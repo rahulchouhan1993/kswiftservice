@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
+use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
+use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
 use Illuminate\Support\Facades\Artisan;
@@ -58,7 +60,9 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
 
         Route::prefix('user')->name('user.')->group(function () {
-            Route::get('list', [UsersController::class, 'index'])->name('list');
+            Route::get('/list', [UsersController::class, 'index'])->name('list');
+            Route::post('/add', [UsersController::class, 'add'])->name('add');
+            Route::post('/update/{uuid?}', [UsersController::class, 'update'])->name('update');
             Route::post('/{uuid}/update-status', [UsersController::class, 'updateStatus'])->name('update.status');
             Route::post('/{uuid}/update-password', [UsersController::class, 'updatePassword'])->name('update.password');
             Route::get('/{uuid}/details', [UsersController::class, 'details'])->name('details');
@@ -67,6 +71,16 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
             Route::prefix('address')->name('address.')->group(function () {
                 Route::get('list', [UsersController::class, 'addressList'])->name('list');
             });
+        });
+
+
+        Route::prefix('contactus-enquiries')->name('enquiries.')->group(function () {
+            Route::get('/list', [ContactUsEnquiriesController::class, 'list'])->name('list');
+            Route::post('/{uuid}/update-status', [ContactUsEnquiriesController::class, 'updateReadStatus'])->name('update.status');
+        });
+
+        Route::prefix('/transaction-history')->name('transaction_history.')->group(function () {
+            Route::get('/list', [TransactionHistoryController::class, 'list'])->name('list');
         });
     });
 });

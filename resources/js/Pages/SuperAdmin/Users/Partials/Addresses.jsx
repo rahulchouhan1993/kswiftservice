@@ -67,7 +67,7 @@ export default function Addresses({ user, className = '' }) {
 
                                     {/* City / State */}
                                     <td className="p-2 text-center">
-                                        {a.city_id || "--"} / {a.state_id || "--"}
+                                        {a?.city?.name || "--"} / {a?.state?.name || "--"}
                                     </td>
 
                                     {/* Full Address */}

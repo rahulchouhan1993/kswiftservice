@@ -13,6 +13,8 @@ import Tooltip from '@/Components/Tooltip';
 import NotificationPanel from "../../../Components/NotificationPanel";
 import { useTheme } from 'next-themes';
 import { FaUsers } from 'react-icons/fa6';
+import { LuMessageSquareText } from 'react-icons/lu';
+import { GoChecklist } from "react-icons/go";
 
 export default function AuthenticatedLayout({ header, children }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -26,7 +28,7 @@ export default function AuthenticatedLayout({ header, children }) {
     );
 
     const { successAlert, errorAlert, warningAlert, infoAlert } = useAlerts();
-    const { flash, errors, messages } = usePage().props;
+    const { flash, errors, messages, enquiryCount } = usePage().props;
 
     useEffect(() => {
         if (errors) {
@@ -84,10 +86,19 @@ export default function AuthenticatedLayout({ header, children }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [menuRef]);
 
+
     const navLinks = [
         { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard },
         { href: route('superadmin.settings.vehicle.make.list'), active: route().current('vehicle.make'), label: 'Settings', icon: MdOutlineSettingsSuggest },
-        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Users', icon: FaUsers }
+        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Users', icon: FaUsers },
+        {
+            href: route('superadmin.enquiries.list'),
+            active: route().current('enquiries.list'),
+            label: 'Enquiries',
+            count: enquiryCount,
+            icon: LuMessageSquareText
+        },
+        { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
     ];
 
     return (
@@ -107,7 +118,14 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="hidden lg:flex items-center space-x-4 ms-5">
                                 {navLinks.map((link, index) => (
                                     <NavLink key={index} href={link.href} active={link.active}>
-                                        <link.icon className="h-5 w-5 mr-1" /> {link.label}
+                                        <link.icon className="h-5 w-5 mr-1" />
+                                        {link.label}
+
+                                        {link.count > 0 && (
+                                            <span className="ml-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                                                {link.count}
+                                            </span>
+                                        )}
                                     </NavLink>
                                 ))}
                             </div>

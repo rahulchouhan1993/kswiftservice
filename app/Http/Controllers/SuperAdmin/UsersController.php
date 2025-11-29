@@ -3,9 +3,17 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\State;
 use App\Models\User;
+use App\Models\UserAddress;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+
+use function App\uploadRequestFile;
 
 class UsersController extends Controller
 {
@@ -49,13 +57,124 @@ class UsersController extends Controller
             });
 
         $makes = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
+
+        $country = Country::whereName('india')->first();
+        $states = State::whereCountryId($country->id)->get()->pluck('id', 'name');
+        $cities = City::get();
+
         return Inertia::render('SuperAdmin/Users/List', [
             'list' => $makes,
             'search' => $search,
             'status' => $status,
             'type' => $type,
+            'states' => $states,
+            'cities' => $cities
         ]);
     }
+
+
+    /**
+     * Add User
+     * @param Request $request
+     * @return mixed
+     */
+    public function add(Request $request)
+    {
+        $request->validate([
+            "user_type"        => "required|in:mechanic,customer",
+            "name"             => "required|string|max:100",
+            "email"            => "required|email|unique:users,email",
+            "phone"            => "required|digits:10|unique:users,phone",
+            "whatsapp_phone"   => "nullable|digits:10|unique:users,whatsapp_number",
+            "state_id"         => "required|integer|exists:states,id",
+            "city_id"          => "required|integer|exists:cities,id",
+            "address"          => "required|string|max:500",
+            "pincode"          => "required|digits:6",
+            "dob"              => "required|date_format:d/m/Y",
+            "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
+            "password"         => "required|confirmed",
+        ]);
+
+        $user = User::create([
+            'role' => $request->user_type,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'whatsapp_number' => $request->whatsapp_phone,
+            'dob' => $request->dob,
+            'password' => $request->password,
+        ]);
+
+        if ($request->hasFile('photo')) {
+            uploadRequestFile($request, 'photo', $user, 'users_photos', 'profile_pic');
+        }
+
+        if (!empty($request->state_id) && !empty($request->city_id) && !empty($request->address) && !empty($request->pincode)) {
+            UserAddress::create([
+                'user_id' => $user->id,
+                'country_id' => 1,
+                'address_type' => $request->address_type,
+                'state_id' => $request->state_id,
+                'city_id' => $request->city_id,
+                'address' => $request->address,
+                'pincode' => $request->pincode,
+            ]);
+        }
+
+
+        return back()->with('success', ucwords($request->user_type) . ' added successfully');
+    }
+
+
+    /**
+     * Update User
+     * @param Request $request
+     * @param string $uuid User UUID
+     * @return mixed
+     */
+    public function update(Request $request, $uuid)
+    {
+        $user = User::where('uuid', $uuid)->first();
+        if (!$user) {
+            return back()->with('error', 'User does not exist');
+        }
+
+        $request->validate([
+            "user_type"        => "required|in:mechanic,customer",
+            "name"             => "required|string|max:100",
+            "email"            => [
+                'required',
+                Rule::unique('users', 'email')->ignore($user->id)
+            ],
+            "phone"            => [
+                'required',
+                Rule::unique('users', 'phone')->ignore($user->id)
+            ],
+            "whatsapp_phone"            => [
+                'required',
+                Rule::unique('users', 'whatsapp_number')->ignore($user->id)
+            ],
+            "dob"              => "required|date_format:d/m/Y",
+            "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
+            "password"         => "nullable|confirmed",
+        ]);
+
+        $user->update([
+            'role' => $request->user_type,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'whatsapp_number' => $request->whatsapp_phone,
+            'dob' => $request->dob,
+        ]);
+
+        if ($request->hasFile('photo')) {
+            uploadRequestFile($request, 'photo', $user, 'users_photos', 'profile_pic');
+        }
+
+        return back()->with('success', ucwords($request->user_type) . ' updated successfully');
+    }
+
 
     /**
      * Update User Status
@@ -127,7 +246,7 @@ class UsersController extends Controller
      */
     public function details($uuid)
     {
-        $user = User::with(['addresses', 'vehicles', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
+        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'vehicles', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
         if (!$user) {
             return back()->with('error', "User does not exist");
         }

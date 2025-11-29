@@ -1,34 +1,26 @@
 import { Head, router, usePage } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
-import Tooltip from "@/Components/Tooltip";
 import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
 import { useHelpers } from "@/Components/Helpers";
 import Pagination from "@/Components/Pagination";
 import DeleteUserAction from "@/Components/DeleteUserAction";
 import DataNotExist from "@/Components/DataNotExist";
-import UsersLayout from "../Layouts/UsersLayout";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
-import Add from "./Add";
-import Edit from "./Edit";
+import { MdCloudDownload } from "react-icons/md";
 
-export default function List({ list, search, status, type, states, cities }) {
-    console.log('list', list);
+export default function List({ list, search, status }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { toTitleCase } = useHelpers();
-    const auth = usePage().props.auth.user;
 
-    const userTypeOptions = [
-        { value: "customer", label: "Customer" },
-        { value: "mechanic", label: "Mechanic" },
-    ];
+    const { displayInRupee } = useHelpers();
 
     const statusOptions = [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "InActive" },
+        { value: "", label: "All" },
+        { value: "success", label: "Success" },
+        { value: "failed", label: "Failed" },
     ];
 
     useEffect(() => {
@@ -47,7 +39,7 @@ export default function List({ list, search, status, type, states, cities }) {
 
             if (!sval || sval.length > 0) {
                 timerRef.current = setTimeout(() => {
-                    router.visit(route('superadmin.user.list', {
+                    router.visit(route('superadmin.transaction_history.list', {
                         search: sval,
                     }), {
                         only: ['list', 'search'],
@@ -58,28 +50,14 @@ export default function List({ list, search, status, type, states, cities }) {
         }
     };
 
-    const handleUserTypeChange = (e) => {
-        const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
-                    type: sval,
-                }), {
-                    only: ['list', 'search', 'type'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
-    };
-
     const handleStatusChange = (e) => {
         const sval = e.target.value;
         if (!sval || sval.length > 0) {
             timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
+                router.visit(route('superadmin.transaction_history.list', {
                     status: sval,
                 }), {
-                    only: ['list', 'search', 'type', 'status'],
+                    only: ['list', 'search', 'status'],
                     preserveScroll: true,
                 });
             }, 500);
@@ -89,27 +67,12 @@ export default function List({ list, search, status, type, states, cities }) {
 
     return (
         <AuthenticatedLayout>
-            <Head title="Manage Users List " />
-            <div className="pt-[60px]">
-                {/* <UsersLayout /> */}
-            </div>
+            <Head title="Payment History List " />
+            <div className="pt-[60px]"></div>
 
             <div className="sm:p-4 p-1 w-full">
                 <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
                     <div className="mb-4 flex flex-wrap items-center gap-4">
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[100px]">
-                            <Add states={states} cities={cities} />
-                        </div>
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
-                            <SelectInput
-                                id="type"
-                                value={type}
-                                onChange={handleUserTypeChange}
-                                options={userTypeOptions}
-                                placeholder="Filter By Type"
-                            />
-                        </div>
-
                         <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
                             <SelectInput
                                 id="status"
@@ -126,7 +89,7 @@ export default function List({ list, search, status, type, states, cities }) {
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
                                 type="text"
-                                placeholder="Search by name..."
+                                placeholder="Search transaction id..."
                                 className="w-full px-4 py-1.5 border-gray-500 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e37]"
                             />
                         </div>
@@ -137,12 +100,13 @@ export default function List({ list, search, status, type, states, cities }) {
                         <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
                             <thead className="border-b border-gray-300 dark:border-blue-900 ">
                                 <tr>
-                                    <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
-                                    <th className="p-2 text-start whitespace-nowrap">Name</th>
-                                    <th className="p-2 text-center whitespace-nowrap">D.O.B</th>
-                                    <th className="p-2 text-center whitespace-nowrap">KYC Status</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Member Since</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Action</th>
+                                    <th className="p-2 text-center whitespace-nowrap">#txnId</th>
+                                    <th className="p-2 text-start whitespace-nowrap">User</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Mechanic</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Vehicle</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Amount/Mode</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Status</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Invoice</th>
                                 </tr>
                             </thead>
 
@@ -150,7 +114,7 @@ export default function List({ list, search, status, type, states, cities }) {
                                 {list.data.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="text-center py-6 text-gray-600 dark:text-gray-300"
                                         >
                                             <DataNotExist />
@@ -162,27 +126,35 @@ export default function List({ list, search, status, type, states, cities }) {
                                             key={index}
                                             className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
                                         >
-                                            <td className="p-2">{index + 1}</td>
+                                            <td className="p-2">{l?.txnId}</td>
                                             <td className="p-2 text-start">
-                                                <UserAvatarCard user={l} />
+                                                <UserAvatarCard user={l?.user} />
                                             </td>
-                                            <td className="p-2 text-center">{l?.dob || '--'}</td>
-                                            <td className="p-2 text-center">{l?.kyc_status}</td>
-                                            <td className="p-2 text-center">{l?.member_since}</td>
-                                            <td className="p-1 flex justify-center items-baseline gap-4">
-                                                <StatusToggle
-                                                    action={route("superadmin.user.update.status", { uuid: l?.uuid }
+                                            <td className="p-2 text-start">
+                                                {l?.booking?.mechanic ? <>
+                                                    <UserAvatarCard user={l?.booking?.mechanic} />
+                                                </> : '--'}
+                                            </td>
+                                            <td className="p-2 text-center">{l?.booking?.vehicle?.vehicle_number}</td>
+                                            <td className="p-2 text-center">{displayInRupee(l?.amount) || '--'} / {l?.payment_mode || '--'}</td>
+                                            <td className="p-2 text-center">{l?.status || '--'}</td>
+                                            <td className="p-2 text-left max-w-[250px]">
+                                                <td className="p-2 flex justify-center text-center">
+                                                    {l?.invoice_url ? (
+                                                        <a
+                                                            href={l.invoice_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            download
+                                                            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                                                        >
+                                                            <MdCloudDownload /> Invoice
+                                                        </a>
+                                                    ) : (
+                                                        "--"
                                                     )}
-                                                    checked={l?.status === 1}
-                                                    className="!mb-0"
-                                                />
+                                                </td>
 
-                                                <DeleteUserAction
-                                                    action={route("superadmin.user.delete", { uuid: l?.uuid || "" })}
-                                                    message="Are you sure you want to delete this user?"
-                                                />
-
-                                                <Edit user={l} />
                                             </td>
                                         </tr>
                                     ))
