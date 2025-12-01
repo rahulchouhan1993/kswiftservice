@@ -3,10 +3,8 @@ import logo from '../../img/swiftlogo.png'
 import { Link, router } from '@inertiajs/react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);
-
     useEffect(() => {
         AOS.init();
     }, []);
@@ -14,7 +12,6 @@ export default function Header() {
     const toggleMobileMenu = () => {
         setMobileOpen(!mobileOpen);
     };
-
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape' && mobileOpen) {

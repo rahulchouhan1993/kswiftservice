@@ -4,9 +4,7 @@ import logo from '../../img/swiftlogo.png'
 import { FaInstagram } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 import { IoLogoWhatsapp } from "react-icons/io";
-
 export default function Footer() {
-
     const phone = "918747998747";
     const encodedMessage = encodeURIComponent("Hi there, I would like to request for service, can you help me out?!");
     const waLink = `https://wa.me/${phone}?text=${encodedMessage}`;
