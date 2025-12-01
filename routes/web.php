@@ -25,6 +25,8 @@ Route::get('/partner-terms-conditions', [HomeController::class, 'partnerTermsCon
 Route::get('/customer-terms-conditions', [HomeController::class, 'customerTermsConditions'])->name('customer-terms-conditions');
 Route::get('/business-policy', [HomeController::class, 'businessPolicy'])->name('business-policy');
 Route::get('/offers', [HomeController::class, 'offers'])->name('offers');
+Route::match(['get', 'post'], '/delete-account', [HomeController::class, 'deleteAccount'])->name('delete.account');
+
 
 
 

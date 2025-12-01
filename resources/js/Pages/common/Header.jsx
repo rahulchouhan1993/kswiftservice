@@ -41,6 +41,7 @@ export default function Header() {
         { href: '/about-us', label: 'About Us' },
         { href: '/our-services', label: 'Services' },
         { href: '/offers', label: 'Offers' },
+        { href: '/delete-account', label: 'Delete Account' },
         { href: '/contact-us', label: 'Contact' },
     ];
 

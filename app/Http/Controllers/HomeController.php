@@ -6,6 +6,7 @@ use App\Models\ContactUsMessage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Inertia\Inertia;
+use Twilio\Rest\Api\V2010\AccountContext;
 
 class HomeController extends Controller
 {
@@ -97,5 +98,20 @@ class HomeController extends Controller
     public function offers()
     {
         return Inertia::render('Offers');
+    }
+
+
+    /**
+     * Manage Delete Account Page
+     * @param Request $request
+     * @return mixed
+     */
+    public function deleteAccount(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            return back()->with('success', 'Request submitted..');
+        }
+
+        return Inertia::render('AccountDelete');
     }
 }
