@@ -11,8 +11,9 @@ import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
 import { MdCloudDownload } from "react-icons/md";
 import VehicleInfo from "@/Components/VehicleInfo";
+import AssignMechanic from "./AssignMechanic";
 
-export default function List({ list, search, status }) {
+export default function List({ list, search, status, mechanics }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
 
@@ -108,7 +109,10 @@ export default function List({ list, search, status }) {
                                     <th className="p-2 text-start whitespace-nowrap">Mechanic</th>
                                     <th className="p-2 text-center whitespace-nowrap">Vehicle</th>
                                     <th className="p-2 text-center whitespace-nowrap">Booking Date</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Assign Date</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Delivery Date</th>
                                     <th className="p-2 text-center whitespace-nowrap">Booking Status</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Action</th>
                                 </tr>
                             </thead>
 
@@ -128,21 +132,25 @@ export default function List({ list, search, status }) {
                                             key={index}
                                             className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
                                         >
-                                            <td className="p-2">{l?.booking_id}</td>
-                                            <td className="p-2 text-start">
+                                            <td className="text-sm p-2">{l?.booking_id}</td>
+                                            <td className="p-2 text-sm text-start">
                                                 <UserAvatarCard user={l?.customer} displayRole={false} />
                                             </td>
-                                            <td className="p-2 text-start">
+                                            <td className="p-2 text-sm text-start">
                                                 {l?.mechanic ? <>
                                                     <UserAvatarCard user={l?.mechanic} />
                                                 </> : 'Not Assigned'}
                                             </td>
-                                            <td className="p-2 text-center">
+                                            <td className="p-2 text-sm text-center">
                                                 <VehicleInfo vehicle={l?.vehicle} />
                                             </td>
-                                            <td className="p-2 text-center">{l?.date} - {l?.time}</td>
-                                            <td className="p-2 text-center">{l?.status || '--'}</td>
-                                            <td className="p-2 text-center">{l?.booking_status}</td>
+                                            <td className="p-2 text-sm text-center">{l?.date}</td>
+                                            <td className="p-2 text-sm text-center">{l?.date}</td>
+                                            <td className="p-2 text-sm text-center">{l?.date}</td>
+                                            <td className="p-2 text-sm text-center">{l?.booking_status}</td>
+                                            <td className="p-2 text-sm text-center">
+                                                <AssignMechanic mechanics={mechanics} />
+                                            </td>
                                         </tr>
                                     ))
                                 )}

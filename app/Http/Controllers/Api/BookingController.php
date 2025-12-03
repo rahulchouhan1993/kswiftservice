@@ -26,7 +26,6 @@ class BookingController extends Controller
         try {
             $request->validate([
                 'vehicle_id' => ['required', 'integer'],
-
                 'services' => ['required', 'array', 'min:1'],
                 'services.*' => ['integer', 'exists:service_types,id'],
 
@@ -39,15 +38,11 @@ class BookingController extends Controller
                 'pickup_type' => ['required', Rule::in(['pickup', 'self_drop'])],
 
                 'pickup_address' => [
-                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup'),
-                    'integer',
-                    'exists:user_addresses,id'
+                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup')
                 ],
 
                 'drop_address' => [
-                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup'),
-                    'integer',
-                    'exists:user_addresses,id'
+                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup')
                 ],
 
                 'additional_note' => ['required'],

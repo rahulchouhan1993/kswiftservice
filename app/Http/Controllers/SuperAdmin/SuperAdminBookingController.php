@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -49,10 +50,25 @@ class SuperAdminBookingController extends Controller
 
         $bookings = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
 
+        $mechanics = User::whereRole('mechanic')->whereStatus(1)->orderBy('name')->select('id', 'name')->get();
         return Inertia::render('SuperAdmin/Bookings/List', [
             'list' => $bookings,
             'search' => $search,
             'status' => $status,
+            'mechanics' => $mechanics
+        ]);
+    }
+
+
+    /**
+     * Assign Mechanic
+     * @param Request $request
+     * @return mixed
+     */
+    public function assignMechanic(Request $request)
+    {
+        $request->validate([
+            'mechanic' => $request->mechanic
         ]);
     }
 }

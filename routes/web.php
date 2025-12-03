@@ -64,6 +64,7 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
         Route::prefix('bookings')->name('booking.')->group(function () {
             Route::get('/list', [SuperAdminBookingController::class, 'list'])->name('list');
+            Route::post('/assign-mechanic', [SuperAdminBookingController::class, 'assignMechanic'])->name('assign.mechanic');
         });
 
 
