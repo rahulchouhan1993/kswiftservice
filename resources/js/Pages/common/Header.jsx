@@ -38,11 +38,10 @@ export default function Header() {
 
     const navLinks = [
         { href: '/', label: 'Home' },
-        { href: '/about-us', label: 'About Us' },
-        { href: '/our-services', label: 'Services' },
+        { href: '/#services', label: 'Services' },
         { href: '/offers', label: 'Offers' },
-        { href: '/delete-account', label: 'Delete Account' },
-        { href: '/contact-us', label: 'Contact' },
+        { href: '/about-us', label: 'About Us' },
+        { href: '/delete-account', label: 'Delete Account' }
     ];
 
     return (
@@ -50,7 +49,11 @@ export default function Header() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <header className="relative flex items-center justify-between p-3 sm:p-4 rounded-[50px] border border-gray-500 backdrop-blur-[5px] bg-black/20">
                     <div className="flex-shrink-0">
-                        <img src={logo} alt="KSwift Logo" className="h-8 w-auto sm:h-9 md:h-10" />
+                        <a
+                            href="/"
+                        >
+                            <img src={logo} alt="KSwift Logo" className="h-8 w-auto sm:h-9 md:h-10" />
+                        </a>
                     </div>
 
                     <nav className="hidden md:flex items-center space-x-8">
@@ -65,9 +68,11 @@ export default function Header() {
                         ))}
                     </nav>
 
-                    <button className="hidden md:block px-6 py-2.5 rounded-full bg-main text-white font-medium transition-all duration-300 hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+                    <a
+                        href="/contact-us"
+                        className="hidden md:block px-6 py-2.5 rounded-full bg-main text-white font-medium transition-all duration-300 hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-black">
                         Contact
-                    </button>
+                    </a>
 
                     <button
                         onClick={toggleMobileMenu}

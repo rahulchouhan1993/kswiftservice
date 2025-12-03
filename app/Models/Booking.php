@@ -46,6 +46,11 @@ class Booking extends Model
         return $this->hasMany(BookingService::class, 'booking_id', 'id');
     }
 
+    public function customer()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
     public function mechanic()
     {
         return $this->hasOne(User::class, 'id', 'mechanic_id');

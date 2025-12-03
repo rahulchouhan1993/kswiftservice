@@ -159,7 +159,7 @@ export default function ContactUs() {
                 </div>
 
                 <div data-aos="fade-down" className="overflow-hidden">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.734389226267!2d75.77203235!3d26.881791899999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db4576fa22b87%3A0x9018511eb679742f!2sNew%20Aatish%20Market!5e0!3m2!1sen!2sin!4v1764013678218!5m2!1sen!2sin" width="600" height="350" className="border-0 w-full mt-8 rounded-[20px]" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7771.970076355303!2d77.58277789259292!3d13.100134298908538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1939fc6520d9%3A0xbb0d2f99ce89f084!2sBBMP%20office!5e0!3m2!1sen!2sin!4v1764666215569!5m2!1sen!2sin" width="600" height="350" className="border-0 w-full mt-8 rounded-[20px]" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </Layout>

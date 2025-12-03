@@ -15,6 +15,7 @@ import { useTheme } from 'next-themes';
 import { FaUsers } from 'react-icons/fa6';
 import { LuMessageSquareText } from 'react-icons/lu';
 import { GoChecklist } from "react-icons/go";
+import { GrFormCalendar } from 'react-icons/gr';
 
 export default function AuthenticatedLayout({ header, children }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -98,6 +99,7 @@ export default function AuthenticatedLayout({ header, children }) {
             count: enquiryCount,
             icon: LuMessageSquareText
         },
+        { href: route('superadmin.booking.list'), active: route().current('booking.list'), label: 'Bookings', icon: GrFormCalendar },
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
     ];
 

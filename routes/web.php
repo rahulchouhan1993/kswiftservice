@@ -7,6 +7,7 @@ use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
+use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
@@ -58,6 +59,11 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
                 Route::post('/{uuid}/update-status', [ServiceTypeController::class, 'updateStatus'])->name('update.status');
                 Route::post('/{uuid}/delete', [ServiceTypeController::class, 'delete'])->name('delete');
             });
+        });
+
+
+        Route::prefix('bookings')->name('booking.')->group(function () {
+            Route::get('/list', [SuperAdminBookingController::class, 'list'])->name('list');
         });
 
 
