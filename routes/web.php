@@ -10,6 +10,7 @@ use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
 use App\Http\Controllers\SuperAdmin\MechanicJobsControler;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
+use App\Http\Controllers\SuperAdmin\SuperAdminMechanicController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
@@ -90,6 +91,20 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
             Route::prefix('address')->name('address.')->group(function () {
                 Route::get('list', [UsersController::class, 'addressList'])->name('list');
+            });
+        });
+
+        Route::prefix('mechanics')->name('mechanic.')->group(function () {
+            Route::get('/list', [SuperAdminMechanicController::class, 'index'])->name('list');
+            Route::post('/add', [SuperAdminMechanicController::class, 'add'])->name('add');
+            Route::post('/update/{uuid?}', [SuperAdminMechanicController::class, 'update'])->name('update');
+            Route::post('/{uuid}/update-status', [SuperAdminMechanicController::class, 'updateStatus'])->name('update.status');
+            Route::post('/{uuid}/update-password', [SuperAdminMechanicController::class, 'updatePassword'])->name('update.password');
+            Route::get('/{uuid}/details', [SuperAdminMechanicController::class, 'details'])->name('details');
+            Route::post('/{uuid}/delete', [SuperAdminMechanicController::class, 'delete'])->name('delete');
+
+            Route::prefix('address')->name('address.')->group(function () {
+                Route::get('list', [SuperAdminMechanicController::class, 'addressList'])->name('list');
             });
         });
 

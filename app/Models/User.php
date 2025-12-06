@@ -90,10 +90,7 @@ class User extends Authenticatable
     public function memberSince(): Attribute
     {
         return Attribute::make(
-            get: fn() =>
-            empty($this->created_at)
-                ? '--'
-                : $this->created_at->diffForHumans()
+            get: fn() => empty($this->created_at) ? '--/--/----' : $this->created_at->format('d-m-Y')
         );
     }
 

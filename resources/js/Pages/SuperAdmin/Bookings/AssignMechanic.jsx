@@ -77,6 +77,8 @@ export default function AssignGarage({ booking }) {
         }
     };
 
+    console.log('allGarages', allGarages);
+
     const closeModal = () => {
         setOpen(false);
         reset();
@@ -86,8 +88,8 @@ export default function AssignGarage({ booking }) {
 
     const searchOptions = [
         { value: "all", label: "All Garages" },
-        { value: "at_pickup_location", label: "Garage at Pickup Location" },
-        { value: "at_drop_location", label: "Garage at Drop Location" },
+        { value: "at_pickup_location", label: "Garages Near Pickup Location" },
+        { value: "at_drop_location", label: "Garages Near Drop Location" },
     ];
 
     const handleAssignSubmit = (e) => {
@@ -122,7 +124,7 @@ export default function AssignGarage({ booking }) {
                 <FaWarehouse />
             </RoundBtn>
 
-            <Modal show={open} maxWidth="lg" topCloseButton={true} handleTopClose={closeModal}>
+            <Modal show={open} maxWidth="3xl" topCloseButton={true} handleTopClose={closeModal}>
                 <h3 className="px-6 py-2 border-b bg-gray-200 dark:bg-[#131836] font-semibold text-lg">
                     Assign Garage
                 </h3>
@@ -153,13 +155,32 @@ export default function AssignGarage({ booking }) {
                         Assigned Garage
                     </h3>
                     <form onSubmit={handleCancelSubmit} className="px-6 py-4 space-y-4 max-h-[75vh] overflow-y-auto">
-                        <div className="p-3 my-2 border rounded-lg dark:bg-[#131b3a]">
-                            <p className="font-semibold">{capitalizeWords(booking.garage.name)}</p>
-                            <p className="text-sm">{booking.garage.phone}</p>
+                        <div className="relative p-4 my-2 border rounded-xl dark:bg-[#131b3a] bg-white shadow-sm">
+                            <p className="font-semibold text-lg">
+                                {capitalizeWords(booking.garage.name)}
+                            </p>
+
+                            <p className="text-sm opacity-75">
+                                Owner: {booking.garage.owner_name}
+                            </p>
+
+                            <p className="text-sm opacity-75">
+                                Phone: {booking.garage.phone}
+                            </p>
+
                             <p className="text-xs mt-1 opacity-75">
                                 {booking.garage.address} - {booking.garage.pincode}
                             </p>
+
+                            <div className="absolute bottom-2 right-3 flex text-yellow-500 text-lg">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <span key={i}>
+                                        {i < (booking.garage.rating ?? 4) ? "★" : "☆"}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
+
 
                         {booking?.booking_status == 'accepted' ? <>
                             <span className="mt-3 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded px-3 py-1">Work in progress..</span>
@@ -212,36 +233,53 @@ export default function AssignGarage({ booking }) {
                                 <p className="text-gray-500">No garages found.</p>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {garages.map((g) => (
-                                        <label
-                                            key={g.id}
-                                            className={`rounded-xl border p-4 shadow-sm cursor-pointer
-                                                ${data.garage_id == g.id
-                                                    ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
-                                                    : "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f1633]"
-                                                }`}
-                                        >
-                                            <div className="flex items-start gap-4">
-                                                <input
-                                                    type="radio"
-                                                    name="garage_id"
-                                                    value={g.id}
-                                                    checked={data.garage_id == g.id}
-                                                    onChange={() => setData("garage_id", g.id)}
-                                                    className="mt-1 h-5 w-5 text-blue-600"
-                                                />
+                                    {garages.map((g) => {
+                                        const selected = data.garage_id == g.id;
 
-                                                <div>
+                                        return (
+                                            <div
+                                                key={g.id}
+                                                onClick={() => setData("garage_id", g.id)}
+                                                className={`relative rounded-xl border p-4 shadow-sm cursor-pointer transition-all duration-200 ${selected
+                                                    ? "border-green-600 bg-green-50 dark:bg-green-900/20"
+                                                    : "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f1633]"
+                                                    }`}
+                                            >
+                                                {/* Garage Details */}
+                                                <div className="flex-1">
                                                     <p className="font-semibold">{capitalizeWords(g.name)}</p>
-                                                    <p className="text-sm opacity-75">{g.mobile}</p>
+
+                                                    {/* Owner Name */}
+                                                    <p className="text-sm opacity-75">Owner: {g.owner_name}</p>
+
+                                                    {/* Phone */}
+                                                    <p className="text-sm opacity-75">Phone: {g.phone}</p>
+
+                                                    {/* Address */}
                                                     <p className="text-xs mt-1 opacity-75">
                                                         {g.address} - {g.pincode}
                                                     </p>
                                                 </div>
+
+                                                {/* ⭐ Rating Display in Bottom Right */}
+                                                <div className="absolute bottom-2 right-3 flex text-yellow-500">
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <span key={i}>{i < (g.rating ?? 4) ? "★" : "☆"}</span>
+                                                    ))}
+                                                </div>
+
+                                                {/* Selected Badge */}
+                                                {selected && (
+                                                    <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                                        Selected
+                                                    </div>
+                                                )}
                                             </div>
-                                        </label>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
+
+
                             )}
                         </div>
 

@@ -35,7 +35,7 @@ export default function Edit({ user, states, cities }) {
         processing
     } = useForm({
         uuid: '',
-        user_type: 'customer',
+        user_type: 'mechanic',
         name: '',
         email: '',
         phone: '',
@@ -76,7 +76,7 @@ export default function Edit({ user, states, cities }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         try {
-            post(route('superadmin.user.update', { uuid: data?.uuid }), {
+            post(route('superadmin.mechanic.update', { uuid: data?.uuid }), {
                 preserveScroll: true,
                 onSuccess: (resp) => {
                     closeModal()
@@ -98,7 +98,7 @@ export default function Edit({ user, states, cities }) {
 
             <Modal show={open} maxWidth="md" topCloseButton={true} handleTopClose={closeModal}>
                 <h3 className="px-6 py-2 border-b-2 bg-gray-200 dark:bg-[#131836] font-semibold text-lg text-gray-800 dark:text-white">
-                    Update User
+                    Update Mechanic
                 </h3>
                 <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4 dark:bg-[#0a0e25]">
                     <div>

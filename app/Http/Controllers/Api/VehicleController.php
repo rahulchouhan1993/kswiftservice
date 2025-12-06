@@ -215,18 +215,12 @@ class VehicleController extends Controller
             $user = $request->user();
             $vehicles = Vehicle::with(['vehicle_photos'])->whereUserId($user->id)->get();
 
-            $msg = "vehicles list fetched";
-            activityLog($user, "vehicles list fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => "Vehicle list fetched succesfully",
                 'vehicles' => $vehicles
             ], 201);
         } catch (Exception $e) {
-            $msg = "error during fetch vehicles list - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch vehicles list", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -252,18 +246,12 @@ class VehicleController extends Controller
                 ], 500);
             }
 
-            $msg = "vehicle details fetched";
-            activityLog($user, "vehicle details fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle details fetched.',
                 'vehicle' => $vehicle
             ]);
         } catch (Exception $e) {
-            $msg = "error during fetch vehicle details - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch vehicle details", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

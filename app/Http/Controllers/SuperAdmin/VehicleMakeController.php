@@ -26,6 +26,7 @@ class VehicleMakeController extends Controller
     {
         $search = $request->query('search');
         $status = $request->query('status');
+        $type = $request->query('type');
 
         $baseQuery = VehicleMake::orderBy('name')
             ->when($search, function ($q) use ($search) {
@@ -35,6 +36,9 @@ class VehicleMakeController extends Controller
             })
             ->when(!is_null($status) && $status !== '', function ($q) use ($status) {
                 $q->where('status', $status);
+            })
+            ->when(!is_null($type), function ($q) use ($type) {
+                $q->where('vehicle_type', $type);
             });
 
         $makes = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
@@ -42,6 +46,7 @@ class VehicleMakeController extends Controller
             'list' => $makes,
             'search' => $search,
             'status' => $status,
+            'type' => $type,
         ]);
     }
 
@@ -59,10 +64,14 @@ class VehicleMakeController extends Controller
                 'string',
                 Rule::unique('vehicle_makes', 'name')
             ],
+            'vehicle_type' => [
+                'required',
+            ],
         ]);
 
         VehicleMake::create([
             'name' => $request->name,
+            'vehicle_type' => $request->vehicle_type,
         ]);
 
         return back()->with('success', "Record added succesfully..");
@@ -88,11 +97,15 @@ class VehicleMakeController extends Controller
                 'required',
                 'string',
                 Rule::unique('vehicle_makes', 'name')->ignore($make)
-            ]
+            ],
+            'vehicle_type' => [
+                'required',
+            ],
         ]);
 
         $make->update([
             'name' => $request->name,
+            'vehicle_type' => $request->vehicle_type,
         ]);
 
         return back()->with('success', "Record updated succesfully..");

@@ -28,17 +28,24 @@ export default function Edit({ make }) {
     } = useForm({
         uuid: '',
         name: '',
+        vehicle_type: '',
     });
     const closeModal = () => {
         setOpen(false);
         reset();
     }
 
+    const vehicleOptions = [
+        { value: "bike", label: "Bike" },
+        { value: "car", label: "Car" },
+    ];
+
     useEffect(() => {
         if (open) {
             setData({
                 uuid: make?.uuid,
                 name: make?.name || '',
+                vehicle_type: make?.vehicle_type || '',
             });
         }
     }, [open]);
@@ -73,6 +80,18 @@ export default function Edit({ make }) {
                     Update Vehicle Make
                 </h3>
                 <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4 dark:bg-[#0a0e25]">
+                    <div>
+                        <InputLabel htmlFor="vehicle_type" value="Vehicle Type *" />
+                        <SelectInput
+                            id="vehicle_type"
+                            value={data.vehicle_type}
+                            onChange={(e) => setData('vehicle_type', e.target.value)}
+                            options={vehicleOptions}
+                            placeholder="-Select-"
+                        />
+                        <InputError className="mt-2" message={errors.vehicle_type} />
+                    </div>
+
                     <div>
                         <InputLabel htmlFor="name" value="Vehicle Make Name *" />
                         <TextInput

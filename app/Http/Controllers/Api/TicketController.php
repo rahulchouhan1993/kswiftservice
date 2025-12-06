@@ -22,18 +22,12 @@ class TicketController extends Controller
             $user = $request->user();
             $tickets = Ticket::whereUserId($user->id)->get();
 
-            $msg = "tickets list fetched";
-            activityLog($user, "tickets list fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => "Tickets list fetched succesfully",
                 'tickets' => $tickets
             ], 201);
         } catch (Exception $e) {
-            $msg = "error during fetch tickets list - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch tickets list", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -112,18 +106,12 @@ class TicketController extends Controller
                 ], 404);
             }
 
-            $msg = "ticket details fetched";
-            activityLog($user, "ticket details fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => "Ticket details fetched succesfully",
                 'ticket' => $ticket
             ], 201);
         } catch (Exception $e) {
-            $msg = "error during fetch ticket details - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch ticket details", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

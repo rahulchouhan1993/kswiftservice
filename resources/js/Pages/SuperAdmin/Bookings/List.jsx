@@ -14,6 +14,7 @@ import VehicleInfo from "@/Components/VehicleInfo";
 import AssignMechanic from "./AssignMechanic";
 import BookingDetails from "./BookingDetails";
 import PaymentDetails from "./PaymentDetails";
+import RowActionsMenu from "@/Components/RowActionsMenu";
 
 export default function List({ list, search, status, mechanics, user_id, user_type }) {
     console.log('list', list);
@@ -172,10 +173,25 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                             <td className="p-2 text-sm text-center">{l?.date}</td>
                                             <td className="p-2 text-sm text-center">{l?.date}</td>
                                             <td className="p-2 text-sm text-center">{renderStatusBadge(l?.booking_status)}</td>
-                                            <td className="flex p-2 text-sm text-center gap-1">
-                                                <AssignMechanic booking={l} />
-                                                <BookingDetails booking={l} />
-                                                <PaymentDetails payment={l?.payment} />
+                                            <td className="p-1 flex justify-center">
+                                                <RowActionsMenu>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                            <AssignMechanic booking={l} />
+                                                            <span>Assign Mechanic</span>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                            <BookingDetails booking={l} />
+                                                            <span>Details</span>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                            <PaymentDetails payment={l?.payment} />
+                                                            <span>Payment Info</span>
+                                                        </div>
+                                                    </div>
+                                                </RowActionsMenu>
                                             </td>
                                         </tr>
                                     ))

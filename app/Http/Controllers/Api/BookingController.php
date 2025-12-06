@@ -229,7 +229,7 @@ class BookingController extends Controller
      * @param string $uuid UUID Booking UUID
      * @return mixed
      */
-    public function getBookingDetails($uuid)
+    public function getBookingDetails(Request $request, $uuid)
     {
         try {
             $user = $request->user();
@@ -334,17 +334,12 @@ class BookingController extends Controller
                 'drop_address' => $dropAddress,
             ];
 
-            $msg = "booking details fetched";
-            activityLog($user, "booking details fetched", $msg);
             return response()->json([
                 'status' => true,
                 'message' => 'Booking details fetched successfully.',
                 'booking' => $response,
             ]);
         } catch (Exception $e) {
-            $msg = "booking details fetch request failed " . $e->getMessage();
-            activityLog($request->user(), "booking details failed", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -471,18 +466,12 @@ class BookingController extends Controller
                 ];
             });
 
-            $msg = "booking list fetched";
-            activityLog($user, "booking list fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Bookings fetched successfully.',
                 'bookings' => $response,
             ]);
         } catch (Exception $e) {
-            $msg = "booking list fetch request failed due to " . $e->getMessage();
-            activityLog($request->user(), "booking list fetch request failed", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -606,22 +595,15 @@ class BookingController extends Controller
                 ];
             });
 
-            $msg = "home page booking list fetched";
-            activityLog($user, "home page booking list fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Bookings fetched successfully.',
                 'bookings' => $response,
             ]);
         } catch (Exception $e) {
-            $msg = "home page booking list fetched request failed due to " . $e->getMessage();
-            activityLog($request->user(), "home page booking list fetched request failed", $msg);
-
             return response()->json([
-                'status' => true,
-                'message' => 'Bookings fetched successfully.',
-                'bookings' => $response,
+                'status' => false,
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -809,9 +791,6 @@ class BookingController extends Controller
                 return $p->photo_url;
             });
 
-            $msg = "service proof data fetched";
-            activityLog($user, "service proof data fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => "Booking data fetched",
@@ -829,9 +808,6 @@ class BookingController extends Controller
                 ],
             ], 200);
         } catch (Exception $e) {
-            $msg = "service proof data fetch failed due to " . $e->getMessage();
-            activityLog($request->user(), "service proof data fetch failed", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

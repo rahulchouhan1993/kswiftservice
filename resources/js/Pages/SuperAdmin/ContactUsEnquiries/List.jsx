@@ -9,6 +9,7 @@ import DataNotExist from "@/Components/DataNotExist";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
+import RowActionsMenu from "@/Components/RowActionsMenu";
 
 export default function List({ list, search, status }) {
     const timerRef = useRef(null);
@@ -131,13 +132,19 @@ export default function List({ list, search, status }) {
                                                     {l?.message || "--"}
                                                 </div>
                                             </td>
-                                            <td className="p-1 flex justify-center items-baseline gap-4">
-                                                <StatusToggle
-                                                    action={route("superadmin.enquiries.update.status", { uuid: l?.uuid }
-                                                    )}
-                                                    checked={l?.is_read === 1}
-                                                    className="!mb-0"
-                                                />
+                                            <td className="p-1 flex justify-center">
+                                                <RowActionsMenu>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                            <StatusToggle
+                                                                action={route("superadmin.enquiries.update.status", { uuid: l?.uuid })}
+                                                                checked={l?.status === 1}
+                                                                className="!mb-0"
+                                                            />
+                                                            <span>Status</span>
+                                                        </div>
+                                                    </div>
+                                                </RowActionsMenu>
                                             </td>
                                         </tr>
                                     ))

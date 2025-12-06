@@ -15,7 +15,7 @@ import Add from "./Add";
 import Edit from "./Edit";
 import RowActionsMenu from "@/Components/RowActionsMenu";
 
-export default function List({ list, search, status, type, states, cities }) {
+export default function List({ list, search, status, states, cities }) {
     console.log('list', list);
     const timerRef = useRef(null);
     const searchRef = useRef(null);
@@ -41,7 +41,7 @@ export default function List({ list, search, status, type, states, cities }) {
             if (timerRef.current) clearTimeout(timerRef.current);
 
             timerRef.current = setTimeout(() => {
-                router.visit(route("superadmin.user.list", {
+                router.visit(route("superadmin.mechanic.list", {
                     search: sval,
                 }), {
                     only: ["list", "search"],
@@ -52,14 +52,28 @@ export default function List({ list, search, status, type, states, cities }) {
     };
 
 
+    const handleUserTypeChange = (e) => {
+        const sval = e.target.value;
+
+        timerRef.current = setTimeout(() => {
+            router.visit(route("superadmin.mechanic.list", {
+                type: sval,
+            }), {
+                only: ["list", "search"],
+                preserveScroll: true,
+            });
+        }, 500);
+    };
+
+
     const handleStatusChange = (e) => {
         const sval = e.target.value;
 
         timerRef.current = setTimeout(() => {
-            router.visit(route("superadmin.user.list", {
+            router.visit(route("superadmin.mechanic.list", {
                 status: sval,
             }), {
-                only: ["list", "search", "type", "status"],
+                only: ["list", "search", "status"],
                 preserveScroll: true,
             });
         }, 500);
@@ -110,6 +124,7 @@ export default function List({ list, search, status, type, states, cities }) {
                                     <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
                                     <th className="p-2 text-start whitespace-nowrap">Name</th>
                                     <th className="p-2 text-center whitespace-nowrap">Bookings</th>
+                                    <th className="p-2 text-center whitespace-nowrap">KYC Status</th>
                                     <th className="p-2 text-center whitespace-nowrap">Member Since</th>
                                     <th className="p-2 text-center whitespace-nowrap">Action</th>
                                 </tr>
@@ -119,7 +134,7 @@ export default function List({ list, search, status, type, states, cities }) {
                                 {list.data.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="text-center py-6 text-gray-600 dark:text-gray-300"
                                         >
                                             <DataNotExist />
@@ -160,13 +175,14 @@ export default function List({ list, search, status, type, states, cities }) {
                                                     </a>
                                                 )}
                                             </td>
+                                            <td className="p-2 text-center">{capitalizeWords(l?.kyc_status)}</td>
                                             <td className="p-2 text-center">{l?.member_since}</td>
                                             <td className="p-1 flex justify-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
                                                         <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                                                             <StatusToggle
-                                                                action={route("superadmin.user.update.status", { uuid: l?.uuid })}
+                                                                action={route("superadmin.mechanic.update.status", { uuid: l?.uuid })}
                                                                 checked={l?.status === 1}
                                                                 className="!mb-0"
                                                             />
@@ -175,8 +191,8 @@ export default function List({ list, search, status, type, states, cities }) {
 
                                                         <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                                                             <DeleteUserAction
-                                                                action={route("superadmin.user.delete", { uuid: l?.uuid || "" })}
-                                                                message="Are you sure you want to delete this user?"
+                                                                action={route("superadmin.mechanic.delete", { uuid: l?.uuid || "" })}
+                                                                message="Are you sure you want to delete this mechanic?"
                                                             />
                                                             <span>Delete</span>
                                                         </div>

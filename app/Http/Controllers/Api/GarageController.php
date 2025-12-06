@@ -272,19 +272,12 @@ class GarageController extends Controller
             }
 
             $garage = Garage::with(['garage_photos'])->whereUserId($user->id)->get();
-
-            $msg = "garage list fetched succesfully";
-            activityLog($user, "garages list fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => "Garage list fetched succesfully",
                 'garage' => $garage
             ], 201);
         } catch (Exception $e) {
-            $msg = "error during fetch garage list - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch garage list", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -317,18 +310,12 @@ class GarageController extends Controller
                 ], 500);
             }
 
-            $msg = "garage details fetched";
-            activityLog($user, "garage details fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Garage details fetched.',
                 'garage' => $garage
             ]);
         } catch (Exception $e) {
-            $msg = "error during fetch garage details - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch garage details", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

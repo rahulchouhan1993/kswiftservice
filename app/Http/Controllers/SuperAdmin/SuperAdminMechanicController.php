@@ -8,14 +8,13 @@ use App\Models\Country;
 use App\Models\State;
 use App\Models\User;
 use App\Models\UserAddress;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 use function App\uploadRequestFile;
 
-class UsersController extends Controller
+class SuperAdminMechanicController extends Controller
 {
     protected $per_page;
     public function __construct()
@@ -42,7 +41,7 @@ class UsersController extends Controller
             $statusValue = null;
         }
 
-        $baseQuery = User::whereRole('customer')->withCount(['user_booking', 'mechanic_booking'])->orderBy('name')
+        $baseQuery = User::whereRole('mechanic')->withCount(['mechanic_booking'])->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
@@ -60,7 +59,7 @@ class UsersController extends Controller
         $states = State::whereCountryId($country->id)->get()->pluck('id', 'name');
         $cities = City::get();
 
-        return Inertia::render('SuperAdmin/Users/List', [
+        return Inertia::render('SuperAdmin/Mechanics/List', [
             'list' => $users,
             'search' => $search,
             'status' => $status,
@@ -71,7 +70,7 @@ class UsersController extends Controller
 
 
     /**
-     * Add User
+     * Add Mechanic
      * @param Request $request
      * @return mixed
      */
@@ -243,7 +242,7 @@ class UsersController extends Controller
      */
     public function details($uuid)
     {
-        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'vehicles', 'vehicles.vehile_make', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
+        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'vehicles', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
         if (!$user) {
             return back()->with('error', "User does not exist");
         }

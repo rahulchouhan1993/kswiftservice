@@ -2,12 +2,9 @@ import { useState } from 'react';
 import Modal from '@/Components/Modal';
 import RoundBtn from '@/Components/RoundBtn';
 import { RiInformation2Line } from 'react-icons/ri';
-import { useHelpers } from '@/Components/Helpers';
 
 export default function VehicleDetails({ vehicle }) {
     const [open, setOpen] = useState(false);
-    console.log('vehicle', vehicle);
-    const { capitalizeWords } = useHelpers();
 
     const closeModal = () => setOpen(false);
 
@@ -18,7 +15,8 @@ export default function VehicleDetails({ vehicle }) {
             </RoundBtn>
 
             <Modal show={open} maxWidth="lg" topCloseButton={true} handleTopClose={closeModal}>
-                <h3 className="px-6 py-3 border-b bg-gray-200 dark:bg-[#131836] font-semibold text-lg text-gray-800 dark:text-white">
+                <h3 className="px-6 py-3 border-b bg-gray-200 dark:bg-[#131836]
+                               font-semibold text-lg text-gray-800 dark:text-white">
                     Vehicle Details
                 </h3>
 
@@ -37,17 +35,25 @@ export default function VehicleDetails({ vehicle }) {
 
                     {/* Grid Layout */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailRow label="Vehicle Number" value={capitalizeWords(vehicle?.vehicle_number)} />
-                        <DetailRow label="Model" value={capitalizeWords(vehicle?.model)} />
-                        <DetailRow label="Vehicle Make" value={capitalizeWords(vehicle?.vehile_make?.name)} />
+                        <DetailRow label="Vehicle Number" value={vehicle?.vehicle_number} />
+                        <DetailRow label="Model" value={vehicle?.model} />
 
-                        <DetailRow label="Vehicle Type" value={capitalizeWords(vehicle?.vehicle_type)} />
-                        <DetailRow label="Year" value={capitalizeWords(vehicle?.vehicle_year)} />
+                        <DetailRow label="Vehicle Type" value={vehicle?.vehicle_type} />
+                        <DetailRow label="Year" value={vehicle?.vehicle_year} />
 
-                        <DetailRow label="Fuel Type" value={capitalizeWords(vehicle?.fuel_type)} />
-                        <DetailRow label="Transmission" value={capitalizeWords(vehicle?.transmission)} />
-                        <DetailRow label="Mileage" value={capitalizeWords(vehicle?.mileage)} />
+                        <DetailRow label="Fuel Type" value={vehicle?.fuel_type} />
+                        <DetailRow label="Transmission" value={vehicle?.transmission} />
+                        <DetailRow label="Mileage" value={vehicle?.mileage} />
                     </div>
+
+                    {vehicle?.additional_note && (
+                        <div className="mt-4">
+                            <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">Additional Note:</p>
+                            <div className="p-3 rounded-lg bg-gray-100 dark:bg-[#1b214a] text-gray-600 dark:text-gray-300">
+                                {vehicle.additional_note}
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </Modal>

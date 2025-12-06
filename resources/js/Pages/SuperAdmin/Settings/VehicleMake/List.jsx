@@ -13,18 +13,17 @@ import Edit from "./Edit";
 import Add from "./Add";
 import DeleteUserAction from "@/Components/DeleteUserAction";
 import DataNotExist from "@/Components/DataNotExist";
+import SelectInput from "@/Components/SelectInput";
 
-export default function List({ list, search }) {
+export default function List({ list, search, type }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
     const { toTitleCase } = useHelpers();
 
-    const auth = usePage().props.auth.user;
-
-
-    const [selectedRows, setSelectedRows] = useState([]);
-    const [showStatusModal, setShowStatusModal] = useState(false);
-    const allSelected = list?.data?.length > 0 && selectedRows.length === list.data.length;
+    const typeOptions = [
+        { value: "car", label: "Car" },
+        { value: "bike", label: "Bike" },
+    ];
 
     useEffect(() => {
         initTooltips();
@@ -53,6 +52,19 @@ export default function List({ list, search }) {
         }
     };
 
+    const handleTypeChange = (e) => {
+        const sval = e.target.value;
+
+        timerRef.current = setTimeout(() => {
+            router.visit(route("superadmin.settings.vehicle.make.list", {
+                type: sval,
+            }), {
+                only: ["list", "search", "type"],
+                preserveScroll: true,
+            });
+        }, 500);
+    };
+
 
     return (
         <AuthenticatedLayout>
@@ -63,10 +75,20 @@ export default function List({ list, search }) {
             <div className="sm:p-4 p-1 w-full">
                 <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
 
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex-shrink-0">
+                    <div className="mb-4 flex flex-wrap items-center gap-4">
+                        <div className="flex-1 w-full sm:w-auto sm:max-w-[100px]">
                             <Add />
                         </div>
+                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+                            <SelectInput
+                                id="type"
+                                value={type}
+                                onChange={handleTypeChange}
+                                options={typeOptions}
+                                placeholder="Filter By Type"
+                            />
+                        </div>
+
                         <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
                             <input
                                 ref={searchRef}
@@ -79,13 +101,13 @@ export default function List({ list, search }) {
                         </div>
                     </div>
 
-
                     <div className="overflow-x-auto  border border-gray-300 dark:border-blue-950 rounded-xl shadow-lg">
                         <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
                             <thead className="border-b border-gray-300 dark:border-blue-900 ">
                                 <tr>
                                     <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
                                     <th className="p-2 text-start whitespace-nowrap">Name</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Vehicle Type</th>
                                     <th className="p-2 text-center whitespace-nowrap">Action</th>
                                 </tr>
                             </thead>
@@ -108,6 +130,7 @@ export default function List({ list, search }) {
                                         >
                                             <td className="p-2">{index + 1}</td>
                                             <td className="p-2 text-start">{toTitleCase(l?.name)}</td>
+                                            <td className="p-2 text-start">{toTitleCase(l?.vehicle_type) || '--'}</td>
 
                                             <td className="p-1 flex justify-center items-baseline gap-4">
                                                 <div data-tooltip-target={`tooltip-edit-vehicle-make-${l?.uuid}`}>

@@ -111,18 +111,12 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            $msg = "user details fetched";
-            activityLog($user, "user details fetched", $msg);
-
             return response()->json([
                 'status' => true,
                 'message' => 'User details fetched.',
                 'user' => $user,
             ]);
         } catch (Exception $e) {
-            $msg = "error during fetch user details - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch user details", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -298,14 +292,8 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
 
-            $msg = "address list fetched";
-            activityLog($user, "address list fetched", $msg);
-
             return $user->addresses ?? [];
         } catch (Exception $e) {
-            $msg = "error during fetch address list - " . $e->getMessage();
-            activityLog($request->user(), "error during fetch address list", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

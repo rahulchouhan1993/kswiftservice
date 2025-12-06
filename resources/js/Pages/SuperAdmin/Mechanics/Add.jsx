@@ -18,11 +18,8 @@ import DigitsInput from '@/Components/DigitsInput';
 import CustomDateInput from '@/Components/CustomDateInput';
 import StateCitySelect from '@/Components/StateCitySelect';
 import FileInputWithPreview from '@/Components/FileInputWithPreview';
-import Button from '@/Components/Button';
-import EditBtn from '@/Components/EditBtn';
-import { Pencil } from 'lucide-react';
 
-export default function Edit({ user, states, cities }) {
+export default function Add({ states, cities }) {
     const [open, setOpen] = useState();
     const { successAlert, errorAlert, errorsHandling } = useAlerts();
 
@@ -34,33 +31,21 @@ export default function Edit({ user, states, cities }) {
         errors,
         processing
     } = useForm({
-        uuid: '',
-        user_type: 'customer',
+        user_type: 'mechanic',
+        address_type: '',
         name: '',
         email: '',
         phone: '',
         whatsapp_phone: '',
+        state_id: '',
+        city_id: '',
+        address: '',
+        pincode: '',
         dob: '',
         photo: '',
         password: '',
         password_confirmation: '',
     });
-
-    useEffect(() => {
-        if (user) {
-            setData({
-                uuid: user?.uuid,
-                user_type: user?.role || '',
-                name: user?.name || '',
-                email: user?.email || '',
-                phone: user?.phone || '',
-                whatsapp_phone: user?.whatsapp_number || '',
-                dob: user?.dob || '',
-                photo: '',
-                profile_photo_url: user?.profile_photo_url || ''
-            });
-        }
-    }, [user]);
 
 
     const closeModal = () => {
@@ -68,15 +53,25 @@ export default function Edit({ user, states, cities }) {
         reset();
     }
 
+    const handleStateChange = ({ state_id, city_id }) => {
+        setData("state_id", state_id);
+        setData("city_id", city_id);
+    };
+
     const userTypeOptions = [
         { value: "customer", label: "Customer" },
         { value: "mechanic", label: "Mechanic" },
     ];
 
+    const addressTypeOptions = [
+        { value: "home", label: "Home" },
+        { value: "office", label: "Office" },
+    ];
+
     const handleSubmit = (e) => {
         e.preventDefault();
         try {
-            post(route('superadmin.user.update', { uuid: data?.uuid }), {
+            post(route('superadmin.mechanic.add'), {
                 preserveScroll: true,
                 onSuccess: (resp) => {
                     closeModal()
@@ -90,15 +85,16 @@ export default function Edit({ user, states, cities }) {
 
     return (
         <>
-            <EditBtn
+            <PrimaryButton
                 onClick={(e) => setOpen(true)}
             >
-                <Pencil size={18} />
-            </EditBtn>
+                <IoMdAddCircle />
+                Add
+            </PrimaryButton>
 
             <Modal show={open} maxWidth="md" topCloseButton={true} handleTopClose={closeModal}>
                 <h3 className="px-6 py-2 border-b-2 bg-gray-200 dark:bg-[#131836] font-semibold text-lg text-gray-800 dark:text-white">
-                    Update User
+                    Add Mechanic
                 </h3>
                 <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4 dark:bg-[#0a0e25]">
                     <div>
@@ -115,12 +111,13 @@ export default function Edit({ user, states, cities }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="email" value="Email" />
+                        <InputLabel htmlFor="email" value="Email *" />
                         <TextInput
                             id="email"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
+                            required
                             placeholder="Email..."
                         />
                         <InputError className="mt-2" message={errors.email} />
@@ -140,15 +137,63 @@ export default function Edit({ user, states, cities }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="whatsapp_phone" value="Whatsapp Phone" />
+                        <InputLabel htmlFor="whatsapp_phone" value="Whatsapp Phone *" />
                         <PhoneInput
                             id="whatsapp_phone"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.whatsapp_phone}
                             onChange={(e) => setData('whatsapp_phone', e.target.value)}
+                            required
                             placeholder="Whatsapp Phone..."
                         />
                         <InputError className="mt-2" message={errors.whatsapp_phone} />
+                    </div>
+
+                    <div>
+                        <StateCitySelect
+                            states={states}
+                            cities={cities}
+                            value={{ state_id: data.state_id, city_id: data.city_id }}
+                            onChange={handleStateChange}
+                        />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="address" value="Address *" />
+                        <TextAreaWithCount
+                            id="address"
+                            className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            required
+                            placeholder="Address..."
+                        />
+                        <InputError className="mt-2" message={errors.address} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="pincode" value="Pincode *" />
+                        <DigitsInput
+                            id="pincode"
+                            className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
+                            value={data.pincode}
+                            onChange={(e) => setData('pincode', e.target.value)}
+                            required
+                            placeholder="Pincode..."
+                        />
+                        <InputError className="mt-2" message={errors.pincode} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="address_type" value="Address Type *" />
+                        <SelectInput
+                            id="address_type"
+                            value={data.address_type}
+                            onChange={(e) => setData('address_type', e.target.value)}
+                            options={addressTypeOptions}
+                            placeholder="-Select-"
+                        />
+                        <InputError className="mt-2" message={errors.address_type} />
                     </div>
 
                     <div>
@@ -165,26 +210,28 @@ export default function Edit({ user, states, cities }) {
 
                     <div className="flex gap-2">
                         <div className="w-full mb-2">
-                            <InputLabel htmlFor="password" value="Password" />
+                            <InputLabel htmlFor="password" value="Password *" />
                             <TextInput
                                 type="password"
                                 id="password"
                                 className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
+                                required
                                 placeholder="*******"
                             />
                             <InputError className="mt-2" message={errors.password} />
                         </div>
 
                         <div className="w-full mb-2">
-                            <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                            <InputLabel htmlFor="password_confirmation" value="Confirm Password *" />
                             <TextInput
                                 type="password"
                                 id="password_confirmation"
                                 className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
+                                required
                                 placeholder="*******"
                             />
                             <InputError className="mt-2" message={errors.password_confirmation} />
@@ -200,7 +247,6 @@ export default function Edit({ user, states, cities }) {
                             width="w-24"
                             height="h-24"
                             rounded="rounded-md"
-                            defaultImage={data?.profile_photo_url}
                         />
                     </div>
 
@@ -211,7 +257,7 @@ export default function Edit({ user, states, cities }) {
                         <PrimaryButton type="submit"
                             disabled={processing}
                         >
-                            <FaPlusCircle /> {processing ? 'Updating...' : 'Update'}
+                            <FaPlusCircle /> {processing ? 'Adding...' : 'Add'}
                         </PrimaryButton>
                     </div>
                 </form>

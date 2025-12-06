@@ -31,7 +31,7 @@ export default function Add({ states, cities }) {
         errors,
         processing
     } = useForm({
-        user_type: '',
+        user_type: 'customer',
         address_type: '',
         name: '',
         email: '',
@@ -97,18 +97,6 @@ export default function Add({ states, cities }) {
                     Add User
                 </h3>
                 <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4 dark:bg-[#0a0e25]">
-                    <div>
-                        <InputLabel htmlFor="user_type" value="User Type *" />
-                        <SelectInput
-                            id="user_type"
-                            value={data.user_type}
-                            onChange={(e) => setData('user_type', e.target.value)}
-                            options={userTypeOptions}
-                            placeholder="-Select-"
-                        />
-                        <InputError className="mt-2" message={errors.user_type} />
-                    </div>
-
                     <div>
                         <InputLabel htmlFor="name" value="Name *" />
                         <TextInput

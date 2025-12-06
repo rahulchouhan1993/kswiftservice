@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class VehicleMake extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'name',
         'slug',
+        'vehicle_type',
         'logo_path',
         'status'
     ];

@@ -18,7 +18,7 @@ import { GoChecklist } from "react-icons/go";
 import { GrFormCalendar, GrUserSettings } from 'react-icons/gr';
 import { CiViewList } from 'react-icons/ci';
 import { BsReverseListColumnsReverse } from 'react-icons/bs';
-import { BiListUl } from 'react-icons/bi';
+import { BiListUl, BiSolidCarMechanic } from 'react-icons/bi';
 
 export default function AuthenticatedLayout({ header, children }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -94,7 +94,8 @@ export default function AuthenticatedLayout({ header, children }) {
     const navLinks = [
         { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard },
         { href: route('superadmin.settings.vehicle.make.list'), active: route().current('vehicle.make'), label: 'Settings', icon: MdOutlineSettingsSuggest },
-        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Users', icon: FaUsers },
+        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Customers', icon: FaUsers },
+        { href: route('superadmin.mechanic.list'), active: route().current('mechanic.list'), label: 'Mechanics', icon: BiSolidCarMechanic },
         {
             href: route('superadmin.enquiries.list'),
             active: route().current('enquiries.list'),

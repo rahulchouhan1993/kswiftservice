@@ -63,18 +63,12 @@ class JobsController extends Controller
                 ];
             });
 
-            $msg = "mechanic jobs list fetched";
-            activityLog($user, "mechanic jobs list fetched", $msg);
-
             return response()->json([
                 'status'  => true,
                 'message' => "Jobs requests fetched",
                 'list'    => $data
             ], 200);
         } catch (Exception $e) {
-            $msg = "error in fetch mechanic jobs list - " . $e->getMessage();
-            activityLog($request->user(), "error in fetch mechanic jobs list", $msg);
-
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),

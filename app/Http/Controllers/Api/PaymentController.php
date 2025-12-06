@@ -42,7 +42,6 @@ class PaymentController extends Controller
                 ], 500);
             }
 
-            // Create payment
             $payment = Payment::create([
                 'user_id'       => $user->id,
                 'booking_id'    => $booking->id,
@@ -52,7 +51,6 @@ class PaymentController extends Controller
                 'status'        => $request->status,
             ]);
 
-            // Load relations
             $payment->load([
                 'booking',
                 'booking.services',
@@ -61,9 +59,6 @@ class PaymentController extends Controller
                 'booking.vehicle.vehile_make',
             ]);
 
-            // -----------------------------------------------------------
-            //  GENERATE INVOICE PDF
-            // -----------------------------------------------------------
             $pdf = Pdf::loadView('pdf.invoice', compact('payment'))
                 ->setPaper('A4', 'portrait')
                 ->setOption('isRemoteEnabled', true)
@@ -137,17 +132,11 @@ class PaymentController extends Controller
                     ];
                 });
 
-            $msg = "payment invoice & receipts list fetched";
-            activityLog($user, "payment invoice & receipts list fetched", $msg);
-
             return response()->json([
                 "status" => true,
                 "data"   => $payments,
             ]);
         } catch (Exception $e) {
-            $msg = "error in fetch payment invoice & receipts - " . $e->getMessage();
-            activityLog($request->user(), "error in fetch payment invoice & receipts", $msg);
-
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),
@@ -187,17 +176,11 @@ class PaymentController extends Controller
                     ];
                 });
 
-            $msg = "transaction history list fetched";
-            activityLog($user, "transaction history list fetched", $msg);
-
             return response()->json([
                 "status" => true,
                 "data"   => $payments,
             ]);
         } catch (Exception $e) {
-            $msg = "error during transaction history list fetch - " . $e->getMessage();
-            activityLog($request->user(), "error during transaction history list fetch", $msg);
-
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),
