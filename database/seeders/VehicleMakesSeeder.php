@@ -115,7 +115,7 @@ class VehicleMakesSeeder extends Seeder
 
         foreach ($makes as $make) {
             VehicleMake::create([
-                'name' => $make
+                'name' => ucwords($make)
             ]);
         }
     }

@@ -52,7 +52,7 @@ class ServiceTypesSeeder extends Seeder
 
         foreach ($services as $service) {
             ServiceType::create([
-                'name' => $service[0],
+                'name' => ucwords($service[0]),
                 'vehicle_type' => $service[1],
                 'base_price' => $service[2],
             ]);

@@ -23,26 +23,38 @@ class TransactionHistoryController extends Controller
 
     public function list(Request $request)
     {
-        $search = $request->query('search');
-        $status = $request->query('status');
+        $search      = $request->query('search');
+        $status      = $request->query('status');
+        $start_date  = $request->query('start_date');
+        $end_date    = $request->query('end_date');
 
-        $baseQuery = Payment::with(['user', 'booking', 'booking.vehicle', 'booking.mechanic'])->orderBy('created_at', 'DESC')
+        $payments = Payment::with(['user', 'booking', 'booking.vehicle', 'booking.mechanic'])
+            ->orderBy('created_at', 'DESC')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('txnId', 'LIKE', "%{$search}%")
-                        ->where('amount', 'LIKE', "%{$search}%");
+                        ->orWhere('amount', 'LIKE', "%{$search}%");
                 });
             })
-            ->when(!is_null($status), function ($q) use ($status) {
+            ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
-            });
+            })
+            ->when($start_date, function ($q) use ($start_date) {
+                $q->whereDate('created_at', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                $q->whereDate('created_at', '<=', $end_date);
+            })
 
-        $payments = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
+            ->paginate($this->per_page ?? 50)
+            ->withQueryString();
 
         return Inertia::render('SuperAdmin/Payments/List', [
-            'list' => $payments,
-            'search' => $search,
-            'status' => $status,
+            'list'       => $payments,
+            'search'     => $search,
+            'status'     => $status,
+            'start_date' => $start_date,
+            'end_date'   => $end_date,
         ]);
     }
 }

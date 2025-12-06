@@ -10,10 +10,13 @@ class Booking extends Model
     protected $fillable = [
         'user_id',
         'mechanic_id',
+        'garage_id',
         'booking_id',
         'vehicle_id',
         'date',
         'time',
+        'assigned_date',
+        'delivery_date',
         'pickup_type',
         'pickup_id',
         'drop_id',
@@ -56,6 +59,11 @@ class Booking extends Model
         return $this->hasOne(User::class, 'id', 'mechanic_id');
     }
 
+    public function garage()
+    {
+        return $this->hasOne(Garage::class, 'id', 'garage_id');
+    }
+
     public function vehicle()
     {
         return $this->hasOne(Vehicle::class, 'id', 'vehicle_id');
@@ -74,5 +82,10 @@ class Booking extends Model
     public function drop_address()
     {
         return $this->belongsTo(UserAddress::class, 'drop_id', 'id');
+    }
+
+    public function mechanic_job()
+    {
+        return $this->hasOne(MechanicJob::class, 'booking_id', 'id')->latest();
     }
 }

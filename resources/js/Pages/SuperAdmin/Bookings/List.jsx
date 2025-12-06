@@ -12,15 +12,18 @@ import UserAvatarCard from "@/Components/UserAvatarCard";
 import { MdCloudDownload } from "react-icons/md";
 import VehicleInfo from "@/Components/VehicleInfo";
 import AssignMechanic from "./AssignMechanic";
+import BookingDetails from "./BookingDetails";
+import PaymentDetails from "./PaymentDetails";
 
 export default function List({ list, search, status, mechanics }) {
+    console.log('list', list);
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-
     const { displayInRupee } = useHelpers();
 
     const bookingStatusOptions = [
         { value: "", label: "All" },
+        { value: "requested", label: "Requested" },
         { value: "pending", label: "Pending" },
         { value: "accepted", label: "Accepted" },
         { value: "rejected", label: "Rejected" },
@@ -66,6 +69,23 @@ export default function List({ list, search, status, mechanics }) {
                 });
             }, 500);
         }
+    };
+
+    const renderStatusBadge = (status) => {
+        const base = "px-2 py-1 rounded text-xs font-semibold capitalize";
+        const colors = {
+            requested: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded",
+            pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded",
+            accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded",
+            rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded",
+            completed: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded",
+        };
+
+        return (
+            <span className={`${base} ${colors[status] ?? "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}>
+                {status}
+            </span>
+        );
     };
 
 
@@ -120,7 +140,7 @@ export default function List({ list, search, status, mechanics }) {
                                 {list.data.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={7}
+                                            colSpan={9}
                                             className="text-center py-6 text-gray-600 dark:text-gray-300"
                                         >
                                             <DataNotExist />
@@ -147,9 +167,11 @@ export default function List({ list, search, status, mechanics }) {
                                             <td className="p-2 text-sm text-center">{l?.date}</td>
                                             <td className="p-2 text-sm text-center">{l?.date}</td>
                                             <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{l?.booking_status}</td>
-                                            <td className="p-2 text-sm text-center">
-                                                <AssignMechanic mechanics={mechanics} />
+                                            <td className="p-2 text-sm text-center">{renderStatusBadge(l?.booking_status)}</td>
+                                            <td className="flex p-2 text-sm text-center gap-1">
+                                                <AssignMechanic booking={l} />
+                                                <BookingDetails booking={l} />
+                                                <PaymentDetails payment={l?.payment} />
                                             </td>
                                         </tr>
                                     ))

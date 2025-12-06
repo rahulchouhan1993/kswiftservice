@@ -3,6 +3,7 @@ import DeleteUserAction from "@/Components/DeleteUserAction";
 import Tooltip from "@/Components/Tooltip";
 import { FaCar, FaCaravan } from "react-icons/fa6";
 import { RiMotorbikeFill } from "react-icons/ri";
+import VehicleDetails from "./VehicleDetails";
 
 export default function Vehicles({ user, className = "" }) {
     const vehicles = user?.vehicles || [];
@@ -129,9 +130,8 @@ function VehicleCard({ vehicle }) {
                 </p>
             </div>
 
-            {/* ACTIONS */}
             <div className="flex justify-end p-4 pt-0">
-
+                <VehicleDetails vehicle={vehicle} />
                 <div data-tooltip-target={`tooltip-delete-${vehicle.uuid}`}>
                     <DeleteUserAction
                         action=""

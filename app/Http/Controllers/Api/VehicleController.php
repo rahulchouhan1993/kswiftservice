@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
+use function App\activityLog;
 use function App\uploadRequestFile;
 
 class VehicleController extends Controller
@@ -34,7 +35,7 @@ class VehicleController extends Controller
                 'year' => 'required',
                 'fuel_type' => [
                     'required',
-                    Rule::in(['diesel', 'petrol', 'electric', 'hybrid']),
+                    Rule::in(['diesel', 'petrol', 'electric', 'hybrid', 'cng', 'lpg']),
                 ],
                 'transmission' => [
                     'required',
@@ -78,12 +79,19 @@ class VehicleController extends Controller
             }
 
             $vehicle->load('vehicle_photos');
+
+            $msg = "vehicle added succesfully";
+            activityLog($user, "vehicle added succesfully", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle added successfully.',
                 'vehicle' => $vehicle
             ]);
         } catch (Exception $e) {
+            $msg = "error during add vehicle - " . $e->getMessage();
+            activityLog($request->user(), "error during add vehicle", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -177,12 +185,18 @@ class VehicleController extends Controller
 
             $vehicle->load('vehicle_photos');
 
+            $msg = "vehicle updated succesfully";
+            activityLog($user, "vehicle updated succesfully", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle updated successfully.',
                 'vehicle' => $vehicle
             ]);
         } catch (Exception $e) {
+            $msg = "error in vehicle updation - " . $e->getMessage();
+            activityLog($request->user(), "error in vehicle updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -201,12 +215,18 @@ class VehicleController extends Controller
             $user = $request->user();
             $vehicles = Vehicle::with(['vehicle_photos'])->whereUserId($user->id)->get();
 
+            $msg = "vehicles list fetched";
+            activityLog($user, "vehicles list fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => "Vehicle list fetched succesfully",
                 'vehicles' => $vehicles
             ], 201);
         } catch (Exception $e) {
+            $msg = "error during fetch vehicles list - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch vehicles list", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -220,9 +240,10 @@ class VehicleController extends Controller
      * @param string $uuid Vehicle UUID
      * @return mixed
      */
-    public function viewVehicleDetails($uuid)
+    public function viewVehicleDetails(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $vehicle = Vehicle::with(['vehicle_photos'])->firstWhere('uuid', $uuid);
             if (!$vehicle) {
                 return response()->json([
@@ -231,12 +252,18 @@ class VehicleController extends Controller
                 ], 500);
             }
 
+            $msg = "vehicle details fetched";
+            activityLog($user, "vehicle details fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle details fetched.',
                 'vehicle' => $vehicle
             ]);
         } catch (Exception $e) {
+            $msg = "error during fetch vehicle details - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch vehicle details", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -251,9 +278,10 @@ class VehicleController extends Controller
      * @param string $status active / inactive
      * @return mixed
      */
-    public function updateStatus($uuid, $status)
+    public function updateStatus(Request $request, $uuid, $status)
     {
         try {
+            $user = $request->user();
             $vehicle = Vehicle::firstWhere('uuid', $uuid);
             if (!$vehicle) {
                 return response()->json([
@@ -265,11 +293,18 @@ class VehicleController extends Controller
             $vehicle->update([
                 'status' => $status == 'active' ? 1 : 0
             ]);
+
+            $msg = "update vehicle status as - " . $vehicle->status;
+            activityLog($user, "update vehicle status", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle ' . $status . ' succesfully',
             ]);
         } catch (Exception $e) {
+            $msg = "error during vehicle status updation - " . $e->getMessage();
+            activityLog($request->user(), "error during vehicle status updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -283,9 +318,10 @@ class VehicleController extends Controller
      * @param string $uuid Vehicle UUID
      * @return mixed
      */
-    public function delete($uuid)
+    public function delete(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $vehicle = Vehicle::with('vehicle_photos')->firstWhere('uuid', $uuid);
 
             if (!$vehicle) {
@@ -302,11 +338,17 @@ class VehicleController extends Controller
             VehiclePhoto::where('vehicle_id', $vehicle->id)->delete();
             $vehicle->delete();
 
+            $msg = "vehicle deleted";
+            activityLog($user, "vehicle deleted", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Vehicle deleted successfully.',
             ]);
         } catch (Exception $e) {
+            $msg = "error during vehicle delete - " . $e->getMessage();
+            activityLog($request->user(), "error during vehicle delete", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

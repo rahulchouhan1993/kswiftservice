@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\MechanicJob;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+
+use function App\activityLog;
 
 class JobsController extends Controller
 {
@@ -60,12 +63,18 @@ class JobsController extends Controller
                 ];
             });
 
+            $msg = "mechanic jobs list fetched";
+            activityLog($user, "mechanic jobs list fetched", $msg);
+
             return response()->json([
                 'status'  => true,
                 'message' => "Jobs requests fetched",
                 'list'    => $data
             ], 200);
         } catch (Exception $e) {
+            $msg = "error in fetch mechanic jobs list - " . $e->getMessage();
+            activityLog($request->user(), "error in fetch mechanic jobs list", $msg);
+
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),
@@ -84,51 +93,50 @@ class JobsController extends Controller
     {
         try {
             $user = $request->user();
-            $job = MechanicJob::where('uuid', $uuid)->first();
+            $job = MechanicJob::whereUuid($uuid)->first();
 
             if (!$job) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => 'Job not found',
-                ], 404);
+                return response()->json(['status' => false, 'message' => 'Job not found'], 404);
             }
 
             $booking = Booking::find($job->booking_id);
             if (!$booking) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => 'Job booking not found',
-                ], 404);
+                return response()->json(['status' => false, 'message' => 'Job booking not found'], 404);
             }
 
-            $request->validate([
+            $validated = $request->validate([
                 'status' => 'required|in:pending,accepted,rejected,completed',
-                'rejection_reason' => $request->status == 'rejected' ? 'required' : 'nullable'
+                'rejection_reason' => $request->status === 'rejected' ? 'required' : 'nullable'
             ]);
 
             $job->update([
-                'status' => $request->status,
+                'status' => $validated['status'],
+                'rejection_reason' => $validated['rejection_reason'] ?? null
             ]);
 
-            if ($request->status == 'rejected') {
-                $job->update([
-                    'rejection_reason' => $request->rejection_reason
-                ]);
-            }
+            $booking->update(
+                $validated['status'] === 'accepted'
+                    ? [
+                        'mechanic_id' => $user->id,
+                        'booking_status' => 'accepted',
+                        'assigned_date' => now()
+                    ]
+                    : ['booking_status' => $validated['status']]
+            );
 
-            if ($job->status == 'accepted') {
-                $booking->update([
-                    'mechanic_id' => $user->id
-                ]);
-            }
+            $msg = "mechanic job status updated as - " . $job->status;
+            activityLog($user, "mechanic jobs status updated", $msg);
 
             return response()->json([
-                'status'  => true,
-                'message' => "Job status updated as " . $request->status,
-            ], 200);
+                'status' => true,
+                'message' => "Job status updated as {$validated['status']}",
+            ]);
         } catch (Exception $e) {
+            $msg = "error in mechanic job status updation - " . $e->getMessage();
+            activityLog($request->user(), "error in mechanic job status updation", $msg);
+
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

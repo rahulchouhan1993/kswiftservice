@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
+use function App\activityLog;
+
 class PaymentController extends Controller
 {
     /**
@@ -79,12 +81,17 @@ class PaymentController extends Controller
                 'invoice_url' => asset('storage/' . $filePath)
             ]);
 
+            $msg = "payment details submitted";
+            activityLog($user, "payment details submitted", $msg);
+
             return response()->json([
                 'status'  => true,
                 'message' => "Booking payment successful",
                 'payment' => $payment
             ], 201);
         } catch (Exception $e) {
+            $msg = "error in submit payment details - " . $e->getMessage();
+            activityLog($request->user(), "error in submit payment details", $msg);
 
             return response()->json([
                 'status'  => false,
@@ -130,11 +137,17 @@ class PaymentController extends Controller
                     ];
                 });
 
+            $msg = "payment invoice & receipts list fetched";
+            activityLog($user, "payment invoice & receipts list fetched", $msg);
+
             return response()->json([
                 "status" => true,
                 "data"   => $payments,
             ]);
         } catch (Exception $e) {
+            $msg = "error in fetch payment invoice & receipts - " . $e->getMessage();
+            activityLog($request->user(), "error in fetch payment invoice & receipts", $msg);
+
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),
@@ -174,11 +187,17 @@ class PaymentController extends Controller
                     ];
                 });
 
+            $msg = "transaction history list fetched";
+            activityLog($user, "transaction history list fetched", $msg);
+
             return response()->json([
                 "status" => true,
                 "data"   => $payments,
             ]);
         } catch (Exception $e) {
+            $msg = "error during transaction history list fetch - " . $e->getMessage();
+            activityLog($request->user(), "error during transaction history list fetch", $msg);
+
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),

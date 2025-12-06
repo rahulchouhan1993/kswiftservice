@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+use function App\activityLog;
+
 class AuthController extends Controller
 {
     /**
@@ -100,6 +102,15 @@ class AuthController extends Controller
             ]);
 
             $existingUser = User::where('phone', $request->phone)->first();
+            if ($existingUser->status == 0) {
+                $msg = "User try to login but due to account inactive he can't able to login";
+                activityLog($existingUser, "try to login", $msg);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => "Your account is blocked. Please contact the administrator.",
+                ], 500);
+            }
 
             if ($existingUser) {
                 if ($existingUser->role !== $request->user_type) {
@@ -124,12 +135,16 @@ class AuthController extends Controller
                 'otp_expire' => Carbon::now()->addMinutes(2)
             ]);
 
+            $msg = "Login otp sent";
+            activityLog($existingUser, "login otp sent", $msg);
             return response()->json([
                 'status' => true,
                 'message' => 'OTP Sent Successfully',
                 'user' => $user,
             ]);
         } catch (Exception $e) {
+            $msg = "Error on sent otp - " . $e->getMessage();
+            activityLog($request->user(), "error on send otp", $msg);
 
             return response()->json([
                 'status' => false,
@@ -154,6 +169,12 @@ class AuthController extends Controller
             ]);
 
             $user = User::where('phone', $request->phone)->first();
+            if ($user->status == 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Your account is blocked. Please contact the administrator.",
+                ], 500);
+            }
             if (!$user) {
                 throw ValidationException::withMessages([
                     'email' => ['Phone number not registered'],
@@ -162,6 +183,9 @@ class AuthController extends Controller
 
             // Check if OTP is expired
             if (Carbon::now()->gt(Carbon::parse($user->otp_expire))) {
+                $msg = "otp verification failed due to otp is expired";
+                activityLog($user, "otp verification failed", $msg);
+
                 return response()->json([
                     'status' => false,
                     'message' => 'OTP has expired. Please request a new one.',
@@ -170,6 +194,9 @@ class AuthController extends Controller
 
             // Check if OTP is incorrect
             if ($request->otp != $user->otp) {
+                $msg = "otp verification failed due to invalid otp";
+                activityLog($user, "otp verification failed", $msg);
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid OTP.',
@@ -181,6 +208,9 @@ class AuthController extends Controller
                 'vehicles'
             ]);
 
+            $msg = "login verification otp verified";
+            activityLog($user, "login otp verified", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'OTP verified successfully.',
@@ -188,6 +218,9 @@ class AuthController extends Controller
                 'token' => $token
             ]);
         } catch (Exception $e) {
+            $msg = "login verification otp failed due to - " . $e->getMessage();
+            activityLog($request->user(), "otp verification failed", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -204,15 +237,25 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            $user = $request->user();
+            $token = $request->user()->currentAccessToken();
+
+            $msg = "user logout succesfully";
+            activityLog($user, "user logout", $msg);
+
+            $token->delete();
+
             return response()->json([
+                'status' => true,
                 'message' => 'Logged out successfully',
             ]);
         } catch (Exception $e) {
+            $msg = "user logout succesfully";
+            activityLog($request->user(), "user logout", $msg);
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-            ], 500);
+            ]);
         }
     }
 }

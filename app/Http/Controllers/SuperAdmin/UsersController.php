@@ -83,16 +83,16 @@ class UsersController extends Controller
         $request->validate([
             "user_type"        => "required|in:mechanic,customer",
             "name"             => "required|string|max:100",
-            "email"            => "required|email|unique:users,email",
+            "email"            => "nullable|email|unique:users,email",
             "phone"            => "required|digits:10|unique:users,phone",
             "whatsapp_phone"   => "nullable|digits:10|unique:users,whatsapp_number",
-            "state_id"         => "required|integer|exists:states,id",
-            "city_id"          => "required|integer|exists:cities,id",
-            "address"          => "required|string|max:500",
-            "pincode"          => "required|digits:6",
-            "dob"              => "required|date_format:d/m/Y",
+            "state_id"         => "nullable|integer|exists:states,id",
+            "city_id"          => "nullable|integer|exists:cities,id",
+            "address"          => "nullable|string|max:500",
+            "pincode"          => "nullable|digits:6",
+            "dob"              => "nullable|date_format:d/m/Y",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
-            "password"         => "required|confirmed",
+            "password"         => "nullable|confirmed",
         ]);
 
         $user = User::create([
@@ -143,7 +143,7 @@ class UsersController extends Controller
             "user_type"        => "required|in:mechanic,customer",
             "name"             => "required|string|max:100",
             "email"            => [
-                'required',
+                'nullable',
                 Rule::unique('users', 'email')->ignore($user->id)
             ],
             "phone"            => [
@@ -151,10 +151,10 @@ class UsersController extends Controller
                 Rule::unique('users', 'phone')->ignore($user->id)
             ],
             "whatsapp_phone"            => [
-                'required',
+                'nullable',
                 Rule::unique('users', 'whatsapp_number')->ignore($user->id)
             ],
-            "dob"              => "required|date_format:d/m/Y",
+            "dob"              => "nullable|date_format:d/m/Y",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
             "password"         => "nullable|confirmed",
         ]);

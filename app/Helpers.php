@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\ActivityLog;
 use App\Models\Role;
 use App\Models\SchoolRolePermission;
 use App\Models\SystemSetting;
@@ -597,5 +598,18 @@ if (!function_exists('calculateProductDiscount')) {
 
         $discount = (($op - $cp) / $op) * 100;
         return number_format($discount, 2);
+    }
+}
+
+
+if (!function_exists('activityLog')) {
+    function activityLog($user, $title, $message, $link = null)
+    {
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'title' => $title,
+            'message' => $message,
+            'link' => $link
+        ]);
     }
 }

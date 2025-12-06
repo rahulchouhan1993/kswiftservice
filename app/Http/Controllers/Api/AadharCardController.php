@@ -8,6 +8,8 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 
+use function App\activityLog;
+
 class AadharCardController extends Controller
 {
     /**
@@ -18,6 +20,7 @@ class AadharCardController extends Controller
     public function sendVerificationOTP(Request $request)
     {
         try {
+            $user = $request->user();
             $request->validate([
                 'aadhar_card_number' => [
                     'required',
@@ -33,6 +36,7 @@ class AadharCardController extends Controller
                     ?? $resp['data']['transaction_id']
                     ?? null;
 
+                activityLog($user, "aadhar-otp-sent", "Sent aadhar card verification OTP");
                 return response()->json([
                     "status" => true,
                     "message" => "OTP Sent successfully",
@@ -40,6 +44,8 @@ class AadharCardController extends Controller
                     "token" => $resp['token']
                 ]);
             } else {
+                $msg = "Aadhar card verification OTP failed due to " . $resp['error']['message'] ?? $resp['message'];
+                activityLog($user, "aadhar-otp-failed", $msg);
                 return response()->json([
                     "status" => false,
                     "message" =>  $resp['error']['message'] ?? $resp['message'],
@@ -47,8 +53,6 @@ class AadharCardController extends Controller
                 ]);
             }
 
-
-            $user = $request->user();
             if ($user->role != 'mechanic') {
                 return response()->json([
                     'status' => false,
@@ -56,6 +60,9 @@ class AadharCardController extends Controller
                 ], 500);
             }
         } catch (Exception $e) {
+            $msg = "Aadhar card verification OTP failed due to " . $e->getMessage();
+            activityLog($request->user(), "aadhar-otp-failed", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -118,18 +125,27 @@ class AadharCardController extends Controller
                     'kyc_response' => $resp['data']
                 ]);
 
+                $msg = "Aadhar card kyc verified";
+                activityLog($user, "aadhar-otp-failed", $msg);
+
                 return response()->json([
                     "status" => true,
                     "message" => "KYC Verified succesfully",
                     'user' => $user
                 ]);
             } else {
+                $msg = "Aadhar card verification failed due to " . $resp['message'] ?? ($resp['data']['message'] ?? 'Something went wrong');
+                activityLog($user, "aadhar-otp-failed", $msg);
+
                 return response()->json([
                     "status" => false,
                     "message" => $resp['message'] ?? ($resp['data']['message'] ?? 'Something went wrong'),
                 ]);
             }
         } catch (Exception $e) {
+            $msg = "Aadhar card verification failed due to " . $e->getMessage();
+            activityLog($request->user(), "aadhar-otp-failed", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+use function App\activityLog;
 use function App\uploadRequestFile;
 
 class BookingController extends Controller
@@ -202,12 +203,18 @@ class BookingController extends Controller
                 'drop_address' => $dropAddress,
             ];
 
+            $msg = "service booking for vehicle " . $booking->vehicle->vehicle_number;
+            activityLog($user, "service booked", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Booking request submitted successfully.',
                 'booking' => $response
             ]);
         } catch (Exception $e) {
+            $msg = "service booking failed due to " . $e->getMessage();
+            activityLog($request->user(), "service booking failed", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -224,112 +231,125 @@ class BookingController extends Controller
      */
     public function getBookingDetails($uuid)
     {
-        $booking = Booking::with([
-            'services.service_type',
-            'vehicle',
-            'vehicle.vehile_make',
-            'vehicle.vehicle_photos',
-            'pickup_address',
-            'drop_address'
-        ])
-            ->where('uuid', $uuid)
-            ->first();
+        try {
+            $user = $request->user();
+            $booking = Booking::with([
+                'services.service_type',
+                'vehicle',
+                'vehicle.vehile_make',
+                'vehicle.vehicle_photos',
+                'pickup_address',
+                'drop_address'
+            ])
+                ->where('uuid', $uuid)
+                ->first();
 
-        if (!$booking) {
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [],
+                ], 404);
+            }
+
+            $services = $booking->services->map(function ($service) {
+                return [
+                    'id' => $service->id,
+                    'service_type' => [
+                        'id' => $service->service_type->id,
+                        'name' => $service->service_type->name,
+                        'base_price' => $service->service_type->base_price,
+                    ]
+                ];
+            });
+
+            $vehicleMake = $booking->vehicle->vehile_make ? [
+                'id' => $booking->vehicle->vehile_make->id,
+                'name' => $booking->vehicle->vehile_make->name,
+                'logo_path' => $booking->vehicle->vehile_make->logo_path,
+            ] : null;
+
+            $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
+                return [
+                    'uuid' => $photo->uuid,
+                    'photo_url' => $photo->photo_url,
+                ];
+            });
+
+            $vehicle = [
+                'id' => $booking->vehicle->id,
+                'vehicle_type' => $booking->vehicle->vehicle_type,
+                'vehicle_number' => $booking->vehicle->vehicle_number,
+                'model' => $booking->vehicle->model,
+                'vehicle_year' => $booking->vehicle->vehicle_year,
+                'fuel_type' => $booking->vehicle->fuel_type,
+                'transmission' => $booking->vehicle->transmission,
+                'mileage' => $booking->vehicle->mileage,
+                'additional_note' => $booking->vehicle->additional_note,
+                'vehile_make' => $vehicleMake,
+                'vehicle_photos' => $vehiclePhotos,
+            ];
+
+            $pickupAddress = $booking->pickup_address ? [
+                'id' => $booking->pickup_address->id,
+                'address_type' => $booking->pickup_address->address_type,
+                'country_id' => $booking->pickup_address->country_id,
+                'state_id' => $booking->pickup_address->state_id,
+                'city_id' => $booking->pickup_address->city_id,
+                'address' => $booking->pickup_address->address,
+                'pincode' => $booking->pickup_address->pincode,
+                'is_default_address' => $booking->pickup_address->is_default_address,
+            ] : null;
+
+            $dropAddress = $booking->drop_address ? [
+                'id' => $booking->drop_address->id,
+                'address_type' => $booking->drop_address->address_type,
+                'country_id' => $booking->drop_address->country_id,
+                'state_id' => $booking->drop_address->state_id,
+                'city_id' => $booking->drop_address->city_id,
+                'address' => $booking->drop_address->address,
+                'pincode' => $booking->drop_address->pincode,
+                'is_default_address' => $booking->drop_address->is_default_address,
+            ] : null;
+
+            $response = [
+                'id' => $booking->id,
+                'uuid' => $booking->uuid,
+                'user_id' => $booking->user_id,
+                'date' => $booking->date,
+                'time' => $booking->time,
+                'pickup_type' => $booking->pickup_type,
+                'pickup_id' => $booking->pickup_id,
+                'drop_id' => $booking->drop_id,
+                'additional_note' => $booking->additional_note,
+                'extra_services' => $booking->extra_services,
+                'status' => $booking->status,
+                'booking_status' => $booking->booking_status,
+                'created_at' => $booking->created_at,
+                'updated_at' => $booking->updated_at,
+                'deleted_at' => $booking->deleted_at,
+
+                'services' => $services,
+                'vehicle' => $vehicle,
+                'pickup_address' => $pickupAddress,
+                'drop_address' => $dropAddress,
+            ];
+
+            $msg = "booking details fetched";
+            activityLog($user, "booking details fetched", $msg);
+            return response()->json([
+                'status' => true,
+                'message' => 'Booking details fetched successfully.',
+                'booking' => $response,
+            ]);
+        } catch (Exception $e) {
+            $msg = "booking details fetch request failed " . $e->getMessage();
+            activityLog($request->user(), "booking details failed", $msg);
+
             return response()->json([
                 'status' => false,
-                'message' => [],
-            ], 404);
+                'message' => $e->getMessage(),
+            ]);
         }
-
-        $services = $booking->services->map(function ($service) {
-            return [
-                'id' => $service->id,
-                'service_type' => [
-                    'id' => $service->service_type->id,
-                    'name' => $service->service_type->name,
-                    'base_price' => $service->service_type->base_price,
-                ]
-            ];
-        });
-
-        $vehicleMake = $booking->vehicle->vehile_make ? [
-            'id' => $booking->vehicle->vehile_make->id,
-            'name' => $booking->vehicle->vehile_make->name,
-            'logo_path' => $booking->vehicle->vehile_make->logo_path,
-        ] : null;
-
-        $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
-            return [
-                'uuid' => $photo->uuid,
-                'photo_url' => $photo->photo_url,
-            ];
-        });
-
-        $vehicle = [
-            'id' => $booking->vehicle->id,
-            'vehicle_type' => $booking->vehicle->vehicle_type,
-            'vehicle_number' => $booking->vehicle->vehicle_number,
-            'model' => $booking->vehicle->model,
-            'vehicle_year' => $booking->vehicle->vehicle_year,
-            'fuel_type' => $booking->vehicle->fuel_type,
-            'transmission' => $booking->vehicle->transmission,
-            'mileage' => $booking->vehicle->mileage,
-            'additional_note' => $booking->vehicle->additional_note,
-            'vehile_make' => $vehicleMake,
-            'vehicle_photos' => $vehiclePhotos,
-        ];
-
-        $pickupAddress = $booking->pickup_address ? [
-            'id' => $booking->pickup_address->id,
-            'address_type' => $booking->pickup_address->address_type,
-            'country_id' => $booking->pickup_address->country_id,
-            'state_id' => $booking->pickup_address->state_id,
-            'city_id' => $booking->pickup_address->city_id,
-            'address' => $booking->pickup_address->address,
-            'pincode' => $booking->pickup_address->pincode,
-            'is_default_address' => $booking->pickup_address->is_default_address,
-        ] : null;
-
-        $dropAddress = $booking->drop_address ? [
-            'id' => $booking->drop_address->id,
-            'address_type' => $booking->drop_address->address_type,
-            'country_id' => $booking->drop_address->country_id,
-            'state_id' => $booking->drop_address->state_id,
-            'city_id' => $booking->drop_address->city_id,
-            'address' => $booking->drop_address->address,
-            'pincode' => $booking->drop_address->pincode,
-            'is_default_address' => $booking->drop_address->is_default_address,
-        ] : null;
-
-        $response = [
-            'id' => $booking->id,
-            'uuid' => $booking->uuid,
-            'user_id' => $booking->user_id,
-            'date' => $booking->date,
-            'time' => $booking->time,
-            'pickup_type' => $booking->pickup_type,
-            'pickup_id' => $booking->pickup_id,
-            'drop_id' => $booking->drop_id,
-            'additional_note' => $booking->additional_note,
-            'extra_services' => $booking->extra_services,
-            'status' => $booking->status,
-            'booking_status' => $booking->booking_status,
-            'created_at' => $booking->created_at,
-            'updated_at' => $booking->updated_at,
-            'deleted_at' => $booking->deleted_at,
-
-            'services' => $services,
-            'vehicle' => $vehicle,
-            'pickup_address' => $pickupAddress,
-            'drop_address' => $dropAddress,
-        ];
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Booking details fetched successfully.',
-            'booking' => $response,
-        ]);
     }
 
 
@@ -341,121 +361,133 @@ class BookingController extends Controller
      */
     public function fetchBookings(Request $request, $status)
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
+            $bookings = Booking::with([
+                'services.service_type',
+                'vehicle',
+                'vehicle.vehile_make',
+                'vehicle.vehicle_photos',
+                'pickup_address',
+                'drop_address'
+            ])
+                ->whereUserId($user->id)
+                ->when($status !== 'all', function ($query) use ($status) {
+                    return $query->where('booking_status', $status);
+                })
+                ->orderBy('id', 'DESC')
+                ->get();
 
-        $bookings = Booking::with([
-            'services.service_type',
-            'vehicle',
-            'vehicle.vehile_make',
-            'vehicle.vehicle_photos',
-            'pickup_address',
-            'drop_address'
-        ])
-            ->whereUserId($user->id)
-            ->when($status !== 'all', function ($query) use ($status) {
-                return $query->where('booking_status', $status);
-            })
-            ->orderBy('id', 'DESC')
-            ->get();
 
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No bookings found.',
+                ], 201);
+            }
 
-        if ($bookings->isEmpty()) {
+            $response = $bookings->map(function ($booking) {
+                $services = $booking->services->map(function ($service) {
+                    return [
+                        'id' => $service->id,
+                        'service_type' => [
+                            'id' => $service->service_type->id,
+                            'name' => $service->service_type->name,
+                            'base_price' => $service->service_type->base_price,
+                        ]
+                    ];
+                });
+
+                $vehicleMake = $booking->vehicle->vehile_make ? [
+                    'id' => $booking->vehicle->vehile_make->id,
+                    'name' => $booking->vehicle->vehile_make->name,
+                    'logo_path' => $booking->vehicle->vehile_make->logo_path,
+                ] : null;
+
+                $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
+                    return [
+                        'uuid' => $photo->uuid,
+                        'photo_url' => $photo->photo_url,
+                    ];
+                });
+
+                $vehicle = [
+                    'id' => $booking->vehicle->id,
+                    'vehicle_type' => $booking->vehicle->vehicle_type,
+                    'vehicle_number' => $booking->vehicle->vehicle_number,
+                    'model' => $booking->vehicle->model,
+                    'vehicle_year' => $booking->vehicle->vehicle_year,
+                    'fuel_type' => $booking->vehicle->fuel_type,
+                    'transmission' => $booking->vehicle->transmission,
+                    'mileage' => $booking->vehicle->mileage,
+                    'additional_note' => $booking->vehicle->additional_note,
+                    'vehile_make' => $vehicleMake,
+                    'vehicle_photos' => $vehiclePhotos,
+                ];
+
+                $pickupAddress = $booking->pickup_address ? [
+                    'id' => $booking->pickup_address->id,
+                    'address_type' => $booking->pickup_address->address_type,
+                    'country_id' => $booking->pickup_address->country_id,
+                    'state_id' => $booking->pickup_address->state_id,
+                    'city_id' => $booking->pickup_address->city_id,
+                    'address' => $booking->pickup_address->address,
+                    'pincode' => $booking->pickup_address->pincode,
+                    'is_default_address' => $booking->pickup_address->is_default_address,
+                ] : null;
+
+                $dropAddress = $booking->drop_address ? [
+                    'id' => $booking->drop_address->id,
+                    'address_type' => $booking->drop_address->address_type,
+                    'country_id' => $booking->drop_address->country_id,
+                    'state_id' => $booking->drop_address->state_id,
+                    'city_id' => $booking->drop_address->city_id,
+                    'address' => $booking->drop_address->address,
+                    'pincode' => $booking->drop_address->pincode,
+                    'is_default_address' => $booking->drop_address->is_default_address,
+                ] : null;
+
+                return [
+                    'id' => $booking->id,
+                    'uuid' => $booking->uuid,
+                    'user_id' => $booking->user_id,
+                    'vehicle_id' => $booking->vehicle_id,
+                    'date' => $booking->date,
+                    'time' => $booking->time,
+                    'pickup_type' => $booking->pickup_type,
+                    'pickup_id' => $booking->pickup_id,
+                    'drop_id' => $booking->drop_id,
+                    'additional_note' => $booking->additional_note,
+                    'extra_services' => $booking->extra_services,
+                    'status' => $booking->status,
+                    'booking_status' => $booking->booking_status,
+                    'created_at' => $booking->created_at,
+                    'updated_at' => $booking->updated_at,
+
+                    'services' => $services,
+                    'vehicle' => $vehicle,
+                    'pickup_address' => $pickupAddress,
+                    'drop_address' => $dropAddress,
+                ];
+            });
+
+            $msg = "booking list fetched";
+            activityLog($user, "booking list fetched", $msg);
+
             return response()->json([
                 'status' => true,
-                'message' => 'No bookings found.',
-            ], 201);
+                'message' => 'Bookings fetched successfully.',
+                'bookings' => $response,
+            ]);
+        } catch (Exception $e) {
+            $msg = "booking list fetch request failed due to " . $e->getMessage();
+            activityLog($request->user(), "booking list fetch request failed", $msg);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
         }
-
-        $response = $bookings->map(function ($booking) {
-            $services = $booking->services->map(function ($service) {
-                return [
-                    'id' => $service->id,
-                    'service_type' => [
-                        'id' => $service->service_type->id,
-                        'name' => $service->service_type->name,
-                        'base_price' => $service->service_type->base_price,
-                    ]
-                ];
-            });
-
-            $vehicleMake = $booking->vehicle->vehile_make ? [
-                'id' => $booking->vehicle->vehile_make->id,
-                'name' => $booking->vehicle->vehile_make->name,
-                'logo_path' => $booking->vehicle->vehile_make->logo_path,
-            ] : null;
-
-            $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
-                return [
-                    'uuid' => $photo->uuid,
-                    'photo_url' => $photo->photo_url,
-                ];
-            });
-
-            $vehicle = [
-                'id' => $booking->vehicle->id,
-                'vehicle_type' => $booking->vehicle->vehicle_type,
-                'vehicle_number' => $booking->vehicle->vehicle_number,
-                'model' => $booking->vehicle->model,
-                'vehicle_year' => $booking->vehicle->vehicle_year,
-                'fuel_type' => $booking->vehicle->fuel_type,
-                'transmission' => $booking->vehicle->transmission,
-                'mileage' => $booking->vehicle->mileage,
-                'additional_note' => $booking->vehicle->additional_note,
-                'vehile_make' => $vehicleMake,
-                'vehicle_photos' => $vehiclePhotos,
-            ];
-
-            $pickupAddress = $booking->pickup_address ? [
-                'id' => $booking->pickup_address->id,
-                'address_type' => $booking->pickup_address->address_type,
-                'country_id' => $booking->pickup_address->country_id,
-                'state_id' => $booking->pickup_address->state_id,
-                'city_id' => $booking->pickup_address->city_id,
-                'address' => $booking->pickup_address->address,
-                'pincode' => $booking->pickup_address->pincode,
-                'is_default_address' => $booking->pickup_address->is_default_address,
-            ] : null;
-
-            $dropAddress = $booking->drop_address ? [
-                'id' => $booking->drop_address->id,
-                'address_type' => $booking->drop_address->address_type,
-                'country_id' => $booking->drop_address->country_id,
-                'state_id' => $booking->drop_address->state_id,
-                'city_id' => $booking->drop_address->city_id,
-                'address' => $booking->drop_address->address,
-                'pincode' => $booking->drop_address->pincode,
-                'is_default_address' => $booking->drop_address->is_default_address,
-            ] : null;
-
-            return [
-                'id' => $booking->id,
-                'uuid' => $booking->uuid,
-                'user_id' => $booking->user_id,
-                'vehicle_id' => $booking->vehicle_id,
-                'date' => $booking->date,
-                'time' => $booking->time,
-                'pickup_type' => $booking->pickup_type,
-                'pickup_id' => $booking->pickup_id,
-                'drop_id' => $booking->drop_id,
-                'additional_note' => $booking->additional_note,
-                'extra_services' => $booking->extra_services,
-                'status' => $booking->status,
-                'booking_status' => $booking->booking_status,
-                'created_at' => $booking->created_at,
-                'updated_at' => $booking->updated_at,
-
-                'services' => $services,
-                'vehicle' => $vehicle,
-                'pickup_address' => $pickupAddress,
-                'drop_address' => $dropAddress,
-            ];
-        });
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Bookings fetched successfully.',
-            'bookings' => $response,
-        ]);
     }
 
 
@@ -467,118 +499,131 @@ class BookingController extends Controller
      */
     public function getHomePageBooksList(Request $request)
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
+            $bookings = Booking::with([
+                'services.service_type',
+                'vehicle',
+                'vehicle.vehile_make',
+                'vehicle.vehicle_photos',
+                'pickup_address',
+                'drop_address'
+            ])
+                ->whereUserId($user->id)
+                ->orderBy('id', 'DESC')
+                ->get()->take(2);
 
-        $bookings = Booking::with([
-            'services.service_type',
-            'vehicle',
-            'vehicle.vehile_make',
-            'vehicle.vehicle_photos',
-            'pickup_address',
-            'drop_address'
-        ])
-            ->whereUserId($user->id)
-            ->orderBy('id', 'DESC')
-            ->get()->take(2);
 
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No bookings found.',
+                ], 201);
+            }
 
-        if ($bookings->isEmpty()) {
+            $response = $bookings->map(function ($booking) {
+                $services = $booking->services->map(function ($service) {
+                    return [
+                        'id' => $service->id,
+                        'service_type' => [
+                            'id' => $service->service_type->id,
+                            'name' => $service->service_type->name,
+                            'base_price' => $service->service_type->base_price,
+                        ]
+                    ];
+                });
+
+                $vehicleMake = $booking->vehicle->vehile_make ? [
+                    'id' => $booking->vehicle->vehile_make->id,
+                    'name' => $booking->vehicle->vehile_make->name,
+                    'logo_path' => $booking->vehicle->vehile_make->logo_path,
+                ] : null;
+
+                $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
+                    return [
+                        'uuid' => $photo->uuid,
+                        'photo_url' => $photo->photo_url,
+                    ];
+                });
+
+                $vehicle = [
+                    'id' => $booking->vehicle->id,
+                    'vehicle_type' => $booking->vehicle->vehicle_type,
+                    'vehicle_number' => $booking->vehicle->vehicle_number,
+                    'model' => $booking->vehicle->model,
+                    'vehicle_year' => $booking->vehicle->vehicle_year,
+                    'fuel_type' => $booking->vehicle->fuel_type,
+                    'transmission' => $booking->vehicle->transmission,
+                    'mileage' => $booking->vehicle->mileage,
+                    'additional_note' => $booking->vehicle->additional_note,
+                    'vehile_make' => $vehicleMake,
+                    'vehicle_photos' => $vehiclePhotos,
+                ];
+
+                $pickupAddress = $booking->pickup_address ? [
+                    'id' => $booking->pickup_address->id,
+                    'address_type' => $booking->pickup_address->address_type,
+                    'country_id' => $booking->pickup_address->country_id,
+                    'state_id' => $booking->pickup_address->state_id,
+                    'city_id' => $booking->pickup_address->city_id,
+                    'address' => $booking->pickup_address->address,
+                    'pincode' => $booking->pickup_address->pincode,
+                    'is_default_address' => $booking->pickup_address->is_default_address,
+                ] : null;
+
+                $dropAddress = $booking->drop_address ? [
+                    'id' => $booking->drop_address->id,
+                    'address_type' => $booking->drop_address->address_type,
+                    'country_id' => $booking->drop_address->country_id,
+                    'state_id' => $booking->drop_address->state_id,
+                    'city_id' => $booking->drop_address->city_id,
+                    'address' => $booking->drop_address->address,
+                    'pincode' => $booking->drop_address->pincode,
+                    'is_default_address' => $booking->drop_address->is_default_address,
+                ] : null;
+
+                return [
+                    'id' => $booking->id,
+                    'uuid' => $booking->uuid,
+                    'user_id' => $booking->user_id,
+                    'vehicle_id' => $booking->vehicle_id,
+                    'date' => $booking->date,
+                    'time' => $booking->time,
+                    'pickup_type' => $booking->pickup_type,
+                    'pickup_id' => $booking->pickup_id,
+                    'drop_id' => $booking->drop_id,
+                    'additional_note' => $booking->additional_note,
+                    'extra_services' => $booking->extra_services,
+                    'status' => $booking->status,
+                    'booking_status' => $booking->booking_status,
+                    'created_at' => $booking->created_at,
+                    'updated_at' => $booking->updated_at,
+
+                    'services' => $services,
+                    'vehicle' => $vehicle,
+                    'pickup_address' => $pickupAddress,
+                    'drop_address' => $dropAddress,
+                ];
+            });
+
+            $msg = "home page booking list fetched";
+            activityLog($user, "home page booking list fetched", $msg);
+
             return response()->json([
                 'status' => true,
-                'message' => 'No bookings found.',
-            ], 201);
+                'message' => 'Bookings fetched successfully.',
+                'bookings' => $response,
+            ]);
+        } catch (Exception $e) {
+            $msg = "home page booking list fetched request failed due to " . $e->getMessage();
+            activityLog($request->user(), "home page booking list fetched request failed", $msg);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Bookings fetched successfully.',
+                'bookings' => $response,
+            ]);
         }
-
-        $response = $bookings->map(function ($booking) {
-            $services = $booking->services->map(function ($service) {
-                return [
-                    'id' => $service->id,
-                    'service_type' => [
-                        'id' => $service->service_type->id,
-                        'name' => $service->service_type->name,
-                        'base_price' => $service->service_type->base_price,
-                    ]
-                ];
-            });
-
-            $vehicleMake = $booking->vehicle->vehile_make ? [
-                'id' => $booking->vehicle->vehile_make->id,
-                'name' => $booking->vehicle->vehile_make->name,
-                'logo_path' => $booking->vehicle->vehile_make->logo_path,
-            ] : null;
-
-            $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
-                return [
-                    'uuid' => $photo->uuid,
-                    'photo_url' => $photo->photo_url,
-                ];
-            });
-
-            $vehicle = [
-                'id' => $booking->vehicle->id,
-                'vehicle_type' => $booking->vehicle->vehicle_type,
-                'vehicle_number' => $booking->vehicle->vehicle_number,
-                'model' => $booking->vehicle->model,
-                'vehicle_year' => $booking->vehicle->vehicle_year,
-                'fuel_type' => $booking->vehicle->fuel_type,
-                'transmission' => $booking->vehicle->transmission,
-                'mileage' => $booking->vehicle->mileage,
-                'additional_note' => $booking->vehicle->additional_note,
-                'vehile_make' => $vehicleMake,
-                'vehicle_photos' => $vehiclePhotos,
-            ];
-
-            $pickupAddress = $booking->pickup_address ? [
-                'id' => $booking->pickup_address->id,
-                'address_type' => $booking->pickup_address->address_type,
-                'country_id' => $booking->pickup_address->country_id,
-                'state_id' => $booking->pickup_address->state_id,
-                'city_id' => $booking->pickup_address->city_id,
-                'address' => $booking->pickup_address->address,
-                'pincode' => $booking->pickup_address->pincode,
-                'is_default_address' => $booking->pickup_address->is_default_address,
-            ] : null;
-
-            $dropAddress = $booking->drop_address ? [
-                'id' => $booking->drop_address->id,
-                'address_type' => $booking->drop_address->address_type,
-                'country_id' => $booking->drop_address->country_id,
-                'state_id' => $booking->drop_address->state_id,
-                'city_id' => $booking->drop_address->city_id,
-                'address' => $booking->drop_address->address,
-                'pincode' => $booking->drop_address->pincode,
-                'is_default_address' => $booking->drop_address->is_default_address,
-            ] : null;
-
-            return [
-                'id' => $booking->id,
-                'uuid' => $booking->uuid,
-                'user_id' => $booking->user_id,
-                'vehicle_id' => $booking->vehicle_id,
-                'date' => $booking->date,
-                'time' => $booking->time,
-                'pickup_type' => $booking->pickup_type,
-                'pickup_id' => $booking->pickup_id,
-                'drop_id' => $booking->drop_id,
-                'additional_note' => $booking->additional_note,
-                'extra_services' => $booking->extra_services,
-                'status' => $booking->status,
-                'booking_status' => $booking->booking_status,
-                'created_at' => $booking->created_at,
-                'updated_at' => $booking->updated_at,
-
-                'services' => $services,
-                'vehicle' => $vehicle,
-                'pickup_address' => $pickupAddress,
-                'drop_address' => $dropAddress,
-            ];
-        });
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Bookings fetched successfully.',
-            'bookings' => $response,
-        ]);
     }
 
 
@@ -613,12 +658,18 @@ class BookingController extends Controller
                 'booking_status' => $request->status
             ]);
 
+            $msg = "booking status updated at " . $booking->status;
+            activityLog($user, "booking status updated", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => "Booking status updated as " . $request->status,
                 'booking' => $booking
             ], 201);
         } catch (Exception $e) {
+            $msg = "booking status updation error due to " . $e->getMessage();
+            activityLog($request->user(), "booking status updation error", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -697,12 +748,18 @@ class BookingController extends Controller
                 'video_url' => $service->video_url
             ];
 
+            $msg = "service (" . $data['service_title'] . ") proof uploaded by mechanic";
+            activityLog($user, "service proof uploaded", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => "File uploaded successfully",
                 'service' => $data
             ]);
         } catch (Exception $e) {
+            $msg = "service proof uploaded by mechanic failed due to " . $e->getMessage();
+            activityLog($request->user(), "service proof uploaded", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -720,6 +777,7 @@ class BookingController extends Controller
     public function fetchServicesVideos(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $booking = Booking::with([
                 'services.service_type',
                 'mechanic',
@@ -751,6 +809,9 @@ class BookingController extends Controller
                 return $p->photo_url;
             });
 
+            $msg = "service proof data fetched";
+            activityLog($user, "service proof data fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => "Booking data fetched",
@@ -768,6 +829,9 @@ class BookingController extends Controller
                 ],
             ], 200);
         } catch (Exception $e) {
+            $msg = "service proof data fetch failed due to " . $e->getMessage();
+            activityLog($request->user(), "service proof data fetch failed", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

@@ -31,7 +31,7 @@ class StateSeeder extends Seeder
         foreach ($states as $stateName) {
             State::firstOrCreate([
                 'country_id' => $country->id,
-                'name' => $stateName
+                'name' => ucwords($stateName)
             ]);
         }
 

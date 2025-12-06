@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
 
@@ -38,6 +39,7 @@ class Payment extends Model
 
     protected $appends = [
         'invoice_url',
+        'received_at'
     ];
 
 
@@ -50,5 +52,10 @@ class Payment extends Model
         }
 
         return null;
+    }
+
+    public function getReceivedAtAttribute()
+    {
+        return Carbon::parse($this->created_at)->format('d M Y');
     }
 }

@@ -230,7 +230,7 @@ export const useHelpers = () => {
 
 
     const capitalizeWords = (str) => {
-        return str ? str.replace(/\b\w/g, char => char.toUpperCase()) : 'NA';
+        return str ? str.replace(/\b\w/g, char => char.toUpperCase()) : '--';
     };
 
     const toTitleCase = (str) => {
@@ -244,15 +244,15 @@ export const useHelpers = () => {
     };
 
     const allCapitalizeWords = (str) => {
-        return str ? str.toUpperCase() : 'NA';
+        return str ? str.toUpperCase() : '--';
     };
 
     const toLowerCase = (str) => {
-        return str ? str.toLowerCase() : 'na';
+        return str ? str.toLowerCase() : '--';
     };
 
     const toSentenceCase = (str) => {
-        return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : 'NA';
+        return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '--';
     };
 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SuperAdmin\ActivityLogsController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
@@ -29,6 +30,9 @@ Route::get('/offers', [HomeController::class, 'offers'])->name('offers');
 Route::match(['get', 'post'], '/delete-account', [HomeController::class, 'deleteAccount'])->name('delete.account');
 
 
+Route::prefix('common')->name('common.')->group(function () {
+    Route::get('/search-garages', [CommonController::class, 'serachGarages'])->name('search.garage');
+});
 
 
 // SUPERADMIN ROUTES START FROM HERE
@@ -41,8 +45,13 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
     Route::middleware('auth.superadmin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
+        Route::match(['get', 'post'], '/update-profile', [AdminDashboardController::class, 'updateProfile'])->name('update.profile');
+        Route::post('/update-password', [AdminDashboardController::class, 'updatePassowrd'])->name('update.password');
+
+
 
         Route::prefix('settings')->name('settings.')->group(function () {
+
             Route::prefix('vehicle-makes')->name('vehicle.make.')->group(function () {
                 Route::get('list', [VehicleMakeController::class, 'index'])->name('list');
                 Route::post('/create', [VehicleMakeController::class, 'add'])->name('create');
@@ -65,6 +74,7 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::prefix('bookings')->name('booking.')->group(function () {
             Route::get('/list', [SuperAdminBookingController::class, 'list'])->name('list');
             Route::post('/assign-mechanic', [SuperAdminBookingController::class, 'assignMechanic'])->name('assign.mechanic');
+            Route::post('/cancel-mechanic-assign-request', [SuperAdminBookingController::class, 'cancelAssignMechanicRequest'])->name('cancel.assign.mechanic');
         });
 
 
@@ -86,6 +96,10 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::prefix('contactus-enquiries')->name('enquiries.')->group(function () {
             Route::get('/list', [ContactUsEnquiriesController::class, 'list'])->name('list');
             Route::post('/{uuid}/update-status', [ContactUsEnquiriesController::class, 'updateReadStatus'])->name('update.status');
+        });
+
+        Route::prefix('/activity-logs')->name('activity_log.')->group(function () {
+            Route::get('/list', [ActivityLogsController::class, 'list'])->name('list');
         });
 
         Route::prefix('/transaction-history')->name('transaction_history.')->group(function () {

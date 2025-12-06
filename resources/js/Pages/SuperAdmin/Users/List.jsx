@@ -18,7 +18,7 @@ export default function List({ list, search, status, type, states, cities }) {
     console.log('list', list);
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { toTitleCase } = useHelpers();
+    const { capitalizeWords } = useHelpers();
     const auth = usePage().props.auth.user;
 
     const userTypeOptions = [
@@ -164,10 +164,10 @@ export default function List({ list, search, status, type, states, cities }) {
                                         >
                                             <td className="p-2">{index + 1}</td>
                                             <td className="p-2 text-start">
-                                                <UserAvatarCard user={l} />
+                                                <UserAvatarCard user={l} displayRole={true} />
                                             </td>
                                             <td className="p-2 text-center">{l?.dob || '--'}</td>
-                                            <td className="p-2 text-center">{l?.kyc_status}</td>
+                                            <td className="p-2 text-center">{capitalizeWords(l?.kyc_status)}</td>
                                             <td className="p-2 text-center">{l?.member_since}</td>
                                             <td className="p-1 flex justify-center items-baseline gap-4">
                                                 <StatusToggle

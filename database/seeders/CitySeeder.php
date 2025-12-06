@@ -22,7 +22,7 @@ class CitySeeder extends Seeder
                 if ($state) {
                     City::firstOrCreate([
                         'state_id' => $state->id,
-                        'name' => $c['name'],
+                        'name' => ucwords($c['name']),
                     ]);
                 }
             }

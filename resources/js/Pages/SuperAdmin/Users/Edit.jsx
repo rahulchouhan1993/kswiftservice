@@ -127,13 +127,12 @@ export default function Edit({ user, states, cities }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="email" value="Email *" />
+                        <InputLabel htmlFor="email" value="Email" />
                         <TextInput
                             id="email"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            required
                             placeholder="Email..."
                         />
                         <InputError className="mt-2" message={errors.email} />
@@ -153,13 +152,12 @@ export default function Edit({ user, states, cities }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="whatsapp_phone" value="Whatsapp Phone *" />
+                        <InputLabel htmlFor="whatsapp_phone" value="Whatsapp Phone" />
                         <PhoneInput
                             id="whatsapp_phone"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.whatsapp_phone}
                             onChange={(e) => setData('whatsapp_phone', e.target.value)}
-                            required
                             placeholder="Whatsapp Phone..."
                         />
                         <InputError className="mt-2" message={errors.whatsapp_phone} />

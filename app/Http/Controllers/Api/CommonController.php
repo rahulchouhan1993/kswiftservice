@@ -10,6 +10,8 @@ use App\Models\VehicleMake;
 use Exception;
 use Illuminate\Http\Request;
 
+use function App\activityLog;
+
 class CommonController extends Controller
 {
     /**
@@ -20,7 +22,6 @@ class CommonController extends Controller
     {
         try {
             $countiries = Country::whereStatus(1)->orderBy('name')->get()->toArray();
-
             return response()->json([
                 'status' => true,
                 'message' => 'Countiries list fetched',

@@ -16,6 +16,9 @@ import { FaUsers } from 'react-icons/fa6';
 import { LuMessageSquareText } from 'react-icons/lu';
 import { GoChecklist } from "react-icons/go";
 import { GrFormCalendar } from 'react-icons/gr';
+import { CiViewList } from 'react-icons/ci';
+import { BsReverseListColumnsReverse } from 'react-icons/bs';
+import { BiListUl } from 'react-icons/bi';
 
 export default function AuthenticatedLayout({ header, children }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -101,6 +104,7 @@ export default function AuthenticatedLayout({ header, children }) {
         },
         { href: route('superadmin.booking.list'), active: route().current('booking.list'), label: 'Bookings', icon: GrFormCalendar },
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
+        { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
     ];
 
     return (
@@ -143,7 +147,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </span>
                                 }
                                 items={[
-                                    { label: 'Profile', route: null }
+                                    { label: 'Profile', route: 'superadmin.update.profile' }
                                 ]}
                             />
 

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
+use function App\activityLog;
 use function App\uploadRequestFile;
 
 class GarageController extends Controller
@@ -109,12 +110,19 @@ class GarageController extends Controller
             }
 
             $garage->load('garage_photos');
+
+            $msg = "garage added by " . $user->name ?? 'user';
+            activityLog($user, "garage added", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Garage added successfully.',
                 'garage' => $garage
             ]);
         } catch (Exception $e) {
+            $msg = "error during garage add - " . $e->getMessage();
+            activityLog($request->user(), "error during garage add", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -227,12 +235,19 @@ class GarageController extends Controller
             }
 
             $garage->load('garage_photos');
+
+            $msg = $user->name ?? "user" . "updated his garage details";
+            activityLog($user, "garage updated succesfully", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Garage updated successfully.',
                 'garage' => $garage
             ]);
         } catch (Exception $e) {
+            $msg = "error during update garage details - " . $e->getMessage();
+            activityLog($request->user(), "error in garage updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -258,12 +273,18 @@ class GarageController extends Controller
 
             $garage = Garage::with(['garage_photos'])->whereUserId($user->id)->get();
 
+            $msg = "garage list fetched succesfully";
+            activityLog($user, "garages list fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => "Garage list fetched succesfully",
                 'garage' => $garage
             ], 201);
         } catch (Exception $e) {
+            $msg = "error during fetch garage list - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch garage list", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -296,12 +317,18 @@ class GarageController extends Controller
                 ], 500);
             }
 
+            $msg = "garage details fetched";
+            activityLog($user, "garage details fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Garage details fetched.',
                 'garage' => $garage
             ]);
         } catch (Exception $e) {
+            $msg = "error during fetch garage details - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch garage details", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -338,11 +365,18 @@ class GarageController extends Controller
             $garage->update([
                 'status' => $status == 'active' ? 1 : 0
             ]);
+
+            $msg = "garage status updated as - " . $garage->status;
+            activityLog($user, "garage status updated", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Garage ' . $status . ' succesfully',
             ]);
         } catch (Exception $e) {
+            $msg = "error in garage status updation - " . $e->getMessage();
+            activityLog($request->user(), "error in garage status updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -356,9 +390,10 @@ class GarageController extends Controller
      * @param string $uuid Garage UUID
      * @return mixed
      */
-    public function delete($uuid)
+    public function delete(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $garage = Garage::with('garage_photos')->firstWhere('uuid', $uuid);
 
             if (!$garage) {
@@ -384,6 +419,9 @@ class GarageController extends Controller
                 'message' => 'Garage deleted successfully.',
             ]);
         } catch (Exception $e) {
+            $msg = "error in garage deletion - " . $e->getMessage();
+            activityLog($request->user(), "error in garage deletion", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -420,11 +458,17 @@ class GarageController extends Controller
             Storage::disk('public')->delete('garage_photos/' . $garagePhoto->photo);
             $garagePhoto->delete();
 
+            $msg = "garage photo deleted";
+            activityLog($user, "garage photo deleted", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Photo deleted successfully.',
             ]);
         } catch (Exception $e) {
+            $msg = "error in garage photo deletion - " . $e->getMessage();
+            activityLog($request->user(), "error in garage photo deletion", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

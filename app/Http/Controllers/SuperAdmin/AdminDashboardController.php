@@ -11,14 +11,24 @@ use App\Models\Partner;
 use App\Models\Product;
 use App\Models\School;
 use App\Models\SubCategory;
+use App\Models\SuperAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class AdminDashboardController extends Controller
 {
+    protected $per_page;
+    protected $auth;
+    public function __construct()
+    {
+        $this->per_page = env('PER_PAGE', 50);
+        $this->auth = Auth::guard('superadmin')->user();
+    }
+
     /**
      * Display Dashboard
      * @return mixed
@@ -49,5 +59,61 @@ class AdminDashboardController extends Controller
         $request->session()->regenerateToken();
 
         return redirect(route('superadmin.login'))->with('success', 'Logout Succesfull');
+    }
+
+
+
+    /**
+     * Update Super Admin Profile
+     * @param Request $request
+     * @return mixed
+     */
+    public function updateProfile(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'name' => 'required|min:3',
+                'email' => 'required|email:DNS',
+                'phone' => 'required|digits:10',
+                'whatsapp_phone' => 'required|digits:10',
+            ]);
+
+            $user = SuperAdmin::find($this->auth->id);
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'whatsapp_phone' => $request->whatsapp_phone,
+            ]);
+
+            return back()->with('success', 'Profile updated succesfully');
+        }
+
+        return Inertia::render('SuperAdmin/Profile/List');
+    }
+
+
+    /**
+     * Update Super Admin Password
+     * @param Request $request
+     * @return mixed
+     */
+    public function updatePassowrd(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $user = SuperAdmin::find($this->auth->id);
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Current password is incorrect.');
+        }
+
+        $user->update([
+            'password' => $request->password,
+        ]);
+
+        return back()->with('success', 'Password updated successfully.');
     }
 }

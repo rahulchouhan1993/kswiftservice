@@ -10,6 +10,7 @@ class ApiAuthenticate
 {
     public function handle(Request $request, Closure $next)
     {
+        // Allowed domains validation
         $allowedDomains = [
             'kswiftservices.com',
             '127.0.0.1',
@@ -26,6 +27,7 @@ class ApiAuthenticate
             ], 403);
         }
 
+        // Check Authorization header
         $token = $request->bearerToken();
 
         if (!$token) {
@@ -35,6 +37,7 @@ class ApiAuthenticate
             ], 401);
         }
 
+        // Fetch token from database
         $accessToken = PersonalAccessToken::findToken($token);
 
         if (!$accessToken) {
@@ -44,8 +47,19 @@ class ApiAuthenticate
             ], 401);
         }
 
+        // Attach both the user and the token to the request
         $request->setUserResolver(function () use ($accessToken) {
-            return $accessToken->tokenable;
+            $user = $accessToken->tokenable;
+
+            // 🔥 IMPORTANT: Attach token so currentAccessToken() works
+            if (method_exists($user, 'withAccessToken')) {
+                $user->withAccessToken($accessToken);
+            } else {
+                // Fallback for older Laravel versions
+                $user->accessToken = $accessToken;
+            }
+
+            return $user;
         });
 
         return $next($request);

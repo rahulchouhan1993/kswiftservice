@@ -113,12 +113,26 @@ class User extends Authenticatable
         if ($photo) {
             return asset('storage/users_photos/' . $photo);
         }
-        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
-            return mb_substr($segment, 0, 1);
-        })->join(' '));
 
-        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=B8EA3F&background=000000&size=128';
+        $name = trim($this->name ?? '');
+        if ($name === '') {
+            if ($this->role == 'customer') {
+                $avatarText = 'C' . $this->id;
+            } else {
+                $avatarText = 'M' . $this->id;
+            }
+        } else {
+            $avatarText = trim(
+                collect(explode(' ', $name))->map(function ($segment) {
+                    return mb_substr($segment, 0, 1);
+                })->join('')
+            );
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($avatarText)
+            . '&color=B8EA3F&background=000000&size=128';
     }
+
 
 
     public function addresses()
@@ -129,5 +143,10 @@ class User extends Authenticatable
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class, 'user_id', 'id');
+    }
+
+    public function garage()
+    {
+        return $this->hasMany(Garage::class, 'user_id', 'id');
     }
 }

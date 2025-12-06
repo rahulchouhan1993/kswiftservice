@@ -13,7 +13,7 @@ const UserAvatarCard = ({ user, displayRole }) => {
                 />
 
                 <div className="flex flex-col space-y-1">
-                    <p className="text-sm text-gray-900 dark:text-white text-left">
+                    <p className="text-sm text-gray-900 dark:text-white text-left gap-2">
                         {user?.name || '--'}
                         {displayRole ? <>
                             (

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
+use function App\activityLog;
 use function App\uploadRequestFile;
 
 class ProfileController extends Controller
@@ -73,6 +74,9 @@ class ProfileController extends Controller
                 ]
             );
 
+            $msg = "profile updated";
+            activityLog($user, "profile updated", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Profile updated successfully',
@@ -80,6 +84,9 @@ class ProfileController extends Controller
                 'address' => $address
             ]);
         } catch (Exception $e) {
+            $msg = "error during profile updation - " . $e->getMessage();
+            activityLog($request->user(), "error during profile updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -104,12 +111,18 @@ class ProfileController extends Controller
                 ], 404);
             }
 
+            $msg = "user details fetched";
+            activityLog($user, "user details fetched", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'User details fetched.',
                 'user' => $user,
             ]);
         } catch (Exception $e) {
+            $msg = "error during fetch user details - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch user details", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -126,18 +139,22 @@ class ProfileController extends Controller
     public function updateProfileImage(Request $request)
     {
         try {
+            $user = $request->user();
+
             $request->validate([
                 'profile_photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
-            $user = $request->user();
 
-            if ($request->profile_photo) {
+            if ($request->pofile_photo) {
                 if ($user->profile_pic && Storage::exists($user->profile_pic)) {
                     Storage::delete($user->profile_pic);
                 }
                 uploadRequestFile($request, 'profile_photo', $user, 'users_photos', 'profile_pic');
             }
+
+            $msg = "profile image updated";
+            activityLog($user, "profile image updated", $msg);
 
             return response()->json([
                 'status' => true,
@@ -145,6 +162,9 @@ class ProfileController extends Controller
                 'profile_photo_url' => $user->profile_photo_url,
             ]);
         } catch (Exception $e) {
+            $msg = "error during update profile image - " . $e->getMessage();
+            activityLog($request->user(), "error during update profile image", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -168,7 +188,6 @@ class ProfileController extends Controller
                 'city' => 'required',
                 'address' => [
                     'required',
-                    Rule::unique('user_addresses', 'address')
                 ],
                 'pincode' => [
                     'required',
@@ -188,12 +207,18 @@ class ProfileController extends Controller
                 'address_type' => $request->address_type,
             ]);
 
+            $msg = "user new address added";
+            activityLog($user, "user new address added", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Address added successfully.',
                 'address' => $address
             ]);
         } catch (Exception $e) {
+            $msg = "error during save address - " . $e->getMessage();
+            activityLog($request->user(), "error during save address", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -211,6 +236,7 @@ class ProfileController extends Controller
     public function updateAddress(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $address = UserAddress::firstWhere('uuid', $uuid);
             if (!$address) {
                 return response()->json([
@@ -226,7 +252,6 @@ class ProfileController extends Controller
                 'city' => 'required',
                 'address' => [
                     'required',
-                    Rule::unique('user_addresses', 'address')->ignore($address)
                 ],
                 'pincode' => [
                     'required',
@@ -244,12 +269,18 @@ class ProfileController extends Controller
                 'address_type' => $request->address_type,
             ]);
 
+            $msg = "address updated";
+            activityLog($user, "address updated", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Address updated successfully.',
                 'address' => $address
             ]);
         } catch (Exception $e) {
+            $msg = "error during update address - " . $e->getMessage();
+            activityLog($request->user(), "error during update address", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -266,8 +297,15 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
+
+            $msg = "address list fetched";
+            activityLog($user, "address list fetched", $msg);
+
             return $user->addresses ?? [];
         } catch (Exception $e) {
+            $msg = "error during fetch address list - " . $e->getMessage();
+            activityLog($request->user(), "error during fetch address list", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -281,9 +319,10 @@ class ProfileController extends Controller
      * @param string $uuid Address UUID
      * @return mixed
      */
-    public function deleteAddress($uuid)
+    public function deleteAddress(Request $request, $uuid)
     {
         try {
+            $user = $request->user();
             $address = UserAddress::firstWhere('uuid', $uuid);
             if (!$address) {
                 return response()->json([
@@ -293,11 +332,18 @@ class ProfileController extends Controller
             }
 
             $address->delete();
+
+            $msg = "address deleted";
+            activityLog($user, "address deleted", $msg);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Address deleted successfully.',
             ]);
         } catch (Exception $e) {
+            $msg = "error during address deleted - " . $e->getMessage();
+            activityLog($request->user(), "error during address deleted", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

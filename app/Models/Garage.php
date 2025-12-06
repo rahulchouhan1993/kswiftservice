@@ -54,6 +54,11 @@ class Garage extends Model
     }
 
 
+    public function mechanic()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
     public function garage_photos()
     {
         return $this->hasMany(GaragePhoto::class, 'garage_id', 'id');

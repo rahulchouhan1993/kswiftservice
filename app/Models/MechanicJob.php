@@ -11,6 +11,7 @@ class MechanicJob extends Model
         'user_id',
         'booking_id',
         'status',
+        'cancellation_reason',
         'rejection_reason'
     ];
 
