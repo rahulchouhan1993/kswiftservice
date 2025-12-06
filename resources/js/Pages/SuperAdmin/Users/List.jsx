@@ -40,51 +40,49 @@ export default function List({ list, search, status, type, states, cities }) {
 
     const handleSearch = (e) => {
         const sval = e.target.value;
-        if (search !== sval) {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-            }
 
-            if (!sval || sval.length > 0) {
-                timerRef.current = setTimeout(() => {
-                    router.visit(route('superadmin.user.list', {
-                        search: sval,
-                    }), {
-                        only: ['list', 'search'],
-                        preserveScroll: true,
-                    });
-                }, 500);
-            }
+        if (search !== sval) {
+            if (timerRef.current) clearTimeout(timerRef.current);
+
+            timerRef.current = setTimeout(() => {
+                router.visit(route("superadmin.user.list", {
+                    search: sval,
+                }), {
+                    only: ["list", "search"],
+                    preserveScroll: true,
+                });
+            }, 500);
         }
     };
+
 
     const handleUserTypeChange = (e) => {
         const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
-                    type: sval,
-                }), {
-                    only: ['list', 'search', 'type'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
+
+        timerRef.current = setTimeout(() => {
+            router.visit(route("superadmin.user.list", {
+                type: sval,
+            }), {
+                only: ["list", "search", "type"],
+                preserveScroll: true,
+            });
+        }, 500);
     };
+
 
     const handleStatusChange = (e) => {
         const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.user.list', {
-                    status: sval,
-                }), {
-                    only: ['list', 'search', 'type', 'status'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
+
+        timerRef.current = setTimeout(() => {
+            router.visit(route("superadmin.user.list", {
+                status: sval,
+            }), {
+                only: ["list", "search", "type", "status"],
+                preserveScroll: true,
+            });
+        }, 500);
     };
+
 
 
     return (
@@ -140,6 +138,7 @@ export default function List({ list, search, status, type, states, cities }) {
                                     <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
                                     <th className="p-2 text-start whitespace-nowrap">Name</th>
                                     <th className="p-2 text-center whitespace-nowrap">D.O.B</th>
+                                    <th className="p-2 text-center whitespace-nowrap">Bookings</th>
                                     <th className="p-2 text-center whitespace-nowrap">KYC Status</th>
                                     <th className="p-2 text-center whitespace-nowrap">Member Since</th>
                                     <th className="p-2 text-center whitespace-nowrap">Action</th>
@@ -167,6 +166,31 @@ export default function List({ list, search, status, type, states, cities }) {
                                                 <UserAvatarCard user={l} displayRole={true} />
                                             </td>
                                             <td className="p-2 text-center">{l?.dob || '--'}</td>
+                                            <td className="p-2 text-center">
+                                                {l?.role === 'customer' ? (
+                                                    <a
+                                                        href={route('superadmin.booking.list', {
+                                                            user_id: l?.id,
+                                                            user_type: 'customer'
+                                                        })}
+                                                    >
+                                                        <span className="p-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
+                                                            {l?.user_booking_count}
+                                                        </span>
+                                                    </a>
+                                                ) : (
+                                                    <a
+                                                        href={route('superadmin.booking.list', {
+                                                            user_id: l?.id,
+                                                            user_type: 'mechanic'
+                                                        })}
+                                                    >
+                                                        <span className="p-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-full">
+                                                            {l?.mechanic_booking_count}
+                                                        </span>
+                                                    </a>
+                                                )}
+                                            </td>
                                             <td className="p-2 text-center">{capitalizeWords(l?.kyc_status)}</td>
                                             <td className="p-2 text-center">{l?.member_since}</td>
                                             <td className="p-1 flex justify-center items-baseline gap-4">

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Category;
+use App\Models\ContactUsMessage;
+use App\Models\MechanicJob;
 use App\Models\Order;
 use App\Models\Partner;
 use App\Models\Product;
@@ -37,13 +39,24 @@ class AdminDashboardController extends Controller
     {
         $auth = Auth::user();
 
-        $user = User::query();
+        $customers = User::whereRole('customer')->count();
+        $mechanics = User::whereRole('mechanic')->count();
+        $newMessages = ContactUsMessage::whereIsRead(0)->orderBy('created_at', 'DESC');
+        $injobs = MechanicJob::whereStatus('accepted')->count();
+        $completedjobs = MechanicJob::whereStatus('completed')->count();
+        $cancelledjobs = MechanicJob::whereStatus('cancelled')->count();
         $booking = Booking::query();
+
         return Inertia::render('SuperAdmin/Dashboard', [
             'authUser'   => $auth,
-            'customers' => $user->whereRole('customer')->count(),
-            'mechanics' => $user->whereRole('mechanic')->count(),
+            'customers' => $customers,
+            'mechanics' => $mechanics,
             'bookings' => $booking->count(),
+            'newMessages' => $newMessages->count(),
+            'injobs' => $injobs,
+            'completedjobs' => $completedjobs,
+            'cancelledjobs' => $cancelledjobs,
+            'newMessagesData' => $newMessages->get(),
         ]);
     }
 

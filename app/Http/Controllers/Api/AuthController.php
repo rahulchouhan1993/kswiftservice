@@ -96,62 +96,64 @@ class AuthController extends Controller
     public function OTPlogin(Request $request)
     {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'phone' => 'required|digits:10',
                 'user_type' => 'required|in:customer,mechanic',
             ]);
 
-            $existingUser = User::where('phone', $request->phone)->first();
-            if ($existingUser->status == 0) {
-                $msg = "User try to login but due to account inactive he can't able to login";
-                activityLog($existingUser, "try to login", $msg);
+            $existingUser = User::where('phone', $validated['phone'])->first();
+            if ($existingUser && $existingUser->status == 0) {
 
+                activityLog($existingUser, "login attempt", "User attempted login but account is inactive.");
                 return response()->json([
                     'status' => false,
                     'message' => "Your account is blocked. Please contact the administrator.",
-                ], 500);
+                ], 403);
+            }
+
+            if ($existingUser && $existingUser->role !== $validated['user_type']) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "You are already registered as {$existingUser->role}.",
+                ], 422);
             }
 
             if ($existingUser) {
-                if ($existingUser->role !== $request->user_type) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => "You are already registered as {$existingUser->role}",
-                    ], 403);
-                }
-
                 $user = $existingUser;
             } else {
                 $user = User::create([
-                    'phone' => $request->phone,
-                    'role' => $request->user_type,
+                    'phone' => $validated['phone'],
+                    'role' => $validated['user_type'],
                 ]);
             }
 
             $otp = rand(100000, 999999);
             $user->update([
-                // 'otp' => $otp,
                 'otp' => 123456,
-                'otp_expire' => Carbon::now()->addMinutes(2)
+                'otp_expire' => now()->addMinutes(2),
             ]);
 
-            $msg = "Login otp sent";
-            activityLog($existingUser, "login otp sent", $msg);
+            activityLog($user, "OTP sent", "Login OTP sent successfully.");
+
             return response()->json([
                 'status' => true,
-                'message' => 'OTP Sent Successfully',
-                'user' => $user,
-            ]);
-        } catch (Exception $e) {
-            $msg = "Error on sent otp - " . $e->getMessage();
-            activityLog($request->user(), "error on send otp", $msg);
-
+                'message' => "OTP sent successfully.",
+                'user' => $user
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => "Validation failed.",
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again later.",
             ], 500);
         }
     }
+
 
 
 
@@ -218,9 +220,6 @@ class AuthController extends Controller
                 'token' => $token
             ]);
         } catch (Exception $e) {
-            $msg = "login verification otp failed due to - " . $e->getMessage();
-            activityLog($request->user(), "otp verification failed", $msg);
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

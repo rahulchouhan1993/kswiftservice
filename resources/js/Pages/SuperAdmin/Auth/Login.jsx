@@ -1,4 +1,4 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { useTheme } from "next-themes";
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook, FaApple, FaSun, FaTable } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 import { IoMoon } from "react-icons/io5";
 import NavLink from "@/Components/NavLink";
 import Forgot from "./Forgot";
+import ApplicationLogo from "@/Components/ApplicationLogo";
 // import { Image } from "../../../../../public/images/common/Profilepic.jpg";
 // import { useState } from "react";
 
@@ -88,7 +89,13 @@ export default function Login({ status }) {
                     <div className="w-full max-w-lg">
                         <div className="flex justify-between items-center mb-8">
                             <div>
-                                <h2 className="text-3xl font-bold dark:text-white text-gray-800">Login</h2>
+                                <div className='flex items-center gap-2'>
+                                    <div className="flex items-center justify-center lg:justify-start w-full lg:w-auto">
+                                        <Link href={route('superadmin.dashboard')}>
+                                            <ApplicationLogo className="block fill-current text-gray-800 dark:text-gray-200 h-10 w-32" />
+                                        </Link>
+                                    </div>
+                                </div>
                                 <p className="text-sm mt-2 dark:text-gray-400 text-gray-600">Welcome back! Please enter your details.</p>
                             </div>
 

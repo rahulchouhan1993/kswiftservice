@@ -149,4 +149,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Garage::class, 'user_id', 'id');
     }
+
+    public function user_booking()
+    {
+        return $this->hasMany(Booking::class, 'user_id', 'id');
+    }
+
+    public function mechanic_booking()
+    {
+        return $this->hasMany(Booking::class, 'mechanic_id', 'id');
+    }
 }

@@ -24,7 +24,7 @@ class SuperAdminBookingController extends Controller
      * @return mixed
      */
 
-    public function list(Request $request)
+    public function list(Request $request, $user_id = null, $user_type = null)
     {
         $search = $request->query('search');
         $status = $request->query('status');
@@ -42,26 +42,45 @@ class SuperAdminBookingController extends Controller
             'drop_address',
             'payment',
             'mechanic_job'
-        ])->orderBy('created_at', 'DESC')
+        ])
+            ->orderBy('created_at', 'DESC')
+
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('booking_id', 'LIKE', "%{$search}%");
                 });
             })
+
             ->when(!is_null($status), function ($q) use ($status) {
                 $q->where('booking_status', $status);
+            })
+
+            ->when(!is_null($user_type) && !is_null($user_id), function ($q) use ($user_type, $user_id) {
+                if ($user_type === 'customer') {
+                    $q->where('user_id', $user_id);
+                } elseif ($user_type === 'mechanic') {
+                    $q->where('mechanic_id', $user_id);
+                }
             });
 
-        $bookings = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
-        $mechanics = User::whereRole('mechanic')->whereStatus(1)->orderBy('name')->select('id', 'name')->get();
+        $bookings = $baseQuery->paginate($this->per_page ?? 50)->withQueryString();
+
+        $mechanics = User::whereRole('mechanic')
+            ->whereStatus(1)
+            ->orderBy('name')
+            ->select('id', 'name')
+            ->get();
 
         return Inertia::render('SuperAdmin/Bookings/List', [
             'list' => $bookings,
             'search' => $search,
             'status' => $status,
-            'mechanics' => $mechanics
+            'mechanics' => $mechanics,
+            'user_id' => $user_id,
+            'user_type' => $user_type,
         ]);
     }
+
 
 
     /**

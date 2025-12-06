@@ -43,7 +43,7 @@ class UsersController extends Controller
             $statusValue = null;
         }
 
-        $baseQuery = User::orderBy('name')
+        $baseQuery = User::withCount(['user_booking', 'mechanic_booking'])->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%");
@@ -56,14 +56,14 @@ class UsersController extends Controller
                 $q->where('role', $type);
             });
 
-        $makes = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
+        $users = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
 
         $country = Country::whereName('india')->first();
         $states = State::whereCountryId($country->id)->get()->pluck('id', 'name');
         $cities = City::get();
 
         return Inertia::render('SuperAdmin/Users/List', [
-            'list' => $makes,
+            'list' => $users,
             'search' => $search,
             'status' => $status,
             'type' => $type,

@@ -7,6 +7,7 @@ use App\Http\Controllers\SuperAdmin\ActivityLogsController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
+use App\Http\Controllers\SuperAdmin\MechanicJobsControler;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
@@ -72,7 +73,7 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
 
         Route::prefix('bookings')->name('booking.')->group(function () {
-            Route::get('/list', [SuperAdminBookingController::class, 'list'])->name('list');
+            Route::get('/list/{user_id?}/{user_type?}', [SuperAdminBookingController::class, 'list'])->name('list');
             Route::post('/assign-mechanic', [SuperAdminBookingController::class, 'assignMechanic'])->name('assign.mechanic');
             Route::post('/cancel-mechanic-assign-request', [SuperAdminBookingController::class, 'cancelAssignMechanicRequest'])->name('cancel.assign.mechanic');
         });
@@ -100,6 +101,10 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
         Route::prefix('/activity-logs')->name('activity_log.')->group(function () {
             Route::get('/list', [ActivityLogsController::class, 'list'])->name('list');
+        });
+
+        Route::prefix('/mechanic-jobs')->name('mechanic_job.')->group(function () {
+            Route::get('/list', [MechanicJobsControler::class, 'list'])->name('list');
         });
 
         Route::prefix('/transaction-history')->name('transaction_history.')->group(function () {

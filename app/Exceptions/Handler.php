@@ -33,45 +33,54 @@ class Handler extends ExceptionHandler
     {
         if ($request->is('api/*')) {
 
-            /**
-             * ---------------------------------------
-             * API ROUTE URL NOT EXIST
-             * ---------------------------------------
-             */
             if ($e instanceof NotFoundHttpException) {
                 return response()->json([
-                    'status' => false,
+                    'status'  => false,
                     'message' => 'API URL not exist',
-                    'path' => $request->path(),
+                    'path'    => $request->path(),
                 ], 404);
             }
 
-            /**
-             * ---------------------------------------
-             * INVALID HTTP METHOD (GET, POST, etc.)
-             * ---------------------------------------
-             */
             if ($e instanceof MethodNotAllowedHttpException) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Request method not supported for this API',
+                    'status'          => false,
+                    'message'         => 'Request method not supported for this API',
                     'allowed_methods' => $e->getHeaders()['Allow'] ?? [],
                 ], 405);
             }
 
-            /**
-             * ---------------------------------------
-             * ROUTE NOT REGISTERED OR MISSING PARAM
-             * ---------------------------------------
-             */
             if ($e instanceof RouteNotFoundException) {
                 return response()->json([
-                    'status' => false,
+                    'status'  => false,
                     'message' => 'API route not found or parameter missing',
                 ], 404);
+            }
+
+            if ($e instanceof RouteNotFoundException) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'API route not found or parameter missing',
+                ], 500);
             }
         }
 
         return parent::render($request, $e);
+    }
+
+    /**
+     * Fallback for ALL unhandled exceptions (Laravel 12+)
+     */
+    public function register()
+    {
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Internal server error',
+                    'error'   => config('app.debug') ? $e->getMessage() : null,
+                ], 500);
+            }
+        });
     }
 }

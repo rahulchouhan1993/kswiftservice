@@ -1,33 +1,23 @@
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
-import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
-import { useHelpers } from "@/Components/Helpers";
 import Pagination from "@/Components/Pagination";
-import DeleteUserAction from "@/Components/DeleteUserAction";
 import DataNotExist from "@/Components/DataNotExist";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
-import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
-import { MdCloudDownload } from "react-icons/md";
+import { useHelpers } from "@/Components/Helpers";
 import VehicleInfo from "@/Components/VehicleInfo";
-import AssignMechanic from "./AssignMechanic";
-import BookingDetails from "./BookingDetails";
-import PaymentDetails from "./PaymentDetails";
+import SelectInput from "@/Components/SelectInput";
 
-export default function List({ list, search, status, mechanics, user_id, user_type }) {
-    console.log('list', list);
+export default function List({ list, search, status }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { displayInRupee } = useHelpers();
+    const { capitalizeWords } = useHelpers();
 
-    const bookingStatusOptions = [
-        { value: "", label: "All" },
-        { value: "requested", label: "Requested" },
+    const statusOptions = [
         { value: "pending", label: "Pending" },
         { value: "accepted", label: "Accepted" },
         { value: "rejected", label: "Rejected" },
-        { value: "completed", label: "Completed" },
     ];
 
     useEffect(() => {
@@ -46,12 +36,10 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
 
             if (!sval || sval.length > 0) {
                 timerRef.current = setTimeout(() => {
-                    router.visit(route('superadmin.booking.list', {
+                    router.visit(route('superadmin.mechanic_job.list', {
                         search: sval,
-                        user_id: user_id ?? null,
-                        user_type: user_type ?? null,
                     }), {
-                        only: ['list', 'search'],
+                        only: ['list', 'search', 'status'],
                         preserveScroll: true,
                     });
                 }, 500);
@@ -63,10 +51,8 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
         const sval = e.target.value;
         if (!sval || sval.length > 0) {
             timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.booking.list', {
+                router.visit(route('superadmin.mechanic_job.list', {
                     status: sval,
-                    user_id: user_id ?? null,
-                    user_type: user_type ?? null,
                 }), {
                     only: ['list', 'search', 'status'],
                     preserveScroll: true,
@@ -78,11 +64,9 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
     const renderStatusBadge = (status) => {
         const base = "px-2 py-1 rounded text-xs font-semibold capitalize";
         const colors = {
-            requested: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded",
             pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded",
             accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded",
-            rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded",
-            completed: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded",
+            cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded",
         };
 
         return (
@@ -92,35 +76,34 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
         );
     };
 
-
     return (
         <AuthenticatedLayout>
-            <Head title="Bookings List " />
+            <Head title="Manage Mechanic Jobs List " />
             <div className="pt-[60px]"></div>
 
             <div className="sm:p-4 p-1 w-full">
                 <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
                     <div className="mb-4 flex flex-wrap items-center gap-4">
                         <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
-                            <SelectInput
-                                id="status"
-                                value={status}
-                                onChange={handleStatusChange}
-                                options={bookingStatusOptions}
-                                placeholder="Filter By Status"
-                            />
-                        </div>
-
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
                             <input
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
                                 type="text"
-                                placeholder="Search booking id..."
+                                placeholder="Search by user..."
                                 className="w-full px-4 py-1.5 border-gray-500 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e37]"
                             />
                         </div>
+                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+                            <SelectInput
+                                id="status"
+                                value={status}
+                                onChange={handleStatusChange}
+                                options={statusOptions}
+                                placeholder="Filter By Status"
+                            />
+                        </div>
+
                     </div>
 
 
@@ -128,15 +111,12 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                         <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
                             <thead className="border-b border-gray-300 dark:border-blue-900 ">
                                 <tr>
-                                    <th className="p-2 text-center whitespace-nowrap">#txnId</th>
-                                    <th className="p-2 text-start whitespace-nowrap">Customer</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Sr. No</th>
                                     <th className="p-2 text-start whitespace-nowrap">Mechanic</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Vehicle</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Booking Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Assign Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Delivery Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Booking Status</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Action</th>
+                                    <th className="p-2 text-start whitespace-nowrap">User</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Vechile</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Status</th>
+                                    <th className="p-2 text-start whitespace-nowrap">Request Date</th>
                                 </tr>
                             </thead>
 
@@ -144,7 +124,7 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                 {list.data.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={9}
+                                            colSpan={5}
                                             className="text-center py-6 text-gray-600 dark:text-gray-300"
                                         >
                                             <DataNotExist />
@@ -154,29 +134,32 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                     list.data.map((l, index) => (
                                         <tr
                                             key={index}
-                                            className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
+                                            className="bg-white text-black hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
                                         >
-                                            <td className="text-sm p-2">{l?.booking_id}</td>
-                                            <td className="p-2 text-sm text-start">
-                                                <UserAvatarCard user={l?.customer} displayRole={false} />
-                                            </td>
-                                            <td className="p-2 text-sm text-start">
-                                                {l?.mechanic ? <>
+                                            <td className="p-2 text-sm">{index + 1}</td>
+                                            <td className="p-2 text-sm">
+                                                {l?.mechanic ? (
                                                     <UserAvatarCard user={l?.mechanic} />
-                                                </> : 'Not Assigned'}
+                                                ) : (
+                                                    "--"
+                                                )}
                                             </td>
-                                            <td className="p-2 text-sm text-center">
-                                                <VehicleInfo vehicle={l?.vehicle} />
+                                            <td className="p-2 text-sm">
+                                                {l?.booking?.customer ? (
+                                                    <UserAvatarCard user={l?.booking?.customer} />
+                                                ) : (
+                                                    "--"
+                                                )}
                                             </td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{renderStatusBadge(l?.booking_status)}</td>
-                                            <td className="flex p-2 text-sm text-center gap-1">
-                                                <AssignMechanic booking={l} />
-                                                <BookingDetails booking={l} />
-                                                <PaymentDetails payment={l?.payment} />
+                                            <td className="p-2 text-sm">
+                                                {l?.booking?.vehicle ? (
+                                                    <VehicleInfo vehicle={l?.booking?.vehicle} />
+                                                ) : (
+                                                    "--"
+                                                )}
                                             </td>
+                                            <td className="p-2 text-sm">{renderStatusBadge(l?.status)}</td>
+                                            <td className="p-2 text-sm">{l?.received_at}</td>
                                         </tr>
                                     ))
                                 )}

@@ -15,7 +15,7 @@ import { useTheme } from 'next-themes';
 import { FaUsers } from 'react-icons/fa6';
 import { LuMessageSquareText } from 'react-icons/lu';
 import { GoChecklist } from "react-icons/go";
-import { GrFormCalendar } from 'react-icons/gr';
+import { GrFormCalendar, GrUserSettings } from 'react-icons/gr';
 import { CiViewList } from 'react-icons/ci';
 import { BsReverseListColumnsReverse } from 'react-icons/bs';
 import { BiListUl } from 'react-icons/bi';
@@ -102,6 +102,7 @@ export default function AuthenticatedLayout({ header, children }) {
             count: enquiryCount,
             icon: LuMessageSquareText
         },
+        { href: route('superadmin.mechanic_job.list'), active: route().current('mechanic_job.list'), label: 'Mechanic Jobs', icon: GrUserSettings },
         { href: route('superadmin.booking.list'), active: route().current('booking.list'), label: 'Bookings', icon: GrFormCalendar },
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
         { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
@@ -151,11 +152,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                 ]}
                             />
 
-                            <Tooltip title="Notification">
+                            {/* <Tooltip title="Notification">
                                 <div onClick={() => setIsNotificationOpen(true)} className='flex items-center justify-center p-2 dark:hover:bg-blue-950 hover:bg-gray-300 rounded-full cursor-pointer'>
                                     <FaBell className='h-5 w-5 dark:text-white text-black' />
                                 </div>
-                            </Tooltip>
+                            </Tooltip> */}
 
                             <Tooltip title="Logout">
                                 <NavLink
