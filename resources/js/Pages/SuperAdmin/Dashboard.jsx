@@ -1,18 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useState } from "react"
-import { FaFacebook, FaTwitter, FaTiktok, FaInstagram, FaSnapchat, FaGift, FaEllipsisV, FaStar } from "react-icons/fa"
-import { LineChart, Line, BarChart, Bar, YAxis, XAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, CartesianGrid } from "recharts";
+import { LineChart, Line, BarChart, Bar, ResponsiveContainer, Cell } from "recharts";
 import { SlCalender } from "react-icons/sl";
 import AuthenticatedLayout from './Layouts/AuthenticatedLayout';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import DataNotExist from '@/Components/DataNotExist';
-import { FaUserGraduate, FaTasks, FaClipboardList, FaFileAlt } from 'react-icons/fa';
-import HoverActionTooltip from '@/Components/HoverActionTooltip';
-import { HamburgerIcon } from 'lucide-react';
 import { FaBars } from 'react-icons/fa';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { FaUsers } from 'react-icons/fa6';
@@ -21,7 +15,6 @@ const rowsPerPage = 5;
 
 export default function Dashboard({ customers, mechanics, bookings, newMessages, injobs, completedjobs, cancelledjobs, newMessagesData }) {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState("monthly");
 
     const handlePdfDownload = () => {
         const doc = new jsPDF();

@@ -135,4 +135,85 @@ class JobsController extends Controller
             ], 500);
         }
     }
+
+
+    /**
+     * Fetch Booking Details
+     * @param Request $request
+     * @return mixed
+     */
+    public function fetchBookingDetails(Request $request)
+    {
+        try {
+            $job = MechanicJob::with([
+                'booking',
+                'booking.services.service_type',
+                'booking.vehicle.vehicle_photos'
+            ])->where('uuid', $request->job_uuid)->first();
+
+            if (!$job) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Job does not exist",
+                ], 404);
+            }
+
+            $booking = $job->booking;
+
+            // Format dates
+            $requestedOn = Carbon::parse($booking->created_at)->format('D, d M · h:i A');
+            $deliveryDate = $booking->delivery_date ? Carbon::parse($booking->delivery_date)->format('D, d M · h:i A') : null;
+
+            // Merge service names
+            $serviceNames = $booking->services->map(function ($service) {
+                return $service->service_type->name ?? null;
+            })->filter()->values();
+
+            // Estimated price calculation
+            $serviceDetails = [];
+            $total = 0;
+
+            foreach ($booking->services as $service) {
+                $price = $service->service_type->base_price ?? 0;
+                $total += $price;
+
+                $serviceDetails[] = [
+                    "name"  => $service->service_type->name,
+                    "price" => $price,
+                ];
+            }
+
+            $pickupPrice = 0;
+            $total += $pickupPrice;
+
+            return response()->json([
+                "status" => true,
+                "message" => "Service details fetched",
+                "data" => [
+                    "requested_on" => $requestedOn,
+                    "delivery_datetime" => $deliveryDate,
+
+                    "service_summary" => $serviceNames->join(', '),
+
+                    "customer_note" => $booking->additional_note,
+
+                    "estimated_price_section" => [
+                        "services" => $serviceDetails,
+                        "pickup_service" => [
+                            "name" => "Pickup Service",
+                            "price" => $pickupPrice,
+                        ],
+
+                        "total_estimation" => $total,
+                    ],
+                ]
+
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

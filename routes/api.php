@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\GarageController;
 use App\Http\Controllers\Api\JobsController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
@@ -92,6 +93,12 @@ Route::middleware('apiauth')->group(function () {
 
     Route::prefix('/jobs')->group(function () {
         Route::get('/fetch-jobs-list/{status}', [JobsController::class, 'fetchJobsList']);
+        Route::get('/get-booking-details', [JobsController::class, 'fetchBookingDetails']);
         Route::post('/update-status/{uuid}', [JobsController::class, 'updateStatus']);
+    });
+
+
+    Route::prefix('/review')->group(function () {;
+        Route::post('/submit', [ReviewController::class, 'submitReview']);
     });
 });
