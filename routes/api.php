@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AadharCardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\GarageController;
 use App\Http\Controllers\Api\JobsController;
@@ -100,5 +101,10 @@ Route::middleware('apiauth')->group(function () {
 
     Route::prefix('/review')->group(function () {;
         Route::post('/submit', [ReviewController::class, 'submitReview']);
+    });
+
+    Route::prefix('/chats')->group(function () {;
+        Route::get('/messages/{uuid}', [ChatController::class, 'chatMessagesList']);
+        Route::post('/send-message', [ChatController::class, 'sendMessage']);
     });
 });

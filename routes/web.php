@@ -12,6 +12,7 @@ use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
 use App\Http\Controllers\SuperAdmin\SuperAdminMechanicController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
+use App\Http\Controllers\SuperAdmin\UserChatsController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
 use Illuminate\Support\Facades\Artisan;
@@ -77,6 +78,10 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
             Route::get('/list/{user_id?}/{user_type?}', [SuperAdminBookingController::class, 'list'])->name('list');
             Route::post('/assign-mechanic', [SuperAdminBookingController::class, 'assignMechanic'])->name('assign.mechanic');
             Route::post('/cancel-mechanic-assign-request', [SuperAdminBookingController::class, 'cancelAssignMechanicRequest'])->name('cancel.assign.mechanic');
+
+            Route::prefix('/chats')->name('chat.')->group(function () {
+                Route::get('/list/{uuid}', [UserChatsController::class, 'list'])->name('list');
+            });
         });
 
 

@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
+
+class UserChat extends Model
+{
+    protected $fillable = [
+        'from',
+        'to',
+        'booking_id',
+        'message',
+        'sender_role',
+        'attechment'
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->uuid = Uuid::uuid4();
+        });
+    }
+
+    public function fromUser()
+    {
+        return $this->belongsTo(User::class, 'from');
+    }
+
+    public function toUser()
+    {
+        return $this->belongsTo(User::class, 'to');
+    }
+}

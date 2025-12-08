@@ -1,4 +1,4 @@
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
 import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
@@ -176,6 +176,16 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                             <td className="p-1 flex justify-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                            <Link
+                                                                href={route('superadmin.booking.chat.list', { uuid: l?.uuid })}
+                                                                className="flex items-center gap-2"
+                                                            >
+                                                                <span>Chats</span>
+                                                            </Link>
+                                                        </div>
+
+
                                                         <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                                                             <AssignMechanic booking={l} />
                                                             <span>Assign Mechanic</span>
