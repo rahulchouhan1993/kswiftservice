@@ -57,4 +57,13 @@ return [
         'base_path' => env('SENDBOX_BASE_PATH'),
     ],
 
+    'fcm' => [
+        'fcm_server_key' => env('FCM_SERVER_KEY'),
+        'fcm_url' => env('FCM_HOST_URL', 'https://fcm.googleapis.com/fcm/send'),
+    ],
+
+    'firebase' => [
+        'keyfile' => base_path('keys/tennis-khelo-firebase-adminsdk-3qy09-a3227ff92b.json'),
+    ],
+
 ];
