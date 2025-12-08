@@ -257,7 +257,7 @@ export default function List() {
                             <div className="overflow-y-auto">
                                 <div className="sm:px-1 py-2">
                                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase ml-1 mb-2">
-                                        Recent Chats
+                                        Recent Bookings
                                     </h3>
 
                                     <div className="space-y-1">

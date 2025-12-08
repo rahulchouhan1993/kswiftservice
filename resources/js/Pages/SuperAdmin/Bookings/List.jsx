@@ -9,12 +9,13 @@ import DataNotExist from "@/Components/DataNotExist";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
-import { MdCloudDownload } from "react-icons/md";
+import { MdCloudDownload, MdMarkUnreadChatAlt } from "react-icons/md";
 import VehicleInfo from "@/Components/VehicleInfo";
 import AssignMechanic from "./AssignMechanic";
 import BookingDetails from "./BookingDetails";
 import PaymentDetails from "./PaymentDetails";
 import RowActionsMenu from "@/Components/RowActionsMenu";
+import RoundBtn from "@/Components/RoundBtn";
 
 export default function List({ list, search, status, mechanics, user_id, user_type }) {
     console.log('list', list);
@@ -181,6 +182,9 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                                 href={route('superadmin.booking.chat.list', { uuid: l?.uuid })}
                                                                 className="flex items-center gap-2"
                                                             >
+                                                                <RoundBtn>
+                                                                    <MdMarkUnreadChatAlt />
+                                                                </RoundBtn>
                                                                 <span>Chats</span>
                                                             </Link>
                                                         </div>
