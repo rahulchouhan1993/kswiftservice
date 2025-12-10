@@ -42,3 +42,5 @@ Homestead.yaml
 # Storage folder (and its contents)
 /storage/
 public/storage/ # For symlinked public storage
+
+/public/kswiftservice-firebase-adminsdk-fbsvc-53da48cfb8.json
