@@ -137,6 +137,11 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
 
 
+Route::prefix('/test')->name('test.')->group(function () {
+    Route::get('/send-push-notification', [TestController::class, 'sendNotification'])->name('list');
+});
+
+
 // require __DIR__ . '/auth.php';
 Route::get('/clear', function () {
     Artisan::call('cache:clear');

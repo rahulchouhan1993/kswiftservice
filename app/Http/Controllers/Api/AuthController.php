@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\FcmToken;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -168,6 +169,7 @@ class AuthController extends Controller
             $request->validate([
                 'phone' => 'required|digits:10',
                 'otp' => 'required|digits:6',
+                'fcm_token' => 'required',
             ]);
 
             $user = User::where('phone', $request->phone)->first();
@@ -209,6 +211,14 @@ class AuthController extends Controller
             $user->load([
                 'vehicles'
             ]);
+
+            FcmToken::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'user_id' => $user->id,
+                    'token' => $request->fcm_token
+                ]
+            );
 
             $msg = "login verification otp verified";
             activityLog($user, "login otp verified", $msg);

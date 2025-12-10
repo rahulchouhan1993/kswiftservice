@@ -44,7 +44,9 @@ class AadharCardController extends Controller
                     "token" => $resp['token']
                 ]);
             } else {
-                $msg = "Aadhar card verification OTP failed due to " . $resp['error']['message'] ?? $resp['message'];
+                $respMsg = $resp['error'] ?? $resp['error']['message'] ?? $resp['message'];
+                $msg = "Aadhar card verification OTP failed due to " . $respMsg;
+
                 activityLog($user, "aadhar-otp-failed", $msg);
                 return response()->json([
                     "status" => false,
@@ -118,6 +120,7 @@ class AadharCardController extends Controller
 
             $aadhar = new AadharCardServices();
             $resp = $aadhar->validateAadhaarOtp($request->otp, $request->reference_id, $request->token);
+            // return $resp;
             if (isset($resp['data']) && isset($resp['data']['status'])) {
                 $user->update([
                     'aadharcard_no' => $request->aadharcard_no,
@@ -134,12 +137,16 @@ class AadharCardController extends Controller
                     'user' => $user
                 ]);
             } else {
-                $msg = "Aadhar card verification failed due to " . $resp['message'] ?? ($resp['data']['message'] ?? 'Something went wrong');
+                $errorMsg = $resp['data']['message']
+                    ?? $resp['message']
+                    ?? "Something went wrong";
+
+                $msg = "Aadhar card verification failed due to: $errorMsg";
                 activityLog($user, "aadhar-otp-failed", $msg);
 
                 return response()->json([
-                    "status" => false,
-                    "message" => $resp['message'] ?? ($resp['data']['message'] ?? 'Something went wrong'),
+                    "status"  => false,
+                    "message" => $errorMsg,
                 ]);
             }
         } catch (Exception $e) {

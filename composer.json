@@ -14,6 +14,7 @@
         "barryvdh/laravel-snappy": "^1.0",
         "carlos-meneses/laravel-mpdf": "^2.1",
         "google/apiclient": "^2.15",
+        "google/auth": "^1.49",
         "guzzlehttp/guzzle": "^7.9",
         "inertiajs/inertia-laravel": "^2.0",
         "intervention/image": "^3.11",

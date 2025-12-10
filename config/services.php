@@ -50,20 +50,13 @@ return [
         'region' => env('REGION'),
     ],
 
-    'aadhar' => [
-        'key' => env('SENDBOX_API_KEY'),
-        'secret' => env('SENDBOX_API_SECRET'),
-        'version' => env('SENDBOX_API_VERSION'),
-        'base_path' => env('SENDBOX_BASE_PATH'),
-    ],
-
     'fcm' => [
         'fcm_server_key' => env('FCM_SERVER_KEY'),
         'fcm_url' => env('FCM_HOST_URL', 'https://fcm.googleapis.com/fcm/send'),
     ],
 
     'firebase' => [
-        'keyfile' => base_path('keys/tennis-khelo-firebase-adminsdk-3qy09-a3227ff92b.json'),
+        'key_path' => public_path(env('FIREBASE_CREDENTIALS')),
     ],
 
 ];
