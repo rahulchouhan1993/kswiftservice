@@ -33,6 +33,8 @@ class JobsController extends Controller
 
             $jobs = MechanicJob::with([
                 'booking',
+                'booking.customer',
+                'booking.mechanic',
                 'booking.services.service_type',
                 'booking.vehicle.vehicle_photos'
             ])
@@ -60,6 +62,8 @@ class JobsController extends Controller
                     "booking_created_at"  => $bookingCreatedAt,
                     "total_service_price" => $totalServicePrice,
                     "title"               => $title,
+                    "customer"            => $booking->customer,
+                    "mechanic"            => $booking->mechanic
                 ];
             });
 
@@ -147,8 +151,12 @@ class JobsController extends Controller
         try {
             $job = MechanicJob::with([
                 'booking',
+                'mechanic',
+                'booking.customer',
+                'booking.services',
                 'booking.services.service_type',
-                'booking.vehicle.vehicle_photos'
+                'booking.vehicle',
+                'booking.payment',
             ])->where('uuid', $request->job_uuid)->first();
 
             if (!$job) {
@@ -159,55 +167,54 @@ class JobsController extends Controller
             }
 
             $booking = $job->booking;
+            $customer = $booking->customer;
 
-            // Format dates
-            $requestedOn = Carbon::parse($booking->created_at)->format('D, d M · h:i A');
-            $deliveryDate = $booking->delivery_date ? Carbon::parse($booking->delivery_date)->format('D, d M · h:i A') : null;
+            // Format service list
+            $serviceTotalAmount = 0;
+            $services = $booking->services->map(function ($service) use (&$serviceTotalAmount) {
+                $serviceTotalAmount += $service->service_type->base_price ?? 0;
 
-            // Merge service names
-            $serviceNames = $booking->services->map(function ($service) {
-                return $service->service_type->name ?? null;
-            })->filter()->values();
-
-            // Estimated price calculation
-            $serviceDetails = [];
-            $total = 0;
-
-            foreach ($booking->services as $service) {
-                $price = $service->service_type->base_price ?? 0;
-                $total += $price;
-
-                $serviceDetails[] = [
-                    "name"  => $service->service_type->name,
-                    "price" => $price,
+                return [
+                    "service_id"     => $service->id,
+                    "service_name"   => $service->service_type->name ?? null,
+                    "service_price"  => $service->service_type->base_price ?? null,
+                    "photo_url"      => $service->photo_url,
+                    "video_url"      => $service->video_url,
                 ];
-            }
-
-            $pickupPrice = 0;
-            $total += $pickupPrice;
+            });
 
             return response()->json([
-                "status" => true,
-                "message" => "Service details fetched",
-                "data" => [
-                    "requested_on" => $requestedOn,
-                    "delivery_datetime" => $deliveryDate,
+                "status"  => true,
+                "message" => "Booking details fetched successfully",
+                "data"    => [
+                    "booking_id"       => $booking->booking_id,
+                    "vehicle_number"   => $booking->vehicle->vehicle_number,
+                    "booking_date" => Carbon::parse($booking->date)->format('D, d M'),
+                    "assigned_date" => Carbon::parse($booking->assigned_date)->format('D, d M · h:i A'),
+                    "requested_on"  => Carbon::parse($job->created_at)->format('D, d M · h:i A'),
+                    "additional_note"  => $booking->additional_note,
 
-                    "service_summary" => $serviceNames->join(', '),
+                    "customer" => [
+                        "id"   => $customer->id,
+                        "name" => $customer->name ?? null,
+                    ],
+                    "mechanic" => [
+                        "id"   => $job->mechanic->id ?? null,
+                        "name" => $job->mechanic->name ?? null,
+                    ],
 
-                    "customer_note" => $booking->additional_note,
-
-                    "estimated_price_section" => [
-                        "services" => $serviceDetails,
-                        "pickup_service" => [
-                            "name" => "Pickup Service",
-                            "price" => $pickupPrice,
-                        ],
-
-                        "total_estimation" => $total,
+                    "services" => $services,
+                    "service_total" => $services->sum('service_price'),
+                    "payment" => [
+                        "id"   => $booking->payment->id,
+                        "txnId" => $booking->payment->txnId,
+                        "amount" => $booking->payment->amount,
+                        "payment_mode" => $booking->payment->payment_mode,
+                        "status" => $booking->payment->status,
+                        "invoice_url" => $booking->payment->invoice_url,
+                        "received_at" => $booking->payment->received_at,
                     ],
                 ]
-
             ], 200);
         } catch (Exception $e) {
             return response()->json([

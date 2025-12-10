@@ -239,7 +239,9 @@ class BookingController extends Controller
                 'vehicle.vehile_make',
                 'vehicle.vehicle_photos',
                 'pickup_address',
-                'drop_address'
+                'drop_address',
+                'customer',
+                'mechanic',
             ])
                 ->where('uuid', $uuid)
                 ->first();
@@ -327,6 +329,9 @@ class BookingController extends Controller
                 'created_at' => $booking->created_at,
                 'updated_at' => $booking->updated_at,
                 'deleted_at' => $booking->deleted_at,
+
+                'customer' => $booking->customer,
+                'mechanic' => $booking->mechanic,
 
                 'services' => $services,
                 'vehicle' => $vehicle,
@@ -496,7 +501,9 @@ class BookingController extends Controller
                 'vehicle.vehile_make',
                 'vehicle.vehicle_photos',
                 'pickup_address',
-                'drop_address'
+                'drop_address',
+                'customer',
+                'mechanic'
             ])
                 ->whereUserId($user->id)
                 ->orderBy('id', 'DESC')
@@ -520,6 +527,10 @@ class BookingController extends Controller
                             'base_price' => $service->service_type->base_price,
                         ]
                     ];
+                });
+
+                $totalSubAmount = $booking->services->sum(function ($service) {
+                    return $service->service_type->base_price ?? 0;
                 });
 
                 $vehicleMake = $booking->vehicle->vehile_make ? [
@@ -588,7 +599,12 @@ class BookingController extends Controller
                     'created_at' => $booking->created_at,
                     'updated_at' => $booking->updated_at,
 
+                    'mechanic' => $booking->mechanic,
+                    'customer' => $booking->customer,
+
                     'services' => $services,
+                    'total_amount' => $totalSubAmount,
+
                     'vehicle' => $vehicle,
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
