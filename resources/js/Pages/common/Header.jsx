@@ -48,13 +48,21 @@ export default function Header() {
         <div className="fixed top-4 left-0 w-full z-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <header className="relative flex items-center justify-between p-3 sm:p-4 rounded-[50px] border border-gray-500 backdrop-blur-[5px] bg-black/20">
-                    <div className="flex-shrink-0">
-                        <a
-                            href="/"
-                        >
-                            <img src={logo} alt="KSwift Logo" className="h-8 w-auto sm:h-9 md:h-10" />
+                    <div className="flex-shrink-0 flex flex-col items-start">
+                        <a href="/">
+                            <img
+                                src={logo}
+                                alt="KSwift Logo"
+                                className="h-6 w-auto sm:h-9 md:h-10"
+                            />
                         </a>
+
+                        {/* Small line under the logo */}
+                        <span className="text-[13px] font-bold text-white mt-1">
+                            Powered By K Vidya Gupta
+                        </span>
                     </div>
+
 
                     <nav className="hidden md:flex items-center space-x-8">
                         {navLinks.map((link) => (

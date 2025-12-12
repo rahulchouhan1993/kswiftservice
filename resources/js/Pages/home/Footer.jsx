@@ -34,8 +34,11 @@ export default function Footer() {
                             {/* Left Column - Brand and Social */}
                             <div className="space-y-6">
                                 <div>
-                                    <div className="flex items-center space-x-2 mb-2">
+                                    <div className="flex-shrink-0 flex flex-col items-start">
                                         <img src={logo} alt="KSwift Logo" className="max-w-[100px] w-full ps-4" />
+                                        <span className="text-[13px] font-bold text-white mt-1">
+                                            Powered By K Vidya Gupta
+                                        </span>
                                     </div>
                                     <div className='social_links mt-4'>
                                         <ul className='flex space-x-2 ps-2 mt-2'>

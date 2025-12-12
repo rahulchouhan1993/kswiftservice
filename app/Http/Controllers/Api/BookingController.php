@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\FacebookApi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingService;
@@ -14,6 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 use function App\activityLog;
+use function App\createMessageData;
+use function App\createMessageHistory;
+use function App\generateParameters;
 use function App\uploadRequestFile;
 
 class BookingController extends Controller
@@ -50,7 +54,9 @@ class BookingController extends Controller
             ]);
 
             $user = $request->user();
-            $vehicle = Vehicle::find($request->vehicle_id)
+
+            // FIXED VEHICLE QUERY
+            $vehicle = Vehicle::where('id', $request->vehicle_id)
                 ->where('user_id', $user->id)
                 ->first();
 
@@ -63,8 +69,13 @@ class BookingController extends Controller
 
             // pickup / drop validation
             if ($request->pickup_type === 'pickup') {
-                $paddress = UserAddress::find($request->pickup_address);
-                $daddress = UserAddress::find($request->drop_address);
+                $paddress = UserAddress::where('id', $request->pickup_address)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                $daddress = UserAddress::where('id', $request->drop_address)
+                    ->where('user_id', $user->id)
+                    ->first();
 
                 if (!$paddress) {
                     return response()->json([
@@ -81,7 +92,7 @@ class BookingController extends Controller
                 }
             }
 
-            // create booking
+            // Create booking
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'vehicle_id' => $vehicle->id,
@@ -94,7 +105,7 @@ class BookingController extends Controller
                 'drop_id' => $request->pickup_type === 'pickup' ? $daddress->id : null,
             ]);
 
-            // store services
+            // Store services
             foreach ($request->services as $service) {
                 BookingService::create([
                     'user_id' => $user->id,
@@ -103,26 +114,17 @@ class BookingController extends Controller
                 ]);
             }
 
-            // load relationships
+            // Load relationships
             $booking->load([
                 'services.service_type',
                 'vehicle',
                 'vehicle.vehile_make',
-                'vehicle.vehicle_photos'
+                'vehicle.vehicle_photos',
+                'pickup_address',
+                'drop_address'
             ]);
 
-            if ($booking->pickup_id) {
-                $booking->load([
-                    'pickup_address',
-                ]);
-            }
-
-            if ($booking->drop_id) {
-                $booking->load([
-                    'drop_address',
-                ]);
-            }
-
+            // Format data
             $services = $booking->services->map(function ($service) {
                 return [
                     'id' => $service->id,
@@ -134,7 +136,7 @@ class BookingController extends Controller
                 ];
             });
 
-            $vehicle = [
+            $vehicleData = [
                 'id' => $booking->vehicle->id,
                 'vehicle_type' => $booking->vehicle->vehicle_type,
                 'vehicle_number' => $booking->vehicle->vehicle_number,
@@ -198,13 +200,29 @@ class BookingController extends Controller
                 'updated_at' => $booking->updated_at,
 
                 'services' => $services,
-                'vehicle' => $vehicle,
+                'vehicle' => $vehicleData,
                 'pickup_address' => $pickupAddress,
                 'drop_address' => $dropAddress,
             ];
 
+            // WhatsApp message section (unchanged)
             $msg = "service booking for vehicle " . $booking->vehicle->vehicle_number;
             activityLog($user, "service booked", $msg);
+
+            if (env("CAN_SEND_MESSAGE")) {
+                $templateName = "msg_to_customer_on_booking_registered";
+                $lang = "en";
+                $phone = $user->phone;
+                $data = [
+                    $user->name,
+                    $booking->booking_id,
+                ];
+                $perameters = generateParameters($data);
+                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                $fb = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+                createMessageHistory($templateName, $user, $phone, $resp);
+            }
 
             return response()->json([
                 'status' => true,
@@ -221,6 +239,7 @@ class BookingController extends Controller
             ], 500);
         }
     }
+
 
 
 
@@ -363,8 +382,10 @@ class BookingController extends Controller
     {
         try {
             $user = $request->user();
+
             $bookings = Booking::with([
                 'services.service_type',
+                'payment',
                 'vehicle',
                 'vehicle.vehile_make',
                 'vehicle.vehicle_photos',
@@ -372,12 +393,9 @@ class BookingController extends Controller
                 'drop_address'
             ])
                 ->whereUserId($user->id)
-                ->when($status !== 'all', function ($query) use ($status) {
-                    return $query->where('booking_status', $status);
-                })
+                ->when($status !== 'all', fn($q) => $q->where('booking_status', $status))
                 ->orderBy('id', 'DESC')
                 ->get();
-
 
             if ($bookings->isEmpty()) {
                 return response()->json([
@@ -387,64 +405,87 @@ class BookingController extends Controller
             }
 
             $response = $bookings->map(function ($booking) {
+
+                // Services
                 $services = $booking->services->map(function ($service) {
                     return [
                         'id' => $service->id,
                         'service_type' => [
-                            'id' => $service->service_type->id,
-                            'name' => $service->service_type->name,
-                            'base_price' => $service->service_type->base_price,
+                            'id' => optional($service->service_type)->id,
+                            'name' => optional($service->service_type)->name,
+                            'base_price' => optional($service->service_type)->base_price,
                         ]
                     ];
                 });
 
-                $vehicleMake = $booking->vehicle->vehile_make ? [
-                    'id' => $booking->vehicle->vehile_make->id,
-                    'name' => $booking->vehicle->vehile_make->name,
-                    'logo_path' => $booking->vehicle->vehile_make->logo_path,
+                // Vehicle Make
+                $vehicleMake = optional($booking->vehicle->vehile_make);
+                $vehicleMakeData = $vehicleMake->id ? [
+                    'id' => $vehicleMake->id,
+                    'name' => $vehicleMake->name,
+                    'logo_path' => $vehicleMake->logo_path,
                 ] : null;
 
-                $vehiclePhotos = $booking->vehicle->vehicle_photos->map(function ($photo) {
+                // Vehicle Photos
+                $vehiclePhotos = optional($booking->vehicle->vehicle_photos)->map(function ($photo) {
                     return [
                         'uuid' => $photo->uuid,
                         'photo_url' => $photo->photo_url,
                     ];
-                });
+                }) ?? collect([]);
 
-                $vehicle = [
-                    'id' => $booking->vehicle->id,
-                    'vehicle_type' => $booking->vehicle->vehicle_type,
-                    'vehicle_number' => $booking->vehicle->vehicle_number,
-                    'model' => $booking->vehicle->model,
-                    'vehicle_year' => $booking->vehicle->vehicle_year,
-                    'fuel_type' => $booking->vehicle->fuel_type,
-                    'transmission' => $booking->vehicle->transmission,
-                    'mileage' => $booking->vehicle->mileage,
-                    'additional_note' => $booking->vehicle->additional_note,
-                    'vehile_make' => $vehicleMake,
-                    'vehicle_photos' => $vehiclePhotos,
-                ];
-
-                $pickupAddress = $booking->pickup_address ? [
-                    'id' => $booking->pickup_address->id,
-                    'address_type' => $booking->pickup_address->address_type,
-                    'country_id' => $booking->pickup_address->country_id,
-                    'state_id' => $booking->pickup_address->state_id,
-                    'city_id' => $booking->pickup_address->city_id,
-                    'address' => $booking->pickup_address->address,
-                    'pincode' => $booking->pickup_address->pincode,
-                    'is_default_address' => $booking->pickup_address->is_default_address,
+                // Payment
+                $paymentModel = optional($booking->payment);
+                $payment = $paymentModel->id ? [
+                    "id" => $paymentModel->id,
+                    "txnId" => $paymentModel->txnId,
+                    "amount" => $paymentModel->amount,
+                    "payment_mode" => $paymentModel->payment_mode,
+                    "status" => $paymentModel->status,
+                    "invoice_url" => $paymentModel->invoice_url,
+                    "received_at" => $paymentModel->received_at,
                 ] : null;
 
-                $dropAddress = $booking->drop_address ? [
-                    'id' => $booking->drop_address->id,
-                    'address_type' => $booking->drop_address->address_type,
-                    'country_id' => $booking->drop_address->country_id,
-                    'state_id' => $booking->drop_address->state_id,
-                    'city_id' => $booking->drop_address->city_id,
-                    'address' => $booking->drop_address->address,
-                    'pincode' => $booking->drop_address->pincode,
-                    'is_default_address' => $booking->drop_address->is_default_address,
+                // Vehicle
+                $vehicleModel = optional($booking->vehicle);
+                $vehicle = $vehicleModel->id ? [
+                    'id' => $vehicleModel->id,
+                    'vehicle_type' => $vehicleModel->vehicle_type,
+                    'vehicle_number' => $vehicleModel->vehicle_number,
+                    'model' => $vehicleModel->model,
+                    'vehicle_year' => $vehicleModel->vehicle_year,
+                    'fuel_type' => $vehicleModel->fuel_type,
+                    'transmission' => $vehicleModel->transmission,
+                    'mileage' => $vehicleModel->mileage,
+                    'additional_note' => $vehicleModel->additional_note,
+                    'vehile_make' => $vehicleMakeData,
+                    'vehicle_photos' => $vehiclePhotos,
+                ] : null;
+
+                // Pickup Address
+                $pickup = optional($booking->pickup_address);
+                $pickupAddress = $pickup->id ? [
+                    'id' => $pickup->id,
+                    'address_type' => $pickup->address_type,
+                    'country_id' => $pickup->country_id,
+                    'state_id' => $pickup->state_id,
+                    'city_id' => $pickup->city_id,
+                    'address' => $pickup->address,
+                    'pincode' => $pickup->pincode,
+                    'is_default_address' => $pickup->is_default_address,
+                ] : null;
+
+                // Drop Address
+                $drop = optional($booking->drop_address);
+                $dropAddress = $drop->id ? [
+                    'id' => $drop->id,
+                    'address_type' => $drop->address_type,
+                    'country_id' => $drop->country_id,
+                    'state_id' => $drop->state_id,
+                    'city_id' => $drop->city_id,
+                    'address' => $drop->address,
+                    'pincode' => $drop->pincode,
+                    'is_default_address' => $drop->is_default_address,
                 ] : null;
 
                 return [
@@ -468,6 +509,7 @@ class BookingController extends Controller
                     'vehicle' => $vehicle,
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
+                    'payment' => $payment
                 ];
             });
 
@@ -476,13 +518,14 @@ class BookingController extends Controller
                 'message' => 'Bookings fetched successfully.',
                 'bookings' => $response,
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
+
 
 
 

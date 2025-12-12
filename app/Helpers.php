@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Role;
 use App\Models\SchoolRolePermission;
 use App\Models\SystemSetting;
+use App\Models\WhatsappMsgHistory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -611,5 +612,178 @@ if (!function_exists('activityLog')) {
             'message' => $message,
             'link' => $link
         ]);
+    }
+}
+
+/**
+ * Generate message parameters dynamically based on the inputs.
+ */
+if (!function_exists('generateParameters')) {
+    function generateParameters($data)
+    {
+        $parameters = [];
+        foreach ($data as $d) {
+            $parameters[] = ["type" => "text", "text" => $d];
+        }
+        return $parameters;
+    }
+}
+
+
+
+/**
+ * Save parameter Values In Array
+ * @param array $perameter array
+ * @return array
+ */
+if (!function_exists('perametersValues')) {
+    function perametersValues($parameters)
+    {
+        $textValues = [];
+        // Loop through the $parameters array
+        foreach ($parameters as $parameter) {
+            if (isset($parameter['text'])) {
+                $textValues[] = $parameter['text'] ?? '--';
+            }
+        }
+        return $textValues;
+    }
+}
+
+/**
+ * Create the message data for the API.
+ */
+if (!function_exists('createMessageData')) {
+    function createMessageData($phone, $template, $lang, $parameters)
+    {
+        return [
+            "messaging_product" => "whatsapp",
+            "to" => '91' . $phone,
+            "type" => "template",
+            "template" => [
+                "name" => $template,
+                "language" => ["code" => $lang],
+                "components" => [
+                    [
+                        "type" => "body",
+                        "parameters" => $parameters
+                    ]
+                ]
+            ]
+        ];
+    }
+}
+
+
+/**
+ * Create Message History
+ */
+if (!function_exists('createMessageHistory')) {
+    function createMessageHistory($templateName, $user, $phone, $resp)
+    {
+        $status = $resp['status'] ? 'Sent.' : 'Sending Failed.';
+        WhatsappMsgHistory::create([
+            'user_id' => $user ? $user->id : null,
+            'template_name' => $templateName,
+            'phone' => $phone,
+            'status' => $status,
+            'response' => $resp['result']
+        ]);
+    }
+}
+
+
+
+
+if (!function_exists('getNotificationTemplate')) {
+
+    function getNotificationTemplate($event)
+    {
+        return [
+
+            // 3. Booking Confirmed
+            'booking_confirmed' => [
+                'title' => 'Booking Confirmed 🎉',
+                'body'  =>
+                "Hi [CUSTOMER_NAME] 🎉\n" .
+                    "Your booking has been confirmed!\n" .
+                    "A trusted mechanic will be assigned shortly.\n" .
+                    "🔖 Booking ID: [BOOKING_ID]",
+            ],
+
+            // 5. Mechanic Assigned
+            'mechanic_assigned' => [
+                'title' => 'Mechanic Assigned 🔧',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "A mechanic has been assigned to your service request.\n" .
+                    "They will reach out to you soon!",
+            ],
+
+            // Booking Cancelled
+            'booking_cancelled' => [
+                'title' => 'Booking Cancelled ❌',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "Your service request ([BOOKING_ID]) has been cancelled ❌.",
+            ],
+
+            // Advance Payment Request
+            'advance_payment' => [
+                'title' => 'Advance Payment Required 💳',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "Your booking request has been accepted 👍.\n" .
+                    "Tap here to pay ₹100 and secure your preferred time slot.",
+            ],
+
+            // Payment Successful
+            'payment_successful' => [
+                'title' => 'Payment Successful 🎉',
+                'body'  =>
+                "Thank you for your payment! 🎉\n" .
+                    "Your booking ([BOOKING_ID]) is now confirmed.",
+            ],
+
+            // Video Proof Uploaded
+            'video_uploaded' => [
+                'title' => 'Video Proof Uploaded 🎥',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "Video proof for [SERVICE_NAME] has been uploaded 🎥.\n" .
+                    "Please check your booking for details.",
+            ],
+
+            // Service Completed
+            'service_completed' => [
+                'title' => 'Service Completed 🚗✨',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "Your vehicle service is complete and ready for pickup 🚗✨.",
+            ],
+
+        ][$event] ?? null;
+    }
+}
+
+
+
+if (!function_exists('parseNotificationTemplate')) {
+
+    function parseNotificationTemplate($template, $data)
+    {
+        $body = $template['body'];
+        $title = $template['title'];
+
+        // Replace placeholders in both title and body
+        foreach ($data as $key => $value) {
+            $body = str_replace('[' . $key . ']', $value, $body);
+            $title = str_replace('[' . $key . ']', $value, $title);
+        }
+
+        return [
+            'title' => $title,
+            'body'  => $body,
+        ];
     }
 }

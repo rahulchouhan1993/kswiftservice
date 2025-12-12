@@ -80,6 +80,7 @@ class User extends Authenticatable
         'profile_photo_url',
         'member_since',
         'trashed_at',
+        'fcm_token'
     ];
 
 
@@ -102,6 +103,16 @@ class User extends Authenticatable
         );
     }
 
+
+    public function fcmToken()
+    {
+        return $this->hasOne(FcmToken::class, 'user_id', 'id')->select('token');
+    }
+
+    public function getFcmTokenAttribute()
+    {
+        return $this->fcmToken()->first();
+    }
 
     public function getProfilePhotoUrlAttribute()
     {
