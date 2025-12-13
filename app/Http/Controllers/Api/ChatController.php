@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserChat;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+
+use function App\uploadRequestFile;
 
 class ChatController extends Controller
 {
@@ -39,8 +43,8 @@ class ChatController extends Controller
                         'to'          => $msg->toUser->name ?? null,
                         'sender_role' => $msg->sender_role,
                         'message'     => $msg->message,
-                        'attechment'  => $msg->attechment,
-                        'created_at'  => $msg->created_at,
+                        'attachment_url' => $msg->attechment_url,
+                        'time' => $msg->created_at->format('d M Y · h:i A'),
                     ];
                 });
 
@@ -69,14 +73,14 @@ class ChatController extends Controller
         try {
             $user = $request->user();
             $request->validate([
-                'to_user'     => 'required|exists:users,id',
-                'booking_id'  => 'required|exists:bookings,id',
+                'to_user'     => 'required',
+                'booking_id'  => 'required',
                 'message'     => 'required|string',
                 'attachment.*' => 'nullable|file|mimes:jpeg,jpg,png,webp,pdf,doc,docx,mp4,mov,avi,mkv|max:51200',
             ]);
 
 
-            $toUser = User::find($request->to_user);
+            $toUser = User::firstWhere('uuid', $request->to_user);
             if (!$toUser) {
                 return response()->json([
                     'status' => false,
@@ -84,7 +88,7 @@ class ChatController extends Controller
                 ], 404);
             }
 
-            $booking = Booking::find($request->booking_id);
+            $booking = Booking::with(['vehicle', 'vehicle.vehile_make'])->firstWhere('uuid', $request->booking_id);
             if (!$booking) {
                 return response()->json([
                     'status' => false,
@@ -92,17 +96,36 @@ class ChatController extends Controller
                 ], 404);
             }
 
-            UserChat::create([
+            $title = '#' . $booking->booking_id . "(" . $booking->vehicle->vehile_make->name . ")";
+            $ticket = Ticket::create([
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'subject' => $title,
+                'description' => "Hi there, I need to discuss things further with you.",
+            ]);
+
+            $chat = UserChat::create([
                 'from' => $user->id,
                 'to' => $toUser->id,
+                'ticket_id' => $ticket->id,
                 'sender_role' => $user->role,
                 'booking_id' => $booking->id,
                 'message' => $request->message,
             ]);
 
+            if ($request->attechment) {
+                uploadRequestFile($request, 'attechment', $chat, 'chat_attechements', 'attechment');
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => "Message sent",
+                'chat' => [
+                    'id' => $chat->id,
+                    'message' => $chat->message,
+                    'attachment_url' => $chat->attechment_url,
+                    'time' => $chat->created_at->format('d M Y · h:i A'),
+                ]
             ], 201);
         } catch (Exception $e) {
             return response()->json([

@@ -87,7 +87,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-garage-list', [GarageController::class, 'getGarageList']);
         Route::get('/delete/{uuid}', [GarageController::class, 'delete']);
         Route::get('/delete-photo/{uuid}', [GarageController::class, 'deleteGaragePhoto']);
-        Route::get('/update-status/{uuid}/{status}', [GarageController::class, 'updateStatus']);
+        Route::get('/update-status', [GarageController::class, 'updateStatus']);
     });
 
 

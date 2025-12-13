@@ -3,18 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 
-class Ticket extends Model
+class TicketDocument extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
-        'user_id',
-        'user_role',
-        'ticketId',
-        'subject',
-        'description',
-        'attachment',
-        'status',
+        'ticket_id',
+        'attechement'
     ];
 
     public static function boot()
@@ -22,28 +19,22 @@ class Ticket extends Model
         parent::boot();
         static::creating(function ($model) {
             $model->uuid = Uuid::uuid4();
-            $model->ticketId = 'TC-' . rand(000000000, 999999999);
         });
     }
 
     protected $appends = [
-        'attachment_url'
+        'attachment_url',
     ];
 
 
     public function getAttachmentUrlAttribute()
     {
-        $photo = $this->attachment ?? null;
+        $photo = $this->attechement ?? null;
 
         if ($photo) {
             return asset('storage/attachment_photos/' . $photo);
         }
 
         return null;
-    }
-
-    public function documents()
-    {
-        return $this->hasMany(TicketDocument::class, 'ticket_id', 'id');
     }
 }

@@ -33,8 +33,9 @@ class JobsController extends Controller
 
             $jobs = MechanicJob::with([
                 'booking',
+                'booking.payment',
                 'booking.customer',
-                'booking.mechanic',
+                'mechanic',
                 'booking.services.service_type',
                 'booking.vehicle.vehicle_photos'
             ])
@@ -63,7 +64,8 @@ class JobsController extends Controller
                     "total_service_price" => $totalServicePrice,
                     "title"               => $title,
                     "customer"            => $booking->customer,
-                    "mechanic"            => $booking->mechanic
+                    "mechanic"            => $job->mechanic,
+                    "payment"            => $job->booking->payment
                 ];
             });
 
@@ -150,36 +152,33 @@ class JobsController extends Controller
     {
         try {
             $job = MechanicJob::with([
-                'booking',
-                'mechanic',
                 'booking.customer',
-                'booking.services',
                 'booking.services.service_type',
                 'booking.vehicle',
                 'booking.payment',
+                'mechanic',
             ])->where('uuid', $request->job_uuid)->first();
 
-            if (!$job) {
+            if (!$job || !$job->booking) {
                 return response()->json([
                     'status'  => false,
-                    'message' => "Job does not exist",
+                    'message' => "Job or booking does not exist",
                 ], 404);
             }
 
-            $booking = $job->booking;
+            $booking  = $job->booking;
             $customer = $booking->customer;
+            $payment  = $booking->payment;
 
-            // Format service list
-            $serviceTotalAmount = 0;
-            $services = $booking->services->map(function ($service) use (&$serviceTotalAmount) {
-                $serviceTotalAmount += $service->service_type->base_price ?? 0;
-
+            // Services
+            $services = $booking->services->map(function ($service) {
                 return [
-                    "service_id"     => $service->id,
-                    "service_name"   => $service->service_type->name ?? null,
-                    "service_price"  => $service->service_type->base_price ?? null,
-                    "photo_url"      => $service->photo_url,
-                    "video_url"      => $service->video_url,
+                    "service_id"    => $service->id,
+                    "service_name"  => optional($service->service_type)->name,
+                    "service_price" => optional($service->service_type)->base_price ?? 0,
+                    "photo_url"     => $service->photo_url,
+                    "video_url"     => $service->video_url,
+                    "note"          => $service->note,
                 ];
             });
 
@@ -187,36 +186,46 @@ class JobsController extends Controller
                 "status"  => true,
                 "message" => "Booking details fetched successfully",
                 "data"    => [
-                    "booking_id"       => $booking->booking_id,
-                    "vehicle_number"   => $booking->vehicle->vehicle_number,
-                    "booking_date" => Carbon::parse($booking->date)->format('D, d M'),
-                    "assigned_date" => Carbon::parse($booking->assigned_date)->format('D, d M · h:i A'),
-                    "requested_on"  => Carbon::parse($job->created_at)->format('D, d M · h:i A'),
-                    "additional_note"  => $booking->additional_note,
+                    "id"     => $booking->id,
+                    "uuid"     => $booking->uuid,
+                    "booking_id"     => $booking->booking_id,
+                    "vehicle_number" => optional($booking->vehicle)->vehicle_number,
 
+                    "booking_date"   => $booking->date
+                        ? Carbon::parse($booking->date)->format('D, d M')
+                        : null,
+
+                    "assigned_date"  => $booking->assigned_date
+                        ? Carbon::parse($booking->assigned_date)->format('D, d M · h:i A')
+                        : null,
+
+                    "requested_on"   => Carbon::parse($job->created_at)->format('D, d M · h:i A'),
+                    "additional_note" => $booking->additional_note,
                     "customer" => [
-                        "id"   => $customer->id,
-                        "name" => $customer->name ?? null,
-                    ],
-                    "mechanic" => [
-                        "id"   => $job->mechanic->id ?? null,
-                        "name" => $job->mechanic->name ?? null,
+                        "id"   => optional($customer)->id,
+                        "name" => optional($customer)->name,
                     ],
 
-                    "services" => $services,
-                    "service_total" => $services->sum('service_price'),
-                    "payment" => [
-                        "id"   => $booking->payment->id,
-                        "txnId" => $booking->payment->txnId,
-                        "amount" => $booking->payment->amount,
-                        "payment_mode" => $booking->payment->payment_mode,
-                        "status" => $booking->payment->status,
-                        "invoice_url" => $booking->payment->invoice_url,
-                        "received_at" => $booking->payment->received_at,
+                    "mechanic" => [
+                        "id"   => optional($job->mechanic)->id,
+                        "name" => optional($job->mechanic)->name,
                     ],
+
+                    "services"       => $services,
+                    "service_total"  => $services->sum('service_price'),
+
+                    "payment" => $payment ? [
+                        "id"            => $payment->id,
+                        "txnId"         => $payment->txnId,
+                        "amount"        => $payment->amount,
+                        "payment_mode"  => $payment->payment_mode,
+                        "status"        => $payment->status,
+                        "invoice_url"   => $payment->invoice_url,
+                        "received_at"   => $payment->received_at,
+                    ] : null,
                 ]
             ], 200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),

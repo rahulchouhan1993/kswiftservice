@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use App\Models\TicketDocument;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -20,7 +22,7 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-            $tickets = Ticket::whereUserId($user->id)->get();
+            $tickets = Ticket::with(['documents'])->whereUserId($user->id)->get();
 
             return response()->json([
                 'status' => true,
@@ -46,14 +48,14 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-
             $request->validate([
-                'subject' => 'required',
-                'description' => 'required',
-                'attachment' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5048',
+                'subject' => 'required|string',
+                'description' => 'required|string',
+
+                'attachment' => 'nullable|array',
+                'attachment.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ]);
 
-            // dd($request->all());
 
             $ticket = Ticket::create([
                 'user_id' => $user->id,
@@ -63,12 +65,19 @@ class TicketController extends Controller
             ]);
 
             if ($request->hasFile('attachment')) {
-                $photoPath = uploadRequestFile($request, 'attachment', $ticket, 'ticket_attachments', 'attachment');
-                $ticket->update(['attachment' => $photoPath]);
+                foreach ($request->attachment as $photo) {
+                    $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('attachment_photos', $fileName, 'public');
+                    TicketDocument::create([
+                        'ticket_id'    => $ticket->id,
+                        'attechement'      => $fileName,
+                    ]);
+                }
             }
 
             $msg = "ticket submit succesfully";
             activityLog($user, "ticket submit succesfully", $msg);
+            $ticket->load('documents');
 
             return response()->json([
                 'success' => true,
@@ -97,7 +106,7 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-            $ticket = Ticket::where('uuid', $uuid)->first();
+            $ticket = Ticket::with(['documents'])->where('uuid', $uuid)->first();
 
             if (!$ticket) {
                 return response()->json([

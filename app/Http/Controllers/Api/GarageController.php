@@ -326,13 +326,13 @@ class GarageController extends Controller
 
     /**
      * Update Garage Status
-     * @param string $uuid Garage UUID
      * @param string $status active / inactive
      * @return mixed
      */
-    public function updateStatus(Request $request, $uuid, $status)
+    public function updateStatus(Request $request)
     {
         try {
+            $status = $request->status;
             $user = $request->user();
             if ($user->role != 'mechanic') {
                 return response()->json([
@@ -341,7 +341,7 @@ class GarageController extends Controller
                 ], 500);
             }
 
-            $garage = Garage::firstWhere('uuid', $uuid);
+            $garage = Garage::latest()->first();
             if (!$garage) {
                 return response()->json([
                     'status' => false,

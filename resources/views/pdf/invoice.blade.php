@@ -6,21 +6,6 @@
     <title>Tax Invoice</title>
 
     <style>
-        .logo {
-            width: 120px;
-            height: auto;
-        }
-
-        .total-section {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .total-section td {
-            vertical-align: top;
-        }
-
-
         @font-face {
             font-family: 'DejaVu Sans';
             src: url("{{ public_path('fonts/DejaVuSans.ttf') }}") format('truetype');
@@ -53,16 +38,12 @@
             border-collapse: collapse;
         }
 
-        table {
-            page-break-inside: auto;
+        thead {
+            display: table-header-group;
         }
 
         tr {
             page-break-inside: avoid;
-        }
-
-        thead {
-            display: table-header-group;
         }
 
         .company-name {
@@ -122,8 +103,8 @@
             text-align: right;
         }
 
-        .total-wrapper {
-            margin-top: 15px;
+        .total-section {
+            margin-top: 20px;
         }
 
         .totals {
@@ -143,31 +124,37 @@
             font-size: 13px;
         }
 
-        .footer {
-            margin-top: 45px;
-            font-size: 10.5px;
-        }
-
-        .footer strong {
-            color: #17a2b8;
-        }
-
-        .clear {
-            clear: both;
+        .logo {
+            width: 120px;
         }
 
         .footer-note {
-            margin-top: 30px;
+            margin-top: 35px;
             padding-top: 10px;
             border-top: 1px solid #ddd;
             text-align: center;
             font-size: 11px;
             color: #c10808;
         }
+
+        .clear {
+            clear: both;
+        }
     </style>
 </head>
 
 <body>
+
+    @php
+        $platformFeeTotal = 1000;
+
+        $platformFeeGst = $platformFeeTotal * 0.18; // 180
+        $platformFeeBase = $platformFeeTotal - $platformFeeGst; // 820
+
+        $subtotal = $platformFeeBase;
+        $totalGst = $platformFeeGst;
+        $grandTotal = $platformFeeTotal;
+    @endphp
 
     <div class="invoice">
         <div class="invoice-inner">
@@ -193,19 +180,18 @@
                 </tr>
             </table>
 
+            <!-- BILL TO -->
             <table class="bill-table">
                 <tr>
                     <td style="width:50%;">
                         <div class="label">Bill To</div>
                         <div class="muted">
                             <strong>{{ $payment->user->name }}</strong><br>
-
                             {{ $payment->user->email }}<br>
                             Phone: {{ $payment->user->phone ?? '-' }}<br>
 
                             @if ($payment->user->default_address)
                                 {{ $payment->user->default_address->address }}<br>
-
                                 {{ optional($payment->user->default_address->city)->name }},
                                 {{ optional($payment->user->default_address->state)->name }}
                                 - {{ $payment->user->default_address->pincode }}
@@ -214,6 +200,7 @@
                             @endif
                         </div>
                     </td>
+
                     <td class="right">
                         <div class="label">Vehicle Details</div>
                         <div class="muted">
@@ -230,12 +217,7 @@
                 </tr>
             </table>
 
-            <!-- ITEMS -->
-            @php
-                $subtotal = 0;
-                $totalGst = 0;
-            @endphp
-
+            <!-- ITEMS (STATIC) -->
             <table class="items">
                 <thead>
                     <tr>
@@ -247,72 +229,48 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($payment->booking->services as $i => $item)
-                        @php
-                            $totalPrice = $item->service_type->base_price; // GST included
-                            $baseAmount = $totalPrice / 1.18;
-                            $gstAmount = $totalPrice - $baseAmount;
-
-                            $subtotal += $baseAmount;
-                            $totalGst += $gstAmount;
-                        @endphp
-                        <tr>
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $item->service_type->name }}</td>
-                            <td>₹{{ number_format($baseAmount, 2) }}</td>
-                            <td>₹{{ number_format($gstAmount, 2) }}</td>
-                            <td>₹{{ number_format($totalPrice, 2) }}</td>
-                        </tr>
-                    @endforeach
+                    <tr>
+                        <td>1</td>
+                        <td>Platform Fee</td>
+                        <td>₹{{ number_format($platformFeeBase, 2) }}</td>
+                        <td>₹{{ number_format($platformFeeGst, 2) }}</td>
+                        <td>₹{{ number_format($platformFeeTotal, 2) }}</td>
+                    </tr>
                 </tbody>
             </table>
 
-            @php
-                $grandTotal = $subtotal + $totalGst - 1000;
-            @endphp
+            <!-- TOTALS -->
+            <table class="total-section">
+                <tr>
+                    <td style="width:40%;">
+                        <img src="https://kswiftservices.com/build/assets/swiftlogo-BEnPYXWh.png" class="logo"
+                            alt="KSwift Logo">
+                    </td>
 
-            <div class="total-wrapper">
-                <table class="total-section">
-                    <tr>
-                        <!-- LOGO -->
-                        <td style="width:40%;">
-                            <img src="https://kswiftservices.com/build/assets/swiftlogo-BEnPYXWh.png" class="logo"
-                                alt="KSwift Logo">
-                        </td>
-
-                        <!-- TOTALS -->
-                        <td style="width:60%;" class="right">
-                            <table class="totals">
-                                <tr>
-                                    <td>Sub Total (Without GST)</td>
-                                    <td class="right">₹{{ number_format($subtotal, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Total GST (18%)</td>
-                                    <td class="right">₹{{ number_format($totalGst, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Discount</td>
-                                    <td class="right">₹{{ number_format(0, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Upfront Amount</td>
-                                    <td class="right">- ₹{{ number_format(1000, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="total-highlight">Grand Total</td>
-                                    <td class="total-highlight right">
-                                        ₹{{ number_format($grandTotal, 2) }}
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                    <td style="width:60%;" class="right">
+                        <table class="totals">
+                            <tr>
+                                <td>Sub Total (Without GST)</td>
+                                <td class="right">₹{{ number_format($subtotal, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total GST (18%)</td>
+                                <td class="right">₹{{ number_format($totalGst, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="total-highlight">Grand Total</td>
+                                <td class="total-highlight right">
+                                    ₹{{ number_format($grandTotal, 2) }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
             <div class="clear"></div>
 
+            <!-- FOOTER -->
             <div class="footer-note">
                 If you have any queries, then feel free to write us at
                 <strong>info@kswiftservices.com</strong>

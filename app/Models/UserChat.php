@@ -34,4 +34,18 @@ class UserChat extends Model
     {
         return $this->belongsTo(User::class, 'to');
     }
+
+    protected $appends = [
+        'attechment_url'
+    ];
+
+    public function getAttechmentUrlAttribute()
+    {
+        $photo = $this->attechment ?? null;
+
+        if ($photo) {
+            return asset('storage/chat_attechements/' . $photo);
+        }
+        return null;
+    }
 }

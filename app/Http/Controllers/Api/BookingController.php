@@ -9,6 +9,7 @@ use App\Models\BookingService;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Vehicle;
+use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,6 +19,8 @@ use function App\activityLog;
 use function App\createMessageData;
 use function App\createMessageHistory;
 use function App\generateParameters;
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 use function App\uploadRequestFile;
 
 class BookingController extends Controller
@@ -26,6 +29,7 @@ class BookingController extends Controller
      * Book Service
      * @param Request $request
      */
+    use PushNotification;
     public function bookService(Request $request)
     {
         try {
@@ -54,7 +58,6 @@ class BookingController extends Controller
             ]);
 
             $user = $request->user();
-
             // FIXED VEHICLE QUERY
             $vehicle = Vehicle::where('id', $request->vehicle_id)
                 ->where('user_id', $user->id)
@@ -245,6 +248,23 @@ class BookingController extends Controller
                 createMessageHistory($templateName, $user, $phone, $resp);
             }
 
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                $deviceToken = $user->fcm_token->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('booking_confirmed');
+                    $uData = [
+                        'CUSTOMER_NAME' => $user->name,
+                        'BOOKING_ID' => $booking->booking_id,
+                    ];
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'key1' => 'value1',
+                        'key2' => 'value2',
+                    ];
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                }
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'Booking request submitted successfully.',
@@ -274,6 +294,7 @@ class BookingController extends Controller
         try {
             $user = $request->user();
             $booking = Booking::with([
+                'services',
                 'services.service_type',
                 'vehicle',
                 'vehicle.vehile_make',
@@ -282,6 +303,7 @@ class BookingController extends Controller
                 'drop_address',
                 'customer',
                 'mechanic',
+                'payment'
             ])
                 ->where('uuid', $uuid)
                 ->first();
@@ -300,6 +322,9 @@ class BookingController extends Controller
                         'id' => $service->service_type->id,
                         'name' => $service->service_type->name,
                         'base_price' => $service->service_type->base_price,
+                        'video_url' => $service->video_url,
+                        'photo_url' => $service->photo_url,
+                        'note' => $service->note,
                     ]
                 ];
             });
@@ -353,6 +378,21 @@ class BookingController extends Controller
                 'is_default_address' => $booking->drop_address->is_default_address,
             ] : null;
 
+            $mechanic = $booking->mechanic ? [
+                'id' => $booking->mechanic->id,
+                'name' => $booking->mechanic->name,
+            ] : null;
+
+            $payment = $booking->payment ? [
+                "id" => $booking->payment->id,
+                "txnId" => $booking->payment->txnId,
+                "amount" => $booking->payment->amount,
+                "payment_mode" => $booking->payment->payment_mode,
+                "status" => $booking->payment->status,
+                "invoice_url" => $booking->payment->invoice_url,
+                "received_at" => $booking->payment->received_at,
+            ] : null;
+
             $response = [
                 'id' => $booking->id,
                 'uuid' => $booking->uuid,
@@ -371,12 +411,13 @@ class BookingController extends Controller
                 'deleted_at' => $booking->deleted_at,
 
                 'customer' => $booking->customer,
-                'mechanic' => $booking->mechanic,
+                'mechanic' => $mechanic,
 
                 'services' => $services,
                 'vehicle' => $vehicle,
                 'pickup_address' => $pickupAddress,
                 'drop_address' => $dropAddress,
+                'payment' => $payment
             ];
 
             return response()->json([
@@ -407,6 +448,7 @@ class BookingController extends Controller
             $bookings = Booking::with([
                 'services.service_type',
                 'payment',
+                'mechanic',
                 'vehicle',
                 'vehicle.vehile_make',
                 'vehicle.vehicle_photos',
@@ -509,6 +551,11 @@ class BookingController extends Controller
                     'is_default_address' => $drop->is_default_address,
                 ] : null;
 
+                $mechanic = $booking->mechanic ? [
+                    'id' => $booking->mechanic->id,
+                    'name' => $booking->mechanic->name,
+                ] : null;
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -530,7 +577,8 @@ class BookingController extends Controller
                     'vehicle' => $vehicle,
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
-                    'payment' => $payment
+                    'payment' => $payment,
+                    'mechanic' => $mechanic
                 ];
             });
 
@@ -768,6 +816,10 @@ class BookingController extends Controller
                     Rule::exists('booking_services', 'id'),
                 ],
 
+                'note' => [
+                    'nullable',
+                ],
+
                 'file' => [
                     'required',
                     'file',
@@ -804,10 +856,15 @@ class BookingController extends Controller
                 }
             }
 
+            $service->update([
+                'note' => $request->note
+            ]);
+
             $data = [
                 'service_title' => $service->service_type->name,
                 'photo_url' => $service->photo_url,
-                'video_url' => $service->video_url
+                'video_url' => $service->video_url,
+                'note' => $service->note,
             ];
 
             $msg = "service (" . $data['service_title'] . ") proof uploaded by mechanic";

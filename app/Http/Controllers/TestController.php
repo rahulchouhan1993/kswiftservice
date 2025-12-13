@@ -19,14 +19,14 @@ class TestController extends Controller
     use PushNotification;
     public function sendNotification(Request $request)
     {
-        $deviceToken = "c0DIeVz0ToaHD-l-W6WYIk:APA91bGcK9GlCTH9LWOl-zhEzZqUjxmXlMBLGF39PYX2AyKHOa4Q6I66B0tZQeTAwLUxcHMfdfIrhm99oBvySw5AqMXTcaG7DtZOdVVv50QhEqZRkjOYWWY";
+        $deviceToken = "cIH9aakvQ7qBpbYJ6yyz8g:APA91bGWLH-Iow50eMTWux6kLyOZ9hUjG8hn5AlGUduLg_N8LRn19X7ME82r39dsyPHzolZVg9oBEJ3Hm2fvlmrQOqSAR4cs8vu2OSiOhGAA5r6ZqgjBntY";
         $title = "Test notification";
         $body = "This is notification body";
 
         $temp = getNotificationTemplate('booking_confirmed');
         $uData = [
-            'customer_name' => 'Vikas Sain',
-            'booking_id' => 'BTXN_1234567890',
+            'CUSTOMER_NAME' => 'Vikas Sain',
+            'BOOKING_ID' => 'BTXN_1234567890',
         ];
         $tempWData = parseNotificationTemplate($temp, $uData);
 

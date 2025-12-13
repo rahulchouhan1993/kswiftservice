@@ -119,7 +119,6 @@ class PaymentController extends Controller
                 ->latest()
                 ->get()
                 ->map(function ($payment) {
-
                     $booking = $payment->booking;
                     $vehicle = $booking->vehicle;
 
