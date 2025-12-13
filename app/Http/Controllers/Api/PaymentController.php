@@ -42,6 +42,7 @@ class PaymentController extends Controller
                 ], 500);
             }
 
+            $invoiceNo = Helpers::shortUuid();
             $payment = Payment::create([
                 'user_id'       => $user->id,
                 'booking_id'    => $booking->id,
@@ -49,9 +50,14 @@ class PaymentController extends Controller
                 'payment_mode'  => $request->payment_mode,
                 'amount'        => $request->amount,
                 'status'        => $request->status,
+                'invoice_no' => $invoiceNo,
             ]);
 
             $payment->load([
+                'user',
+                'user.default_address',
+                'user.default_address.state',
+                'user.default_address.city',
                 'booking',
                 'booking.services',
                 'booking.services.service_type',
@@ -65,19 +71,16 @@ class PaymentController extends Controller
                 ->setOption('isHtml5ParserEnabled', true)
                 ->setOption('isFontSubsettingEnabled', true);
 
-            $fileName = 'invoice_' . $payment->uuid . '.pdf';
+            $fileName = 'invoice_' . $invoiceNo . '.pdf';
             $filePath = 'invoices/' . $fileName;
-
-            // Save PDF to storage
             Storage::disk('public')->put($filePath, $pdf->output());
 
-            // Store link in DB
             $payment->update([
-                'invoice_url' => asset('storage/' . $filePath)
+                'invoice_path' => $fileName,
             ]);
 
-            $msg = "payment details submitted";
-            activityLog($user, "payment details submitted", $msg);
+            $msg = "payment done by " . $user->name;
+            activityLog($user, "payment done", $msg);
 
             return response()->json([
                 'status'  => true,
@@ -154,7 +157,6 @@ class PaymentController extends Controller
     {
         try {
             $user = $request->user();
-
             $payments = Payment::with([
                 'booking',
                 'booking.vehicle',
@@ -164,15 +166,15 @@ class PaymentController extends Controller
                 ->latest()
                 ->get()
                 ->map(function ($payment) {
-
                     $booking = $payment->booking;
                     $vehicle = $booking->vehicle;
-
                     return [
                         'txn_id'     => $payment->txnId,
                         'status'     => $payment->status,
                         'amount'     => trim(Helpers::toRupeeCurrency($payment->amount)),
                         'txn_date'     => Carbon::parse($payment->created_at)->format('d M Y'),
+                        'invoice_no'     => $payment->invoice_no,
+                        'invoice_url'     => $payment->invoice_url,
                     ];
                 });
 

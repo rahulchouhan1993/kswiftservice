@@ -15,6 +15,7 @@ class Payment extends Model
         'amount',
         'payment_mode',
         'status',
+        'invoice_no',
         'invoice_path'
     ];
 

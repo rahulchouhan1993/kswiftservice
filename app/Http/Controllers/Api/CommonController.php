@@ -104,27 +104,30 @@ class CommonController extends Controller
      * Get All Vehile Males List
      * @return mixed
      */
-    public function getVehicleMakes()
+    public function getVehicleMakes(Request $request)
     {
         try {
-            $makes = VehicleMake::select('id', 'uuid', 'name', 'logo_path')
+            $makes = VehicleMake::select('id', 'uuid', 'name', 'vehicle_type', 'logo_path')
                 ->whereStatus(1)
+                ->when($request->filled('vehicle_type'), function ($query) use ($request) {
+                    $query->where('vehicle_type', $request->vehicle_type);
+                })
                 ->orderBy('name')
-                ->get()
-                ->toArray();
+                ->get();
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Vehicle makes list fetched',
-                'list' => $makes
-            ], 200); // <-- change from 500 to 200
-        } catch (Exception $e) {
+                'list'    => $makes,
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     /**
      * Get All Vehicles List for a Vehicle Make
@@ -166,11 +169,14 @@ class CommonController extends Controller
      * Fetch Services List
      * @return mixed
      */
-    public function getServicesList()
+    public function getServicesList(Request $request)
     {
         try {
             $services = ServiceType::select('id', 'name', 'base_price', 'vehicle_type')
                 ->whereStatus(1)
+                ->when($request->filled('vehicle_type'), function ($query) use ($request) {
+                    $query->where('vehicle_type', $request->vehicle_type);
+                })
                 ->orderBy('name')
                 ->get()
                 ->toArray();

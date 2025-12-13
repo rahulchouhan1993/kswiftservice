@@ -103,6 +103,11 @@ class User extends Authenticatable
         );
     }
 
+    public function default_address()
+    {
+        return $this->hasOne(UserAddress::class, 'user_id', 'id')
+            ->where('is_default_address', 1)->latest();
+    }
 
     public function fcmToken()
     {

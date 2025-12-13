@@ -67,7 +67,6 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-ticket-details/{uuid}', [TicketController::class, 'getTicketDetails']);
     });
 
-
     Route::prefix('/payment')->group(function () {
         Route::post('/submit-payment-details', [PaymentController::class, 'submitPaymentDetails']);
         Route::get('/fetch-invoice-and-receipts', [PaymentController::class, 'paymentInvoicesAndReceipts']);

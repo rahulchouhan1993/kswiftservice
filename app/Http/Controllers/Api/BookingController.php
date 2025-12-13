@@ -116,6 +116,8 @@ class BookingController extends Controller
 
             // Load relationships
             $booking->load([
+                'customer',
+                'mechanic',
                 'services.service_type',
                 'vehicle',
                 'vehicle.vehile_make',
@@ -183,6 +185,22 @@ class BookingController extends Controller
                 'is_default_address' => $booking->drop_address->is_default_address,
             ] : null;
 
+            $customer = $booking->customer
+                ? [
+                    'id'   => $booking->customer->id,
+                    'name' => $booking->customer->name,
+                ]
+                : null;
+
+
+            $mechanic = $booking->mechanic
+                ? [
+                    'id'   => $booking->mechanic->id,
+                    'name' => $booking->mechanic->name,
+                ]
+                : null;
+
+
             $response = [
                 'id' => $booking->id,
                 'uuid' => $booking->uuid,
@@ -203,6 +221,9 @@ class BookingController extends Controller
                 'vehicle' => $vehicleData,
                 'pickup_address' => $pickupAddress,
                 'drop_address' => $dropAddress,
+
+                'customer' => $customer,
+                'mechanic' => $mechanic,
             ];
 
             // WhatsApp message section (unchanged)

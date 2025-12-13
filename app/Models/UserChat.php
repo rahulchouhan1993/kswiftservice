@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 class UserChat extends Model
 {
     protected $fillable = [
+        'ticket_id',
         'from',
         'to',
         'booking_id',
