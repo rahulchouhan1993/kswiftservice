@@ -22,20 +22,57 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-            $tickets = Ticket::with(['documents'])->whereUserId($user->id)->get();
+
+            $tickets = Ticket::with(['documents', 'chats'])
+                ->whereUserId($user->id)
+                ->orderBy('id', 'DESC')
+                ->get()
+                ->map(function ($ticket) {
+
+                    return [
+                        'id'          => $ticket->id,
+                        'uuid'        => $ticket->uuid,
+                        'ticketId'    => $ticket->ticketId,
+                        'subject'     => $ticket->subject,
+                        'description' => $ticket->description,
+                        'status'      => $ticket->status,
+                        'created_at'  => $ticket->created_at,
+
+                        'documents'   => $ticket->documents->map(function ($doc) {
+                            return [
+                                'id'             => $doc->id,
+                                'uuid'           => $doc->uuid,
+                                'created_at'     => $doc->created_at,
+                                'attachment_url' => $doc->attachment_url,
+                            ];
+                        }),
+
+                        'chats' => $ticket->chats->map(function ($chat) {
+                            return [
+                                'id'              => $chat->id,
+                                'uuid'            => $chat->uuid,
+                                'sender_role'     => $chat->sender_role,
+                                'message'         => $chat->message,
+                                'created_at'      => $chat->created_at,
+                                'attechment_url'  => $chat->attechment_url,
+                            ];
+                        }),
+                    ];
+                });
 
             return response()->json([
-                'status' => true,
-                'message' => "Tickets list fetched succesfully",
+                'status'  => true,
+                'message' => 'Tickets list fetched succesfully',
                 'tickets' => $tickets
-            ], 201);
-        } catch (Exception $e) {
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 
 
 
@@ -106,21 +143,103 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-            $ticket = Ticket::with(['documents'])->where('uuid', $uuid)->first();
+
+            $ticket = Ticket::with(['documents', 'chats'])
+                ->where('uuid', $uuid)
+                ->where('user_id', $user->id) // security check
+                ->first();
 
             if (!$ticket) {
                 return response()->json([
-                    'status' => false,
-                    'message' => "Ticket does not exist",
+                    'status'  => false,
+                    'message' => 'Ticket does not exist',
                 ], 404);
             }
 
+            $ticketData = [
+                'id'          => $ticket->id,
+                'uuid'        => $ticket->uuid,
+                'ticketId'    => $ticket->ticketId,
+                'subject'     => $ticket->subject,
+                'description' => $ticket->description,
+                'status'      => $ticket->status,
+                'created_at'  => $ticket->created_at,
+
+                'documents'   => $ticket->documents->map(function ($doc) {
+                    return [
+                        'id'             => $doc->id,
+                        'uuid'           => $doc->uuid,
+                        'created_at'     => $doc->created_at,
+                        'attachment_url' => $doc->attachment_url,
+                    ];
+                }),
+
+                'chats' => $ticket->chats->map(function ($chat) {
+                    return [
+                        'id'             => $chat->id,
+                        'uuid'           => $chat->uuid,
+                        'sender_role'    => $chat->sender_role,
+                        'message'        => $chat->message,
+                        'created_at'     => $chat->created_at,
+                        'attechment_url' => $chat->attechment_url,
+                    ];
+                }),
+            ];
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Ticket details fetched succesfully',
+                'ticket'  => $ticketData
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Update Ticket Status
+     * @param string $uuid Ticket UUID
+     * @return mixed
+     */
+    public function closeTicket(Request $request, $uuid)
+    {
+        try {
+            $user = $request->user();
+            $ticket = Ticket::firstWhere('uuid', $uuid);
+            if (!$ticket) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ticket does not exist',
+                ], 500);
+            }
+
+            if ($ticket->user_id != $user->id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Sorry, you cant close this ticket',
+                ], 500);
+            }
+
+            $ticket->update([
+                'ticket_status' => 'closed'
+            ]);
+
+            $msg = "ticket closed by - " . $user->name;
+            activityLog($user, "ticket closed", $msg);
+
             return response()->json([
                 'status' => true,
-                'message' => "Ticket details fetched succesfully",
-                'ticket' => $ticket
-            ], 201);
+                'message' => 'Ticket closed succesfully',
+            ]);
         } catch (Exception $e) {
+            $msg = "error during ticket close - " . $e->getMessage();
+            activityLog($request->user(), "error during ticket close", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

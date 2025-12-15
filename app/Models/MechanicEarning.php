@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
 
-class Notification extends Model
+class MechanicEarning extends Model
 {
     protected $fillable = [
         'user_id',
-        'type',
-        'data',
-        'status'
+        'mechanic_id',
+        'booking_id',
+        'amount'
     ];
 
     public static function boot()
@@ -23,7 +23,13 @@ class Notification extends Model
     }
 
 
-    protected $casts = [
-        'data' => 'array'
-    ];
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function booking()
+    {
+        return $this->hasOne(Booking::class, 'id', 'booking_id');
+    }
 }

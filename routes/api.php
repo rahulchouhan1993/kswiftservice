@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\GarageController;
 use App\Http\Controllers\Api\JobsController;
+use App\Http\Controllers\Api\MechanicEarningController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReviewController;
@@ -65,6 +67,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-tickets-list', [TicketController::class, 'getTicketsList']);
         Route::post('/submit', [TicketController::class, 'submitTicket']);
         Route::get('/get-ticket-details/{uuid}', [TicketController::class, 'getTicketDetails']);
+        Route::get('/close-ticket/{uuid}', [TicketController::class, 'closeTicket']);
     });
 
     Route::prefix('/payment')->group(function () {
@@ -99,7 +102,17 @@ Route::middleware('apiauth')->group(function () {
 
 
     Route::prefix('/review')->group(function () {;
+        Route::get('/list', [ReviewController::class, 'list']);
         Route::post('/submit', [ReviewController::class, 'submitReview']);
+    });
+
+    Route::prefix('/mechanic-earnings')->group(function () {;
+        Route::get('/list', [MechanicEarningController::class, 'mechanicEarningsList']);
+    });
+
+    Route::prefix('/notifications')->group(function () {;
+        Route::get('/list', [NotificationController::class, 'notificationsList']);
+        Route::get('/update-status/{uuid}', [NotificationController::class, 'updateStatus']);
     });
 
     Route::prefix('/chats')->group(function () {;

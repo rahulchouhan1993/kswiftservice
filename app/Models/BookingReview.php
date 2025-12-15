@@ -10,6 +10,7 @@ class BookingReview extends Model
     protected $fillable = [
         'user_id',
         'mechanic_id',
+        'booking_id',
         'garage_id',
         'review',
         'feedback',

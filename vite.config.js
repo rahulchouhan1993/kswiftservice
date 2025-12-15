@@ -53,5 +53,6 @@ export default defineConfig({
         rollupOptions: {
             external: ['@emoji-mart/react'],
         },
+        chunkSizeWarningLimit: 1000, // 1 MB
     },
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,13 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('mechanic_earnings', function (Blueprint $table) {
             $table->id();
             $table->uuid();
             $table->foreignIdFor(User::class);
-            $table->string('type')->default('push')->comment('push, whatsapp');
-            $table->longText('data');
-            $table->tinyInteger('status')->default(0)->comment('0-Sent, 1-Read');
+            $table->foreignId('mechanic_id');
+            $table->foreignIdFor(Booking::class);
+            $table->double('amount');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('mechanic_earnings');
     }
 };

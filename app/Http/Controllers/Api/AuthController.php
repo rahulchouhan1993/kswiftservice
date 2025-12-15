@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\FcmToken;
 use App\Models\User;
+use App\Msg91;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -128,7 +129,16 @@ class AuthController extends Controller
                 ]);
             }
 
-            $otp = rand(100000, 999999);
+            // $otp = rand(100000, 999999);
+            // $wpi = new Msg91;
+            // $resp = $wpi->sendOTP($user->phone, $otp);
+            // if ($resp['status']) {
+            //     $user->update([
+            //         'otp' => $otp,
+            //         'otp_expire' => now()->addMinutes(2),
+            //     ]);
+            // }
+
             $user->update([
                 'otp' => 123456,
                 'otp_expire' => now()->addMinutes(2),
@@ -169,7 +179,7 @@ class AuthController extends Controller
             $request->validate([
                 'phone' => 'required|digits:10',
                 'otp' => 'required|digits:6',
-                'fcm_token' => 'required',
+                'fcm_token' => 'nullable',
             ]);
 
             $user = User::where('phone', $request->phone)->first();

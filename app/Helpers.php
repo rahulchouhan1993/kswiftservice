@@ -654,25 +654,47 @@ if (!function_exists('perametersValues')) {
  * Create the message data for the API.
  */
 if (!function_exists('createMessageData')) {
-    function createMessageData($phone, $template, $lang, $parameters)
+    function createMessageData($phone, $template, $lang, $parameters, $btnData = null)
     {
+        $components = [
+            [
+                "type" => "body",
+                "parameters" => $parameters
+            ]
+        ];
+
+        if (!empty($btnData)) {
+            foreach ($btnData as $btn) {
+                $components[] = [
+                    "type" => "button",
+                    "sub_type" => $btn['sub_type'], // url | phone_number | quick_reply
+                    "index" => (string) $btn['index'],
+                    "parameters" => [
+                        [
+                            "type" => "text",
+                            "text" => $btn['value']
+                        ]
+                    ]
+                ];
+            }
+        }
+
         return [
             "messaging_product" => "whatsapp",
             "to" => '91' . $phone,
             "type" => "template",
             "template" => [
                 "name" => $template,
-                "language" => ["code" => $lang],
-                "components" => [
-                    [
-                        "type" => "body",
-                        "parameters" => $parameters
-                    ]
-                ]
+                "language" => [
+                    "code" => $lang
+                ],
+                "components" => $components
             ]
         ];
     }
 }
+
+
 
 
 /**
@@ -734,7 +756,7 @@ if (!function_exists('getNotificationTemplate')) {
                 'body'  =>
                 "Hi [CUSTOMER_NAME]\n" .
                     "Your booking request has been accepted 👍.\n" .
-                    "Tap here to pay ₹100 and secure your preferred time slot.",
+                    "Tap here to pay [AMOUNT] and secure your preferred time slot.",
             ],
 
             // Payment Successful

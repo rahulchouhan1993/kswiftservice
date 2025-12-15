@@ -6,6 +6,7 @@ use App\FacebookApi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingService;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Vehicle;
@@ -58,7 +59,6 @@ class BookingController extends Controller
             ]);
 
             $user = $request->user();
-            // FIXED VEHICLE QUERY
             $vehicle = Vehicle::where('id', $request->vehicle_id)
                 ->where('user_id', $user->id)
                 ->first();
@@ -261,7 +261,15 @@ class BookingController extends Controller
                         'key1' => 'value1',
                         'key2' => 'value2',
                     ];
+
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                    if (!empty($resp) && $resp['name']) {
+                        Notification::create([
+                            'user_id' => $user->id,
+                            'type' => 'push',
+                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
                 }
             }
 
@@ -303,7 +311,8 @@ class BookingController extends Controller
                 'drop_address',
                 'customer',
                 'mechanic',
-                'payment'
+                'payment',
+                'review'
             ])
                 ->where('uuid', $uuid)
                 ->first();
@@ -393,6 +402,11 @@ class BookingController extends Controller
                 "received_at" => $booking->payment->received_at,
             ] : null;
 
+            $review = $booking->review ? [
+                'review' => $booking->review->review,
+                'feedback' => $booking->review->feedback,
+            ] : null;
+
             $response = [
                 'id' => $booking->id,
                 'uuid' => $booking->uuid,
@@ -417,7 +431,8 @@ class BookingController extends Controller
                 'vehicle' => $vehicle,
                 'pickup_address' => $pickupAddress,
                 'drop_address' => $dropAddress,
-                'payment' => $payment
+                'payment' => $payment,
+                'review' => $review
             ];
 
             return response()->json([
@@ -453,7 +468,8 @@ class BookingController extends Controller
                 'vehicle.vehile_make',
                 'vehicle.vehicle_photos',
                 'pickup_address',
-                'drop_address'
+                'drop_address',
+                'review'
             ])
                 ->whereUserId($user->id)
                 ->when($status !== 'all', fn($q) => $q->where('booking_status', $status))
@@ -556,6 +572,11 @@ class BookingController extends Controller
                     'name' => $booking->mechanic->name,
                 ] : null;
 
+                $review = $booking->review ? [
+                    'review' => $booking->review->review,
+                    'feedback' => $booking->review->feedback,
+                ] : null;
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -578,7 +599,8 @@ class BookingController extends Controller
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
                     'payment' => $payment,
-                    'mechanic' => $mechanic
+                    'mechanic' => $mechanic,
+                    'review' => $review
                 ];
             });
 
@@ -587,7 +609,7 @@ class BookingController extends Controller
                 'message' => 'Bookings fetched successfully.',
                 'bookings' => $response,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -615,7 +637,8 @@ class BookingController extends Controller
                 'pickup_address',
                 'drop_address',
                 'customer',
-                'mechanic'
+                'mechanic',
+                'review'
             ])
                 ->whereUserId($user->id)
                 ->orderBy('id', 'DESC')
@@ -657,6 +680,11 @@ class BookingController extends Controller
                         'photo_url' => $photo->photo_url,
                     ];
                 });
+
+                $review = $booking->review ? [
+                    'review' => $booking->review->review,
+                    'feedback' => $booking->review->feedback,
+                ] : null;
 
                 $vehicle = [
                     'id' => $booking->vehicle->id,
@@ -720,6 +748,7 @@ class BookingController extends Controller
                     'vehicle' => $vehicle,
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
+                    'review' => $review
                 ];
             });
 
@@ -844,14 +873,17 @@ class BookingController extends Controller
                 ], 404);
             }
 
+            $fileType = null;
             if ($request->hasFile('file')) {
 
                 $mime = $request->file('file')->getMimeType();
                 if (str_contains($mime, 'image')) {
+                    $fileType = 'Image';
                     uploadRequestFile($request, 'file', $service, 'service_photos', 'photo_path');
                 }
 
                 if (str_contains($mime, 'video')) {
+                    $fileType = 'Video';
                     uploadRequestFile($request, 'file', $service, 'service_videos', 'video_path');
                 }
             }
@@ -869,6 +901,46 @@ class BookingController extends Controller
 
             $msg = "service (" . $data['service_title'] . ") proof uploaded by mechanic";
             activityLog($user, "service proof uploaded", $msg);
+
+            if (env("CAN_SEND_MESSAGE")) {
+                $templateName = "msg_to_customer_on_upload_service_proof";
+                $lang = "en";
+                $phone = $customer->phone;
+                $pdata = [
+                    $customer->name,
+                    $fileType,
+                    $service->service_type->name
+                ];
+                $perameters = generateParameters($pdata);
+                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                $fb = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+                createMessageHistory($templateName, $customer, $phone, $resp);
+            }
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                $deviceToken = $customer->fcm_token->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('video_uploaded');
+                    $uData = [
+                        'CUSTOMER_NAME' => $customer->name,
+                        'SERVICE_NAME' => $service->service_type->name
+                    ];
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $mdata = [
+                        'key1' => 'value1',
+                        'key2' => 'value2',
+                    ];
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $mdata);
+                    if (!empty($resp) && $resp['name']) {
+                        Notification::create([
+                            'user_id' => $customer->id,
+                            'type' => 'push',
+                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+            }
 
             return response()->json([
                 'status' => true,

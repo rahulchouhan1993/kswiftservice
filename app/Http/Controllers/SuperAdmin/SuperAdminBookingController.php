@@ -2,17 +2,28 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
+use App\FacebookApi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Garage;
 use App\Models\MechanicJob;
+use App\Models\Notification;
 use App\Models\User;
+use App\PushNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+
+use function App\createMessageData;
+use function App\createMessageHistory;
+use function App\generateParameters;
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 
 class SuperAdminBookingController extends Controller
 {
     protected $per_page;
+    use PushNotification;
+
     public function __construct()
     {
         $this->per_page = env('PER_PAGE', 50);
@@ -104,7 +115,7 @@ class SuperAdminBookingController extends Controller
             return back()->with('error', "Booking does not exist.");
         }
 
-
+        $customer = $booking->customer;
         MechanicJob::create([
             'user_id' => $garage->mechanic->id,
             'booking_id' => $booking->id,
@@ -115,6 +126,43 @@ class SuperAdminBookingController extends Controller
             'garage_id' => $garage->id,
             'booking_status' => 'pending'
         ]);
+
+        if (env("CAN_SEND_MESSAGE")) {
+            $templateName = "msg_to_customer_on_assign_mechanic";
+            $lang = "en";
+            $phone = $customer->phone;
+            $data = [
+                $customer->name,
+            ];
+            $perameters = generateParameters($data);
+            $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+            $fb = new FacebookApi();
+            $resp = $fb->sendMessage($msgData);
+            createMessageHistory($templateName, $customer, $phone, $resp);
+        }
+
+        if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+            $deviceToken = $customer->fcm_token->token;
+            if ($deviceToken) {
+                $temp = getNotificationTemplate('mechanic_assigned');
+                $uData = [
+                    'CUSTOMER_NAME' => $customer->name,
+                ];
+                $tempWData = parseNotificationTemplate($temp, $uData);
+                $data = [
+                    'key1' => 'value1',
+                    'key2' => 'value2',
+                ];
+                $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                if (!empty($resp) && $resp['name']) {
+                    Notification::create([
+                        'user_id' => $customer->id,
+                        'type' => 'push',
+                        'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                    ]);
+                }
+            }
+        }
 
         return back()->with('success', 'Mechanic assigned to booking');
     }
@@ -141,10 +189,50 @@ class SuperAdminBookingController extends Controller
             'cancellation_reason' => $request->reason
         ]);
 
+        $customer = $booking->customer;
         $booking->update([
             'garage_id' => null,
             'booking_status' => 'requested'
         ]);
+
+        if (env("CAN_SEND_MESSAGE")) {
+            $templateName = "msg_to_customer_on_booking_cancelled";
+            $lang = "en";
+            $phone = $customer->phone;
+            $data = [
+                $customer->name,
+                $booking->booking_id,
+            ];
+            $perameters = generateParameters($data);
+            $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+            $fb = new FacebookApi();
+            $resp = $fb->sendMessage($msgData);
+            createMessageHistory($templateName, $customer, $phone, $resp);
+        }
+
+        if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+            $deviceToken = $customer->fcm_token->token;
+            if ($deviceToken) {
+                $temp = getNotificationTemplate('booking_cancelled');
+                $uData = [
+                    'CUSTOMER_NAME' => $customer->name,
+                    'BOOKING_ID' => $booking->booking_id,
+                ];
+                $tempWData = parseNotificationTemplate($temp, $uData);
+                $data = [
+                    'key1' => 'value1',
+                    'key2' => 'value2',
+                ];
+                $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                if (!empty($resp) && $resp['name']) {
+                    Notification::create([
+                        'user_id' => $customer->id,
+                        'type' => 'push',
+                        'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                    ]);
+                }
+            }
+        }
 
         return back()->with('success', 'Assigned mechanic removed');
     }

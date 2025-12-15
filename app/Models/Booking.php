@@ -44,6 +44,11 @@ class Booking extends Model
     }
 
 
+    public function mechanic_earning()
+    {
+        return $this->hasOne(MechanicEarning::class, 'booking_id', 'id');
+    }
+
     public function services()
     {
         return $this->hasMany(BookingService::class, 'booking_id', 'id');
@@ -52,6 +57,11 @@ class Booking extends Model
     public function customer()
     {
         return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function review()
+    {
+        return $this->hasOne(BookingReview::class, 'booking_id', 'id');
     }
 
     public function mechanic()

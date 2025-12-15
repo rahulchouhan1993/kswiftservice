@@ -2,17 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\FacebookApi;
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\MechanicJob;
+use App\Models\Notification;
+use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\Console\Helper\Helper;
 
 use function App\activityLog;
+use function App\createMessageData;
+use function App\createMessageHistory;
+use function App\generateParameters;
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 
 class JobsController extends Controller
 {
+    use PushNotification;
     /**
      * Fetch Jobs Request List
      * @param Request $request
@@ -99,7 +110,7 @@ class JobsController extends Controller
                 return response()->json(['status' => false, 'message' => 'Job not found'], 404);
             }
 
-            $booking = Booking::find($job->booking_id);
+            $booking = Booking::with(['customer'])->find($job->booking_id);
             if (!$booking) {
                 return response()->json(['status' => false, 'message' => 'Job booking not found'], 404);
             }
@@ -126,6 +137,60 @@ class JobsController extends Controller
 
             $msg = "mechanic job status updated as - " . $job->status;
             activityLog($user, "mechanic jobs status updated", $msg);
+
+            if (env("CAN_SEND_MESSAGE") && $request->status == 'accepted' || $request->status == 'completed') {
+                if ($request->status == 'accepted') {
+                    $templateName = "msg_to_customer_on_adnavce_payment";
+                    $data = [
+                        $booking->customer->name,
+                        Helpers::toRupeeCurrency(1000)
+                    ];
+                } elseif ($request->status == 'completed') {
+                    $templateName = "msg_to_customer_on_service_complete";
+                    $data = [
+                        $booking->customer->name,
+                    ];
+                }
+                $lang = "en";
+                $phone = $booking->customer->phone;
+
+                $perameters = generateParameters($data);
+                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                $fb = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+                createMessageHistory($templateName, $user, $phone, $resp);
+            }
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $request->status == 'accepted' || $request->status == 'completed') {
+                $deviceToken = $booking->customer->fcm_token->token;
+                if ($deviceToken) {
+                    if ($request->status == 'accepted') {
+                        $temp = getNotificationTemplate('advance_payment');
+                        $uData = [
+                            'CUSTOMER_NAME' => $booking->customer->name,
+                            'AMOUNT' => Helpers::toRupeeCurrency(1000)
+                        ];
+                    } elseif ($request->status == 'completed') {
+                        $temp = getNotificationTemplate('service_completed');
+                        $uData = [
+                            'CUSTOMER_NAME' => $booking->customer->name,
+                        ];
+                    }
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'key1' => 'value1',
+                        'key2' => 'value2',
+                    ];
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                    if (!empty($resp) && $resp['name']) {
+                        Notification::create([
+                            'user_id' => $booking->customer->id,
+                            'type' => 'push',
+                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+            }
 
             return response()->json([
                 'status' => true,

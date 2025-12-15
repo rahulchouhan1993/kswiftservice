@@ -15,6 +15,7 @@ class Ticket extends Model
         'description',
         'attachment',
         'status',
+        'ticket_status'
     ];
 
     public static function boot()
@@ -45,5 +46,10 @@ class Ticket extends Model
     public function documents()
     {
         return $this->hasMany(TicketDocument::class, 'ticket_id', 'id');
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(UserChat::class, 'ticket_id', 'id');
     }
 }
