@@ -41,6 +41,7 @@ export default function Addresses({ user, className = '' }) {
                             <th className="p-2 text-center whitespace-nowrap">City / State</th>
                             <th className="p-2 text-start whitespace-nowrap">Full Address</th>
                             <th className="p-2 text-center whitespace-nowrap">Pincode</th>
+                            <th className="p-2 text-start whitespace-nowrap">Is Default</th>
                         </tr>
                     </thead>
 
@@ -78,6 +79,9 @@ export default function Addresses({ user, className = '' }) {
                                     {/* Pincode */}
                                     <td className="p-2 text-center">
                                         {a.pincode}
+                                    </td>
+                                    <td className="p-2 text-center">
+                                        {a.is_default_address ? 'Yes' : 'No'}
                                     </td>
                                 </tr>
                             ))

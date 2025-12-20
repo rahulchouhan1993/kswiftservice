@@ -53,17 +53,6 @@ export default function UserProfile({ user }) {
                             Role: {capitalizeWords(user?.role)}
                         </div>
 
-                        <div className={`flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-semibold min-w-[120px] text-center shadow-sm ${user?.kyc_status === "approved"
-                            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                            : user?.kyc_status === "rejected"
-                                ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
-                                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
-                            }`}
-                        >
-                            KYC: {capitalizeWords(user?.kyc_status)}
-                        </div>
-
-
                         <div
                             className={`flex items-center gap-3 px-4 py-2 rounded-full text-sm font-medium w-fit border shadow-sm
                                 ${user?.status === 1 ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800"

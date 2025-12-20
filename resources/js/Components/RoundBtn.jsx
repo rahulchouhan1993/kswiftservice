@@ -1,18 +1,34 @@
+import React from "react";
+
 export default function RoundBtn({
-    className = '',
-    disabled,
     children,
-    ...props
+    onClick,
+    type = "button",
+    className = "",
+    disabled = false,
 }) {
+    // ✅ Detect if user passed any bg-* class
+    const hasBg = className.split(" ").some(cls => cls.startsWith("bg-"));
+
     return (
         <button
-            {...props}
+            type={type}
+            onClick={onClick}
             disabled={disabled}
             className={`
-                w-8 h-8 border rounded-full p-2 transition duration-150
-                text-blue-600 hover:text-white bg-transparent hover:bg-blue-600
-                dark:text-blue-400 dark:hover:text-white dark:hover:bg-blue-700
-                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+                inline-flex items-center gap-2
+                px-4 py-2 rounded-full
+                text-white text-sm font-medium
+                transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-offset-1
+                disabled:opacity-50 disabled:cursor-not-allowed
+                cursor-pointer
+
+                ${hasBg
+                    ? ""
+                    : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-400"
+                }
+
                 ${className}
             `}
         >

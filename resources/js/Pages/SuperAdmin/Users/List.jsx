@@ -1,127 +1,134 @@
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
-import Tooltip from "@/Components/Tooltip";
-import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
-import { useHelpers } from "@/Components/Helpers";
-import Pagination from "@/Components/Pagination";
-import DeleteUserAction from "@/Components/DeleteUserAction";
-import DataNotExist from "@/Components/DataNotExist";
-import UsersLayout from "../Layouts/UsersLayout";
+
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
+import Pagination from "@/Components/Pagination";
+import DataNotExist from "@/Components/DataNotExist";
 import UserAvatarCard from "@/Components/UserAvatarCard";
 import Add from "./Add";
 import Edit from "./Edit";
 import RowActionsMenu from "@/Components/RowActionsMenu";
+import StatusToggle from "@/Components/StatusToggle";
+import DeleteUserAction from "@/Components/DeleteUserAction";
+import ActionItem from "@/Components/ActionItem";
+import { Delete } from "lucide-react";
+import { MdDeleteForever } from "react-icons/md";
+import RoundBtn from "@/Components/RoundBtn";
+import { FaRegEye } from "react-icons/fa6";
 
-export default function List({ list, search, status, type, states, cities }) {
-    console.log('list', list);
+export default function List({ list, search, status, states, cities }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { capitalizeWords } = useHelpers();
-    const auth = usePage().props.auth.user;
 
     const statusOptions = [
         { value: "active", label: "Active" },
-        { value: "inactive", label: "InActive" },
+        { value: "inactive", label: "Inactive" },
     ];
 
     useEffect(() => {
         initTooltips();
-        if (searchRef.current) {
-            searchRef.current.focus();
-        }
+        searchRef.current?.focus();
     }, []);
 
-    const handleSearch = (e) => {
-        const sval = e.target.value;
-
-        if (search !== sval) {
-            if (timerRef.current) clearTimeout(timerRef.current);
-
-            timerRef.current = setTimeout(() => {
-                router.visit(route("superadmin.user.list", {
-                    search: sval,
-                }), {
-                    only: ["list", "search"],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
-    };
-
-
-    const handleStatusChange = (e) => {
-        const sval = e.target.value;
-
+    const debounceVisit = (params) => {
+        clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
-            router.visit(route("superadmin.user.list", {
-                status: sval,
-            }), {
-                only: ["list", "search", "type", "status"],
+            router.visit(route("superadmin.user.list", params), {
+                only: ["list", "search", "status"],
                 preserveScroll: true,
             });
-        }, 500);
+        }, 400);
     };
 
+    const handleSearch = (e) => {
+        debounceVisit({ search: e.target.value, status });
+    };
 
+    const handleStatusChange = (e) => {
+        debounceVisit({ status: e.target.value, search });
+    };
+
+    const badgeBase =
+        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize";
+
+    const statusBadge = (status) => {
+        const colors = {
+            active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+            inactive: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+        };
+        return <span className={`${badgeBase} ${colors[status]}`}>{status}</span>;
+    };
 
     return (
         <AuthenticatedLayout>
-            <Head title="Manage Users List " />
-            <div className="pt-[60px]">
-                {/* <UsersLayout /> */}
-            </div>
+            <Head title="Manage Users" />
+            <div className="pt-[60px]" />
 
-            <div className="sm:p-4 p-1 w-full">
-                <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
-                    <div className="mb-4 flex flex-wrap items-center gap-4">
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[100px]">
-                            <Add states={states} cities={cities} />
-                        </div>
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+            <div className="p-2 sm:p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#0f1435]
+                                shadow-xl border border-gray-200 dark:border-blue-950">
+
+                    {/* Filters */}
+                    <div className="p-4 flex flex-col sm:flex-row gap-3">
+                        <Add states={states} cities={cities} />
+
+                        <div className="sm:max-w-[220px] w-full">
                             <SelectInput
-                                id="status"
                                 value={status}
                                 onChange={handleStatusChange}
                                 options={statusOptions}
-                                placeholder="Filter By Status"
+                                placeholder="Filter Status"
                             />
                         </div>
 
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+                        <div className="sm:max-w-[260px] w-full">
                             <input
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
-                                type="text"
                                 placeholder="Search by name..."
-                                className="w-full px-4 py-1.5 border-gray-500 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e37]"
+                                className="w-full px-3 py-2 text-sm rounded-lg
+                                           border border-gray-300 dark:border-blue-900
+                                           bg-white dark:bg-[#0a0e25]
+                                           text-gray-800 dark:text-gray-200
+                                           focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
 
-
-                    <div className="overflow-x-auto  border border-gray-300 dark:border-blue-950 rounded-xl shadow-lg">
-                        <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
-                            <thead className="border-b border-gray-300 dark:border-blue-900 ">
+                    {/* Table */}
+                    <div className="overflow-x-auto rounded-xl
+                                    border border-gray-200 dark:border-blue-900">
+                        <table className="min-w-full text-sm">
+                            <thead className="bg-gray-100 dark:bg-[#0a0e25]
+                                              text-gray-700 dark:text-gray-300
+                                              border-b border-gray-300 dark:border-blue-900">
                                 <tr>
-                                    <th className="p-2 text-center whitespace-nowrap">Sr. No</th>
-                                    <th className="p-2 text-start whitespace-nowrap">Name</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Bookings</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Member Since</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Action</th>
+                                    {[
+                                        "Sr",
+                                        "#ID",
+                                        "User",
+                                        "Bookings",
+                                        "Status",
+                                        "Member Since",
+                                        "Action",
+                                    ].map((h) => (
+                                        <th
+                                            key={h}
+                                            className="px-3 py-2 text-xs font-semibold uppercase text-center"
+                                        >
+                                            {h}
+                                        </th>
+                                    ))}
                                 </tr>
                             </thead>
 
                             <tbody>
                                 {list.data.length === 0 ? (
                                     <tr>
-                                        <td
-                                            colSpan={6}
-                                            className="text-center py-6 text-gray-600 dark:text-gray-300"
-                                        >
+                                        <td colSpan={7} className="py-10 text-center">
                                             <DataNotExist />
                                         </td>
                                     </tr>
@@ -129,78 +136,87 @@ export default function List({ list, search, status, type, states, cities }) {
                                     list.data.map((l, index) => (
                                         <tr
                                             key={index}
-                                            className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
+                                            className="border-b border-gray-200 dark:border-blue-900
+                                                       hover:bg-gray-50 dark:hover:bg-[#12184a]"
                                         >
-                                            <td className="p-2">{index + 1}</td>
-                                            <td className="p-2 text-start">
+                                            <td className="px-3 py-2 text-center">{index + 1}</td>
+                                            <td className="px-3 py-2 text-center">{l.id}</td>
+
+                                            <td className="px-3 py-2">
                                                 <UserAvatarCard user={l} />
                                             </td>
-                                            <td className="p-2 text-center">
-                                                {l?.role === 'customer' ? (
-                                                    <a
-                                                        href={route('superadmin.booking.list', {
-                                                            user_id: l?.id,
-                                                            user_type: 'customer'
-                                                        })}
-                                                    >
-                                                        <span className="p-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
-                                                            {l?.user_booking_count}
-                                                        </span>
-                                                    </a>
-                                                ) : (
-                                                    <a
-                                                        href={route('superadmin.booking.list', {
-                                                            user_id: l?.id,
-                                                            user_type: 'mechanic'
-                                                        })}
-                                                    >
-                                                        <span className="p-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-full">
-                                                            {l?.mechanic_booking_count}
-                                                        </span>
-                                                    </a>
-                                                )}
+
+                                            <td className="px-3 py-2 text-center">
+                                                {l.role === "customer"
+                                                    ? l.user_booking_count
+                                                    : l.mechanic_booking_count}
                                             </td>
-                                            <td className="p-2 text-center">{l?.member_since}</td>
-                                            <td className="p-1 flex justify-center">
+
+                                            <td className="px-3 py-2 text-center">
+                                                {statusBadge(l.status ? "active" : "inactive")}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
+                                                {l.member_since}
+                                            </td>
+
+                                            {/* ACTIONS */}
+                                            <td className="px-2 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                            <StatusToggle
-                                                                action={route("superadmin.user.update.status", { uuid: l?.uuid })}
-                                                                checked={l?.status === 1}
-                                                                className="!mb-0"
-                                                            />
-                                                            <span>Status</span>
-                                                        </div>
+                                                        <StatusToggle
+                                                            action={route("superadmin.user.update.status", { uuid: l.uuid })}
+                                                            checked={l.status === 1}
+                                                            roundBtn
+                                                            roundBtnProps={{
+                                                                label: "Status",
+                                                                className: "bg-green-600 hover:bg-green-700",
+                                                            }}
+                                                        />
 
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                            <DeleteUserAction
-                                                                action={route("superadmin.user.delete", { uuid: l?.uuid || "" })}
-                                                                message="Are you sure you want to delete this user?"
-                                                            />
-                                                            <span>Delete</span>
-                                                        </div>
+                                                        <RoundBtn
+                                                            className="bg-gray-600 hover:bg-gray-700 focus:ring-gray-400"
+                                                        >
+                                                            <Link
+                                                                href={route("superadmin.user.details", { uuid: l.uuid })}
+                                                                className="flex gap-2"
+                                                            >
+                                                                <FaRegEye size={18} />
+                                                                <span>View Info</span>
+                                                            </Link>
+                                                        </RoundBtn>
 
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                            <Edit user={l} />
-                                                            <span>Edit</span>
-                                                        </div>
+                                                        <Edit user={l} />
+                                                        <DeleteUserAction
+                                                            action={route(
+                                                                "superadmin.user.delete",
+                                                                { uuid: l.uuid }
+                                                            )}
+                                                            message="Are you sure you want to delete this user?"
+                                                            roundBtn
+                                                            roundBtnProps={{
+                                                                icon: <MdDeleteForever size={18} />,
+                                                                label: "Delete",
+                                                                className: "bg-red-600 hover:bg-red-700 focus:ring-red-400"
+                                                            }}
+                                                        />
+
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>
+
                                         </tr>
                                     ))
                                 )}
                             </tbody>
-
                         </table>
-
-                        {(list?.total > 0 && list?.last_page > 1)
-                            ? <Pagination paginate={list} className="my-4" />
-                            : <></>}
                     </div>
+
+                    {list.total > 0 && list.last_page > 1 && (
+                        <Pagination paginate={list} className="my-4" />
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
-    )
+    );
 }

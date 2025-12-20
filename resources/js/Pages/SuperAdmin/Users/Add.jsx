@@ -198,8 +198,9 @@ export default function Add({ states, cities }) {
 
                     <div>
                         <InputLabel htmlFor="dob" value="Date Of Birth" />
-                        <CustomDateInput
+                        <TextInput
                             id="dob"
+                            type="date"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.dob}
                             onChange={(e) => setData('dob', e.target.value)}

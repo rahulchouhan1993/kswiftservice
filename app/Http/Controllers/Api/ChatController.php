@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\SuperAdmin;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserChat;
@@ -72,58 +73,107 @@ class ChatController extends Controller
     {
         try {
             $user = $request->user();
+            $booking = null;
+            $ticket = null;
+
             $request->validate([
-                'to_user'     => 'required',
-                'booking_id'  => 'required',
-                'message'     => 'required|string',
-                'attachment.*' => 'nullable|file|mimes:jpeg,jpg,png,webp,pdf,doc,docx,mp4,mov,avi,mkv|max:51200',
+                'to_user'       => 'required|integer',
+                'message'       => 'required|string',
+
+                'booking_id'    => 'nullable|integer',
+                'ticket_id'     => 'nullable|integer',
+
+                'attachment'    => 'nullable|array',
+                'attachment.*'  => 'file|mimes:jpeg,jpg,png,webp,pdf,doc,docx,mp4,mov,avi,mkv|max:51200',
             ]);
 
-
-            $toUser = User::firstWhere('uuid', $request->to_user);
+            $toUser = User::find($request->to_user);
             if (!$toUser) {
                 return response()->json([
                     'status' => false,
-                    'message' => "User does not exist",
+                    'message' => 'User does not exist',
                 ], 404);
             }
 
-            $booking = Booking::with(['vehicle', 'vehicle.vehile_make'])->firstWhere('uuid', $request->booking_id);
-            if (!$booking) {
+            if ($request->booking_id) {
+                $booking = Booking::with(['vehicle.vehile_make'])->find($request->booking_id);
+
+                if (!$booking) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Booking does not exist',
+                    ], 404);
+                }
+            }
+
+            if ($request->ticket_id) {
+                $ticket = Ticket::find($request->ticket_id);
+
+                if (!$ticket) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Ticket does not exist',
+                    ], 404);
+                }
+            } elseif ($booking) {
+                $ticket = Ticket::where('booking_id', $booking->id)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                if (!$ticket) {
+                    $makeName = $booking->vehicle?->vehile_make?->name ?? 'N/A';
+                    $title = '#' . $booking->booking_id . ' (' . $makeName . ')';
+
+                    $ticket = Ticket::create([
+                        'user_id'     => $user->id,
+                        'user_role'   => $user->role,
+                        'booking_id'  => $booking->id,
+                        'subject'     => $title,
+                        'description' => 'Chat initiated from booking',
+                    ]);
+                }
+            }
+
+            // 4️⃣ Neither ticket nor booking provided
+            else {
                 return response()->json([
                     'status' => false,
-                    'message' => "Booking does not exist",
-                ], 404);
+                    'message' => 'Booking or ticket is required',
+                ], 422);
             }
 
-            $title = '#' . $booking->booking_id . "(" . $booking->vehicle->vehile_make->name . ")";
-            $ticket = Ticket::create([
-                'user_id' => $user->id,
-                'user_role' => $user->role,
-                'subject' => $title,
-                'description' => "Hi there, I need to discuss things further with you.",
-            ]);
-
+            /* -------------------- Create Chat -------------------- */
             $chat = UserChat::create([
-                'from' => $user->id,
-                'to' => $toUser->id,
-                'ticket_id' => $ticket->id,
-                'sender_role' => $user->role,
-                'booking_id' => $booking->id,
-                'message' => $request->message,
+                'from'           => $user->id,
+                'to'             => $toUser->id,
+                'ticket_id'      => $ticket->id,
+                'booking_id'     => $booking?->id,
+                'sender_role'    => $user->role,
+                'receiver_role'  => $toUser->role,
+                'message'        => $request->message,
             ]);
 
-            if ($request->attechment) {
-                uploadRequestFile($request, 'attechment', $chat, 'chat_attechements', 'attechment');
+            /* -------------------- Attachments -------------------- */
+            if ($request->hasFile('attachment')) {
+                uploadRequestFile(
+                    $request,
+                    'attachment',
+                    $chat,
+                    'chat_attachments',
+                    'attachment'
+                );
             }
 
+            /* -------------------- Response -------------------- */
             return response()->json([
                 'status' => true,
-                'message' => "Message sent",
+                'message' => 'Message sent',
                 'chat' => [
                     'id' => $chat->id,
+                    'ticket_id' => $ticket->id,
+                    'booking_id' => $booking?->id,
                     'message' => $chat->message,
-                    'attachment_url' => $chat->attechment_url,
+                    'attachment_url' => $chat->attachment_url,
                     'time' => $chat->created_at->format('d M Y · h:i A'),
                 ]
             ], 201);

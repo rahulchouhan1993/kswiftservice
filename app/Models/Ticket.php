@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 class Ticket extends Model
 {
     protected $fillable = [
+        'booking_id',
         'user_id',
         'user_role',
         'ticketId',
@@ -51,5 +52,10 @@ class Ticket extends Model
     public function chats()
     {
         return $this->hasMany(UserChat::class, 'ticket_id', 'id');
+    }
+
+    public function booking()
+    {
+        return $this->hasOne(Booking::class, 'booking_id', 'id');
     }
 }

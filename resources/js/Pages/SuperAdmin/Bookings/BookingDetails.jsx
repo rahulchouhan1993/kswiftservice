@@ -14,8 +14,11 @@ export default function BookingDetails({ booking }) {
 
     return (
         <>
-            <RoundBtn onClick={() => setOpen(true)}>
+            <RoundBtn onClick={() => setOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 focus:ring-blue-400"
+            >
                 <HiInformationCircle />
+                <span>Details</span>
             </RoundBtn>
 
             <Modal show={open} maxWidth="3xl" topCloseButton={true} handleTopClose={closeModal}>

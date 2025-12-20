@@ -42,7 +42,7 @@ class UsersController extends Controller
             $statusValue = null;
         }
 
-        $baseQuery = User::whereRole('customer')->withCount(['user_booking', 'mechanic_booking'])->orderBy('name')
+        $baseQuery = User::with(['addresses'])->whereRole('customer')->withCount(['user_booking', 'mechanic_booking'])->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
@@ -87,7 +87,7 @@ class UsersController extends Controller
             "city_id"          => "nullable|integer|exists:cities,id",
             "address"          => "nullable|string|max:500",
             "pincode"          => "nullable|digits:6",
-            "dob"              => "nullable|date_format:d/m/Y",
+            "dob"              => "nullable",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
             "password"         => "nullable|confirmed",
         ]);
@@ -151,7 +151,7 @@ class UsersController extends Controller
                 'nullable',
                 Rule::unique('users', 'whatsapp_number')->ignore($user->id)
             ],
-            "dob"              => "nullable|date_format:d/m/Y",
+            "dob"              => "nullable",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
             "password"         => "nullable|confirmed",
         ]);

@@ -41,7 +41,7 @@ class SuperAdminMechanicController extends Controller
             $statusValue = null;
         }
 
-        $baseQuery = User::whereRole('mechanic')->withCount(['mechanic_booking'])->orderBy('name')
+        $baseQuery = User::with(['addresses'])->whereRole('mechanic')->withCount(['mechanic_booking'])->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
@@ -86,7 +86,7 @@ class SuperAdminMechanicController extends Controller
             "city_id"          => "nullable|integer|exists:cities,id",
             "address"          => "nullable|string|max:500",
             "pincode"          => "nullable|digits:6",
-            "dob"              => "nullable|date_format:d/m/Y",
+            "dob"              => "nullable",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
             "password"         => "nullable|confirmed",
         ]);
@@ -105,18 +105,15 @@ class SuperAdminMechanicController extends Controller
             uploadRequestFile($request, 'photo', $user, 'users_photos', 'profile_pic');
         }
 
-        if (!empty($request->state_id) && !empty($request->city_id) && !empty($request->address) && !empty($request->pincode)) {
-            UserAddress::create([
-                'user_id' => $user->id,
-                'country_id' => 1,
-                'address_type' => $request->address_type,
-                'state_id' => $request->state_id,
-                'city_id' => $request->city_id,
-                'address' => $request->address,
-                'pincode' => $request->pincode,
-            ]);
-        }
-
+        UserAddress::create([
+            'user_id' => $user->id,
+            'country_id' => 1,
+            'address_type' => $request->address_type,
+            'state_id' => $request->state_id,
+            'city_id' => $request->city_id,
+            'address' => $request->address,
+            'pincode' => $request->pincode,
+        ]);
 
         return back()->with('success', ucwords($request->user_type) . ' added successfully');
     }
@@ -150,7 +147,7 @@ class SuperAdminMechanicController extends Controller
                 'nullable',
                 Rule::unique('users', 'whatsapp_number')->ignore($user->id)
             ],
-            "dob"              => "nullable|date_format:d/m/Y",
+            "dob"              => "nullable",
             "photo"            => "nullable|image|mimes:jpg,jpeg,png|max:2048",
             "password"         => "nullable|confirmed",
         ]);
@@ -242,12 +239,12 @@ class SuperAdminMechanicController extends Controller
      */
     public function details($uuid)
     {
-        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'vehicles', 'vehicles.vehicle_photos'])->where('uuid', $uuid)->first();
+        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'garage', 'garage.state', 'garage.city'])->where('uuid', $uuid)->first();
         if (!$user) {
             return back()->with('error', "User does not exist");
         }
 
-        return Inertia::render('SuperAdmin/Users/Details', [
+        return Inertia::render('SuperAdmin/Mechanics/Details', [
             'user' => $user
         ]);
     }

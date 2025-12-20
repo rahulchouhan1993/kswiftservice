@@ -32,7 +32,7 @@ export default function AuthenticatedLayout({ header, children }) {
     );
 
     const { successAlert, errorAlert, warningAlert, infoAlert } = useAlerts();
-    const { flash, errors, messages, enquiryCount } = usePage().props;
+    const { flash, errors, messages, enquiryCount, newBookingsCount } = usePage().props;
 
     useEffect(() => {
         if (errors) {
@@ -104,7 +104,15 @@ export default function AuthenticatedLayout({ header, children }) {
             icon: LuMessageSquareText
         },
         { href: route('superadmin.mechanic_job.list'), active: route().current('mechanic_job.list'), label: 'Mechanic Jobs', icon: GrUserSettings },
-        { href: route('superadmin.booking.list'), active: route().current('booking.list'), label: 'Bookings', icon: GrFormCalendar },
+
+        {
+            href: route('superadmin.booking.list'),
+            active: route().current('booking.list'),
+            label: 'Bookings',
+            count: newBookingsCount,
+            icon: GrFormCalendar
+        },
+
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
         { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
     ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Booking;
 use App\Models\ContactUsMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,6 +59,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'enquiryCount' => ContactUsMessage::whereIsRead(0)->count(),
+            'newBookingsCount' => Booking::whereBookingStatus('requested')->count(),
             'flash' => [
                 'success' => $request->session()->pull('success'),
                 'error' => $request->session()->pull('error'),

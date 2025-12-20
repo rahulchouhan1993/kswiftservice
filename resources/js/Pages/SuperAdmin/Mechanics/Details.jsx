@@ -1,11 +1,12 @@
 import { Head } from "@inertiajs/react";
 import { useState } from "react";
 import { FaUser, FaRegUser, FaExchangeAlt, FaMapMarkedAlt, FaCar } from "react-icons/fa";
-import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
-import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UserProfile from "./Partials/UserProfile";
 import Addresses from "./Partials/Addresses";
+import Garages from "./Partials/Garages";
 import Vehicles from "./Partials/Vehicles";
+import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
+import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 
 export default function Details({ user }) {
     const [selectedTab, setSelectedTab] = useState("user-info");
@@ -18,8 +19,8 @@ export default function Details({ user }) {
             case "address-list":
                 return <Addresses user={user} />;
 
-            case "vehicle-list":
-                return <Vehicles user={user} />;
+            case "garages-list":
+                return <Garages garages={user.garage} />;
 
             case "change-password":
                 return <UpdatePasswordForm user={user} />;
@@ -31,7 +32,7 @@ export default function Details({ user }) {
 
     return (
         <AuthenticatedLayout>
-            <Head title="User Details" />
+            <Head title="Mechanic Details" />
 
             <div className="pt-[70px]"></div>
 
@@ -79,8 +80,23 @@ export default function Details({ user }) {
                                     <FaRegUser /> User Info
                                 </button>
 
-                                {/* ADDRESS LIST TAB */}
+                                {/* Garages LIST TAB */}
                                 <button
+                                    onClick={() => setSelectedTab("garages-list")}
+                                    className={`
+                                        flex items-center gap-3 px-4 py-3 rounded-xl border text-left font-medium
+                                        transition-all
+                                        ${selectedTab === "garages-list"
+                                            ? "bg-blue-600 text-white border-blue-700 shadow-md scale-[1.02]"
+                                            : "bg-gray-200 dark:bg-[#131836] border-gray-300 dark:border-blue-900 text-gray-900 dark:text-white"
+                                        }
+                                    `}
+                                >
+                                    <FaMapMarkedAlt /> Garage List
+                                </button>
+
+                                {/* ADDRESS LIST TAB */}
+                                {/* <button
                                     onClick={() => setSelectedTab("address-list")}
                                     className={`
                                         flex items-center gap-3 px-4 py-3 rounded-xl border text-left font-medium
@@ -92,22 +108,7 @@ export default function Details({ user }) {
                                     `}
                                 >
                                     <FaMapMarkedAlt /> Address List
-                                </button>
-
-                                {/* VEHICLE LIST */}
-                                <button
-                                    onClick={() => setSelectedTab("vehicle-list")}
-                                    className={`
-                                        flex items-center gap-3 px-4 py-3 rounded-xl border text-left font-medium
-                                        transition-all
-                                        ${selectedTab === "vehicle-list"
-                                            ? "bg-blue-600 text-white border-blue-700 shadow-md scale-[1.02]"
-                                            : "bg-gray-200 dark:bg-[#131836] border-gray-300 dark:border-blue-900 text-gray-900 dark:text-white"
-                                        }
-                                    `}
-                                >
-                                    <FaCar /> Vehicle List
-                                </button>
+                                </button> */}
 
                                 {/* CHANGE PASSWORD */}
                                 <button

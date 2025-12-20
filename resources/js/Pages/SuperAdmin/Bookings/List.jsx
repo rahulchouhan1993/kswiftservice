@@ -1,15 +1,12 @@
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
-import StatusToggle from "@/Components/StatusToggle";
 import { initTooltips } from "flowbite";
-import { useHelpers } from "@/Components/Helpers";
-import Pagination from "@/Components/Pagination";
-import DeleteUserAction from "@/Components/DeleteUserAction";
-import DataNotExist from "@/Components/DataNotExist";
+
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
+import Pagination from "@/Components/Pagination";
+import DataNotExist from "@/Components/DataNotExist";
 import UserAvatarCard from "@/Components/UserAvatarCard";
-import { MdCloudDownload, MdMarkUnreadChatAlt } from "react-icons/md";
 import VehicleInfo from "@/Components/VehicleInfo";
 import AssignMechanic from "./AssignMechanic";
 import BookingDetails from "./BookingDetails";
@@ -17,11 +14,11 @@ import PaymentDetails from "./PaymentDetails";
 import RowActionsMenu from "@/Components/RowActionsMenu";
 import RoundBtn from "@/Components/RoundBtn";
 
+import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
+
 export default function List({ list, search, status, mechanics, user_id, user_type }) {
-    console.log('list', list);
     const timerRef = useRef(null);
     const searchRef = useRef(null);
-    const { displayInRupee } = useHelpers();
 
     const bookingStatusOptions = [
         { value: "", label: "All" },
@@ -34,192 +31,217 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
 
     useEffect(() => {
         initTooltips();
-        if (searchRef.current) {
-            searchRef.current.focus();
-        }
+        searchRef.current?.focus();
     }, []);
 
-    const handleSearch = (e) => {
-        const sval = e.target.value;
-        if (search !== sval) {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-            }
+    const debounceVisit = (params) => {
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+            router.visit(route("superadmin.booking.list", params), {
+                only: ["list", "search", "status"],
+                preserveScroll: true,
+            });
+        }, 400);
+    };
 
-            if (!sval || sval.length > 0) {
-                timerRef.current = setTimeout(() => {
-                    router.visit(route('superadmin.booking.list', {
-                        search: sval,
-                        user_id: user_id ?? null,
-                        user_type: user_type ?? null,
-                    }), {
-                        only: ['list', 'search'],
-                        preserveScroll: true,
-                    });
-                }, 500);
-            }
-        }
+    const handleSearch = (e) => {
+        debounceVisit({
+            search: e.target.value,
+            status,
+            user_id,
+            user_type,
+        });
     };
 
     const handleStatusChange = (e) => {
-        const sval = e.target.value;
-        if (!sval || sval.length > 0) {
-            timerRef.current = setTimeout(() => {
-                router.visit(route('superadmin.booking.list', {
-                    status: sval,
-                    user_id: user_id ?? null,
-                    user_type: user_type ?? null,
-                }), {
-                    only: ['list', 'search', 'status'],
-                    preserveScroll: true,
-                });
-            }, 500);
-        }
+        debounceVisit({
+            status: e.target.value,
+            search,
+            user_id,
+            user_type,
+        });
     };
 
-    const renderStatusBadge = (status) => {
-        const base = "px-2 py-1 rounded text-xs font-semibold capitalize";
+    const badgeBase = "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize";
+
+    const bookingBadge = (status) => {
         const colors = {
-            requested: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded",
-            pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded",
-            accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded",
-            rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded",
-            completed: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded",
+            requested: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+            pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+            accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+            rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+            completed: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
         };
 
-        return (
-            <span className={`${base} ${colors[status] ?? "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}>
-                {status}
-            </span>
-        );
+        return <span className={`${badgeBase} ${colors[status] || "bg-gray-200 text-gray-700"}`}>{status}</span>;
     };
 
+    const paymentBadge = (status) => {
+        const colors = {
+            success: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+            failed: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+            pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+        };
+
+        return <span className={`${badgeBase} ${colors[status]}`}>{status}</span>;
+    };
 
     return (
         <AuthenticatedLayout>
-            <Head title="Bookings List " />
-            <div className="pt-[60px]"></div>
+            <Head title="Bookings List" />
+            <div className="pt-[60px]" />
 
-            <div className="sm:p-4 p-1 w-full">
-                <div className="sm:p-4 p-1  w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
-                    <div className="mb-4 flex flex-wrap items-center gap-4">
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+            <div className="p-2 sm:p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#0f1435]
+                                shadow-xl border border-gray-200 dark:border-blue-950">
+
+                    {/* Filters */}
+                    <div className="p-4 flex flex-col sm:flex-row gap-3">
+                        <div className="w-full sm:max-w-[220px]">
                             <SelectInput
-                                id="status"
                                 value={status}
                                 onChange={handleStatusChange}
                                 options={bookingStatusOptions}
-                                placeholder="Filter By Status"
+                                placeholder="Filter Status"
                             />
                         </div>
 
-                        <div className="flex-1 w-full sm:w-auto sm:max-w-[250px]">
+                        <div className="w-full sm:max-w-[260px]">
                             <input
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
-                                type="text"
-                                placeholder="Search booking id..."
-                                className="w-full px-4 py-1.5 border-gray-500 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e37]"
+                                placeholder="Search booking ID..."
+                                className="w-full px-3 py-2 text-sm rounded-lg
+                                           border border-gray-300 dark:border-blue-900
+                                           bg-white dark:bg-[#0a0e25]
+                                           text-gray-800 dark:text-gray-200
+                                           focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
 
-
-                    <div className="overflow-x-auto  border border-gray-300 dark:border-blue-950 rounded-xl shadow-lg">
-                        <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
-                            <thead className="border-b border-gray-300 dark:border-blue-900 ">
+                    {/* Table */}
+                    <div className="overflow-x-auto overflow-y-visible rounded-xl border border-gray-200 dark:border-blue-900">
+                        <table className="min-w-full text-sm">
+                            <thead className="sticky top-0 z-10
+                                              bg-gray-100 dark:bg-[#0a0e25]
+                                              text-gray-700 dark:text-gray-300
+                                              border-b border-gray-300 dark:border-blue-900">
                                 <tr>
-                                    <th className="p-2 text-center whitespace-nowrap">#txnId</th>
-                                    <th className="p-2 text-start whitespace-nowrap">Customer</th>
-                                    <th className="p-2 text-start whitespace-nowrap">Mechanic</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Vehicle</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Booking Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Assign Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Delivery Date</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Booking Status</th>
-                                    <th className="p-2 text-center whitespace-nowrap">Action</th>
+                                    {[
+                                        "#ID",
+                                        "Customer",
+                                        "Mechanic",
+                                        "Assign",
+                                        "Delivery",
+                                        "Vehicle",
+                                        "Booking",
+                                        "Payment",
+                                        "Action",
+                                    ].map((h) => (
+                                        <th
+                                            key={h}
+                                            className="px-3 py-2 text-xs font-semibold uppercase whitespace-nowrap"
+                                        >
+                                            {h}
+                                        </th>
+                                    ))}
                                 </tr>
                             </thead>
 
                             <tbody>
                                 {list.data.length === 0 ? (
                                     <tr>
-                                        <td
-                                            colSpan={9}
-                                            className="text-center py-6 text-gray-600 dark:text-gray-300"
-                                        >
+                                        <td colSpan={9} className="py-10 text-center">
                                             <DataNotExist />
                                         </td>
                                     </tr>
                                 ) : (
-                                    list.data.map((l, index) => (
+                                    list.data.map((l, i) => (
                                         <tr
-                                            key={index}
-                                            className="bg-white text-black text-center hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
+                                            key={i}
+                                            className="border-b border-gray-200 dark:border-blue-900
+                                                       hover:bg-gray-50 dark:hover:bg-[#12184a]
+                                                       transition"
                                         >
-                                            <td className="text-sm p-2">{l?.booking_id}</td>
-                                            <td className="p-2 text-sm text-start">
-                                                <UserAvatarCard user={l?.customer} displayRole={false} />
+                                            <td className="px-3 py-2 text-center">{l.booking_id}</td>
+
+                                            <td className="px-3 py-2">
+                                                <UserAvatarCard user={l.customer} />
                                             </td>
-                                            <td className="p-2 text-sm text-start">
-                                                {l?.mechanic ? <>
-                                                    <UserAvatarCard user={l?.mechanic} />
-                                                </> : 'Not Assigned'}
+
+                                            <td className="px-3 py-2">
+                                                {l.mechanic ? (
+                                                    <UserAvatarCard user={l.mechanic} />
+                                                ) : (
+                                                    <span className="text-xs text-gray-500">Not Assigned</span>
+                                                )}
                                             </td>
-                                            <td className="p-2 text-sm text-center">
-                                                <VehicleInfo vehicle={l?.vehicle} />
+
+                                            <td className="px-3 py-2 text-center sm:table-cell hidden">
+                                                {l.assigned_at || "--"}
                                             </td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{l?.date}</td>
-                                            <td className="p-2 text-sm text-center">{renderStatusBadge(l?.booking_status)}</td>
-                                            <td className="p-1 flex justify-center">
+
+                                            <td className="px-3 py-2 text-center sm:table-cell hidden">
+                                                {l.delivered_at || "--"}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center sm:table-cell hidden">
+                                                <VehicleInfo vehicle={l.vehicle} />
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
+                                                {bookingBadge(l.booking_status)}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
+                                                {paymentBadge(l.payment?.status || "pending")}
+                                            </td>
+
+                                            <td className="px-2 py-2 text-center">
                                                 <RowActionsMenu>
-                                                    <div className="flex flex-col gap-2">
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                    <div className="flex flex-col gap-1">
+                                                        {l.mechanic_id !== null && (
                                                             <Link
-                                                                href={route('superadmin.booking.chat.list', { uuid: l?.uuid })}
-                                                                className="flex items-center gap-2"
+                                                                href={route("superadmin.booking.chat.list", { uuid: l.uuid })}
+                                                                className="flex items-center"
                                                             >
-                                                                <RoundBtn>
-                                                                    <MdMarkUnreadChatAlt />
+                                                                <RoundBtn
+                                                                    className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-400"
+                                                                >
+                                                                    <MdOutlineChat />
+                                                                    <span>Chats</span>
                                                                 </RoundBtn>
-                                                                <span>Chats</span>
+
                                                             </Link>
-                                                        </div>
+                                                        )}
 
-
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                        {l.booking_status !== 'accepted' && l.booking_status !== 'completed' && (
                                                             <AssignMechanic booking={l} />
-                                                            <span>Assign Mechanic</span>
-                                                        </div>
+                                                        )}
 
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                            <BookingDetails booking={l} />
-                                                            <span>Details</span>
-                                                        </div>
+                                                        <BookingDetails booking={l} />
 
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                            <PaymentDetails payment={l?.payment} />
-                                                            <span>Payment Info</span>
-                                                        </div>
+                                                        {l.payment && (
+                                                            <PaymentDetails payment={l.payment} />
+                                                        )}
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>
+
                                         </tr>
                                     ))
                                 )}
                             </tbody>
-
                         </table>
-
-                        {(list?.total > 0 && list?.last_page > 1)
-                            ? <Pagination paginate={list} className="my-4" />
-                            : <></>}
                     </div>
+
+                    {list.total > 0 && list.last_page > 1 && (
+                        <Pagination paginate={list} className="my-4" />
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
-    )
+    );
 }

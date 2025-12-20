@@ -623,7 +623,7 @@ if (!function_exists('generateParameters')) {
     {
         $parameters = [];
         foreach ($data as $d) {
-            $parameters[] = ["type" => "text", "text" => $d];
+            $parameters[] = ["type" => "text", "text" => $d ?? '--'];
         }
         return $parameters;
     }

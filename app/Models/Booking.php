@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 
 class Booking extends Model
 {
@@ -40,6 +42,8 @@ class Booking extends Model
     {
         return [
             'extra_services' => 'array',
+            'assigned_date' => 'datetime',
+            'delivery_date' => 'datetime',
         ];
     }
 
@@ -97,5 +101,30 @@ class Booking extends Model
     public function mechanic_job()
     {
         return $this->hasOne(MechanicJob::class, 'booking_id', 'id')->latest();
+    }
+
+    protected $appends = [
+        'assigned_at',
+        'delivered_at',
+    ];
+
+    public function assignedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() =>
+            $this->assigned_date
+                ? $this->assigned_date->format('d-M-Y')
+                : '--/--/----'
+        );
+    }
+
+    public function deliveredAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() =>
+            $this->delivery_date
+                ? $this->delivery_date->format('d-M-Y')
+                : '--/--/----'
+        );
     }
 }

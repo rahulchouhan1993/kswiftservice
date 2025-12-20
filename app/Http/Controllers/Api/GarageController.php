@@ -8,9 +8,11 @@ use App\Models\Garage;
 use App\Models\GaragePhoto;
 use App\Models\Vehicle;
 use Exception;
+use Google\Service\Compute\Resource\GlobalForwardingRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Nette\Schema\Expect;
 
 use function App\activityLog;
 use function App\uploadRequestFile;
@@ -456,6 +458,38 @@ class GarageController extends Controller
             $msg = "error in garage photo deletion - " . $e->getMessage();
             activityLog($request->user(), "error in garage photo deletion", $msg);
 
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Get Garage Status
+     * @return mixed
+     */
+    public function getGarageStatus(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $garage = Garage::whereUserId($user->id)
+                ->latest()
+                ->select('status')
+                ->first();
+            if (!$garage) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Garage does not exist",
+                ], 404);
+            }
+            return response()->json([
+                'status' => false,
+                'message' => "Garage status fetched succesfully",
+                'status' => $garage
+            ], 201);
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

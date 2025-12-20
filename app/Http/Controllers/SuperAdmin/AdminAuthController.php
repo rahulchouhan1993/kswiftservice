@@ -32,7 +32,7 @@ class AdminAuthController extends Controller
         $credentials = $request->validate([
             'email' => [
                 'required',
-                Rule::exists('super_admins', 'email'),
+                Rule::exists('users', 'email'),
             ],
             'password' => 'required',
         ]);

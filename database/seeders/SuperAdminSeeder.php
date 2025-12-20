@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SuperAdmin;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class SuperAdminSeeder extends Seeder
@@ -12,11 +13,12 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        SuperAdmin::create([
+        User::create([
             'name' => 'Super Admin',
             'email' => 'admin@gmail.com',
-            'phone' => '7733844020',
-            'whatsapp_phone' => '7733844020',
+            'role' => 'admin',
+            'phone' => '1234567890',
+            'whatsapp_number' => '1234567890',
             'password' => 'admin@123',
         ]);
     }

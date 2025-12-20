@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Ticket;
 use App\Models\TicketDocument;
 use Exception;
@@ -23,46 +24,51 @@ class TicketController extends Controller
         try {
             $user = $request->user();
 
-            $tickets = Ticket::with(['documents', 'chats'])
+            $tickets = Ticket::with([
+                'documents',
+                'chats',
+                'booking'
+            ])
                 ->whereUserId($user->id)
                 ->orderBy('id', 'DESC')
                 ->get()
                 ->map(function ($ticket) {
-
                     return [
                         'id'          => $ticket->id,
                         'uuid'        => $ticket->uuid,
                         'ticketId'    => $ticket->ticketId,
                         'subject'     => $ticket->subject,
                         'description' => $ticket->description,
-                        'status'      => $ticket->status,
+                        'status'      => $ticket->ticket_status,
                         'created_at'  => $ticket->created_at,
 
-                        'documents'   => $ticket->documents->map(function ($doc) {
-                            return [
-                                'id'             => $doc->id,
-                                'uuid'           => $doc->uuid,
-                                'created_at'     => $doc->created_at,
-                                'attachment_url' => $doc->attachment_url,
-                            ];
-                        }),
+                        'documents' => $ticket->documents->map(fn($doc) => [
+                            'id'             => $doc->id,
+                            'uuid'           => $doc->uuid,
+                            'attachment_url' => $doc->attachment_url,
+                        ]),
 
-                        'chats' => $ticket->chats->map(function ($chat) {
-                            return [
-                                'id'              => $chat->id,
-                                'uuid'            => $chat->uuid,
-                                'sender_role'     => $chat->sender_role,
-                                'message'         => $chat->message,
-                                'created_at'      => $chat->created_at,
-                                'attechment_url'  => $chat->attechment_url,
-                            ];
-                        }),
+                        'chats' => $ticket->chats->map(fn($chat) => [
+                            'id'             => $chat->id,
+                            'uuid'           => $chat->uuid,
+                            'sender_role'    => $chat->sender_role,
+                            'message'        => $chat->message,
+                            'created_at'     => $chat->created_at,
+                            'attachment_url' => $chat->attechment_url,
+                        ]),
+
+                        'booking' => $ticket->booking ? [
+                            'id'          => $ticket->booking->id,
+                            'uuid'        => $ticket->booking->uuid,
+                            'booking_id'  => $ticket->booking->booking_id,
+                            'created_at'  => $ticket->booking->created_at,
+                        ] : null,
                     ];
                 });
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Tickets list fetched succesfully',
+                'message' => 'Tickets list fetched successfully',
                 'tickets' => $tickets
             ], 200);
         } catch (\Exception $e) {
@@ -76,6 +82,8 @@ class TicketController extends Controller
 
 
 
+
+
     /**
      * Submit Ticket
      * @param Request $request
@@ -85,35 +93,47 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
+            $booking = null;
+
             $request->validate([
                 'subject' => 'required|string',
                 'description' => 'required|string',
-
+                'booking_id' => 'nullable',
                 'attachment' => 'nullable|array',
                 'attachment.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ]);
 
+            if ($request->booking_id) {
+                $booking = Booking::find($request->booking_id);
+                if (!$booking) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => "Booking does not exist."
+                    ], 404);
+                }
+            }
 
             $ticket = Ticket::create([
-                'user_id' => $user->id,
-                'user_role' => $user->role,
-                'subject' => $request->subject,
+                'user_id'     => $user->id,
+                'user_role'   => $user->role,
+                'subject'     => $request->subject,
+                'booking_id'  => $booking?->id,
                 'description' => $request->description,
             ]);
 
             if ($request->hasFile('attachment')) {
-                foreach ($request->attachment as $photo) {
+                foreach ($request->file('attachment') as $photo) {
                     $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
                     $photo->storeAs('attachment_photos', $fileName, 'public');
+
                     TicketDocument::create([
-                        'ticket_id'    => $ticket->id,
-                        'attechement'      => $fileName,
+                        'ticket_id'  => $ticket->id,
+                        'attechement' => $fileName,
                     ]);
                 }
             }
 
-            $msg = "ticket submit succesfully";
-            activityLog($user, "ticket submit succesfully", $msg);
+            activityLog($user, "ticket submit succesfully", "ticket submit succesfully");
             $ticket->load('documents');
 
             return response()->json([
@@ -122,15 +142,15 @@ class TicketController extends Controller
                 'data' => $ticket
             ]);
         } catch (Exception $e) {
-            $msg = "error during submit ticket - " . $e->getMessage();
-            activityLog($request->user(), "error during submit ticket", $msg);
+            activityLog($request->user(), "error during submit ticket", $e->getMessage());
 
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
-            ]);
+            ], 500);
         }
     }
+
 
 
 
@@ -144,9 +164,9 @@ class TicketController extends Controller
         try {
             $user = $request->user();
 
-            $ticket = Ticket::with(['documents', 'chats'])
+            $ticket = Ticket::with(['documents', 'chats', 'booking'])
                 ->where('uuid', $uuid)
-                ->where('user_id', $user->id) // security check
+                ->where('user_id', $user->id)
                 ->first();
 
             if (!$ticket) {
@@ -162,7 +182,7 @@ class TicketController extends Controller
                 'ticketId'    => $ticket->ticketId,
                 'subject'     => $ticket->subject,
                 'description' => $ticket->description,
-                'status'      => $ticket->status,
+                'status'      => $ticket->ticket_status,
                 'created_at'  => $ticket->created_at,
 
                 'documents'   => $ticket->documents->map(function ($doc) {
@@ -226,7 +246,8 @@ class TicketController extends Controller
             }
 
             $ticket->update([
-                'ticket_status' => 'closed'
+                'ticket_status' => 'closed',
+                'status' => 'resolved'
             ]);
 
             $msg = "ticket closed by - " . $user->name;

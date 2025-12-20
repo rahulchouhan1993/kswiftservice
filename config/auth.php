@@ -51,7 +51,7 @@ return [
 
         'superadmin' => [
             'driver' => 'session',
-            'provider' => 'superadmin',
+            'provider' => 'users',
         ],
 
         'sanctum' => [
@@ -85,7 +85,7 @@ return [
 
         'superadmin' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', SuperAdmin::class),
+            'model' => env('AUTH_MODEL', User::class),
         ]
     ],
 

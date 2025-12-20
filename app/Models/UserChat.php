@@ -14,6 +14,7 @@ class UserChat extends Model
         'booking_id',
         'message',
         'sender_role',
+        'receiver_role',
         'attechment'
     ];
 

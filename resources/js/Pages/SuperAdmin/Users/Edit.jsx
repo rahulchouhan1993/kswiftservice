@@ -21,6 +21,7 @@ import FileInputWithPreview from '@/Components/FileInputWithPreview';
 import Button from '@/Components/Button';
 import EditBtn from '@/Components/EditBtn';
 import { Pencil } from 'lucide-react';
+import RoundBtn from '@/Components/RoundBtn';
 
 export default function Edit({ user, states, cities }) {
     const [open, setOpen] = useState();
@@ -90,11 +91,12 @@ export default function Edit({ user, states, cities }) {
 
     return (
         <>
-            <EditBtn
-                onClick={(e) => setOpen(true)}
+            <RoundBtn onClick={() => setOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 focus:ring-blue-400"
             >
                 <Pencil size={18} />
-            </EditBtn>
+                <span>Edit</span>
+            </RoundBtn>
 
             <Modal show={open} maxWidth="md" topCloseButton={true} handleTopClose={closeModal}>
                 <h3 className="px-6 py-2 border-b-2 bg-gray-200 dark:bg-[#131836] font-semibold text-lg text-gray-800 dark:text-white">
@@ -153,8 +155,9 @@ export default function Edit({ user, states, cities }) {
 
                     <div>
                         <InputLabel htmlFor="dob" value="Date Of Birth" />
-                        <CustomDateInput
+                        <TextInput
                             id="dob"
+                            type="date"
                             className="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-0 focus:border-gray-500 text-gray-900 dark:text-gray-200 dark:bg-[#0a0e25]"
                             value={data.dob}
                             onChange={(e) => setData('dob', e.target.value)}

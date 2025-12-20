@@ -8,6 +8,8 @@ import VehicleDetails from "./VehicleDetails";
 export default function Vehicles({ user, className = "" }) {
     const vehicles = user?.vehicles || [];
 
+    console.log('vehicles', vehicles);
+
     return (
         <section
             className={`
@@ -123,10 +125,10 @@ function VehicleCard({ vehicle }) {
                 </h3>
 
                 <p className="text-sm">
-                    <span className="font-semibold">Last Service:</span> 15 Nov 2025
+                    <span className="font-semibold">Make:</span> {vehicle?.vehile_make?.name || '--'}
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold">Next Service Time:</span> 30 March 2026
+                    <span className="font-semibold">Model:</span> {vehicle?.model || '--'}
                 </p>
             </div>
 

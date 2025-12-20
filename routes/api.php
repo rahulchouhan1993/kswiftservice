@@ -42,6 +42,7 @@ Route::middleware('apiauth')->group(function () {
     Route::post('/update-address/{uuid}', [ProfileController::class, 'updateAddress']);
     Route::get('/get-address-list', [ProfileController::class, 'getAddressList']);
     Route::get('/delete-address/{uuid}', [ProfileController::class, 'deleteAddress']);
+    Route::get('/set-default-address/{uuid}', [ProfileController::class, 'setDefaultAddress']);
 
 
     Route::prefix('/vehicle')->group(function () {
@@ -50,6 +51,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/view-details/{uuid}', [VehicleController::class, 'viewVehicleDetails']);
         Route::get('/get-vehicles-list', [VehicleController::class, 'getVehicleList']);
         Route::get('/delete/{uuid}', [VehicleController::class, 'delete']);
+        Route::get('/delete-vehicle-photo/{uuid}', [VehicleController::class, 'deleteVehiclePhoto']);
         Route::get('/update-status/{uuid}/{status}', [VehicleController::class, 'updateStatus']);
     });
 
@@ -91,6 +93,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/delete/{uuid}', [GarageController::class, 'delete']);
         Route::get('/delete-photo/{uuid}', [GarageController::class, 'deleteGaragePhoto']);
         Route::get('/update-status', [GarageController::class, 'updateStatus']);
+        Route::get('/get-status', [GarageController::class, 'getGarageStatus']);
     });
 
 

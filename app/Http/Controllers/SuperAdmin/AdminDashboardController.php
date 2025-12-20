@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AdminDashboardController extends Controller
@@ -84,19 +85,38 @@ class AdminDashboardController extends Controller
     public function updateProfile(Request $request)
     {
         if ($request->isMethod('post')) {
+            $user = User::find($this->auth->id);
+
             $request->validate([
                 'name' => 'required|min:3',
                 'email' => 'required|email:DNS',
-                'phone' => 'required|digits:10',
-                'whatsapp_phone' => 'required|digits:10',
-            ]);
 
-            $user = SuperAdmin::find($this->auth->id);
+                'phone' => [
+                    'required',
+                    'digits:10',
+                    Rule::unique('users', 'phone')->ignore($user->id),
+                ],
+
+                'whatsapp_phone' => [
+                    'required',
+                    'digits:10',
+                    function ($attr, $value, $fail) use ($user) {
+                        User::where('id', '!=', $user->id)
+                            ->where(
+                                fn($q) =>
+                                $q->where('phone', $value)
+                                    ->orWhere('whatsapp_number', $value)
+                            )
+                            ->exists()
+                            && $fail('This number already exists as phone or WhatsApp.');
+                    },
+                ],
+            ]);
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
-                'whatsapp_phone' => $request->whatsapp_phone,
+                'whatsapp_number' => $request->whatsapp_phone,
             ]);
 
             return back()->with('success', 'Profile updated succesfully');
@@ -118,7 +138,7 @@ class AdminDashboardController extends Controller
             'password' => 'required|confirmed|min:8',
         ]);
 
-        $user = SuperAdmin::find($this->auth->id);
+        $user = User::find($this->auth->id);
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->with('error', 'Current password is incorrect.');
         }

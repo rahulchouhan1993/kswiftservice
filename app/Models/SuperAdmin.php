@@ -17,6 +17,7 @@ class SuperAdmin extends Authenticatable
         'name',
         'email',
         'phone',
+        'role',
         'whatsapp_phone',
         'status'
     ];

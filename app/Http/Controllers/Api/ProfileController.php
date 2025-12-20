@@ -30,7 +30,11 @@ class ProfileController extends Controller
             $request->validate([
                 'name' => ['required'],
                 'email' => ['required', Rule::unique('users', 'email')->ignore($user)],
-                'phone' => ['required', Rule::unique('users', 'phone')->ignore($user)],
+                'phone' => [
+                    'required',
+                    'digits:10',
+                    Rule::unique('users', 'phone')->ignore($user)
+                ],
                 'dob' => ['required'],
                 'address_type' => ['required'],
                 'country' => ['required'],
@@ -103,7 +107,13 @@ class ProfileController extends Controller
     public function getUserDetails($uuid)
     {
         try {
-            $user =  User::with(['addresses', 'vehicles'])->firstWhere('uuid', $uuid);
+            $user = User::with([
+                'addresses',
+                'addresses.state:id,name',
+                'addresses.city:id,name',
+                'vehicles'
+            ])->firstWhere('uuid', $uuid);
+
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -115,7 +125,7 @@ class ProfileController extends Controller
                 'status' => true,
                 'message' => 'User details fetched.',
                 'user' => $user,
-            ]);
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -123,7 +133,6 @@ class ProfileController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Update Profile Image
@@ -188,6 +197,7 @@ class ProfileController extends Controller
                     'digits:6'
                 ],
                 'address_type' => ['required'],
+                'is_default_address' => 'required'
             ]);
 
             $user = $request->user();
@@ -199,6 +209,7 @@ class ProfileController extends Controller
                 'address' => $request->address,
                 'pincode' => $request->pincode,
                 'address_type' => $request->address_type,
+                'is_default_address' => $request->is_default_address ? 1 : 0
             ]);
 
             $msg = "user new address added";
@@ -252,6 +263,7 @@ class ProfileController extends Controller
                     'digits:6'
                 ],
                 'address_type' => ['required'],
+                'is_default_address' => ['required']
             ]);
 
             $address->update([
@@ -261,6 +273,7 @@ class ProfileController extends Controller
                 'address' => $request->address,
                 'pincode' => $request->pincode,
                 'address_type' => $request->address_type,
+                'is_default_address' => $request->is_default_address ? 1 : 0
             ]);
 
             $msg = "address updated";
@@ -334,6 +347,56 @@ class ProfileController extends Controller
 
             return response()->json([
                 'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Set As Address
+     * @param string $uuid Address UUID
+     * @return mixed
+     */
+    public function setDefaultAddress(Request $request, $uuid)
+    {
+        try {
+            $user = $request->user();
+
+            $address = UserAddress::where('uuid', $uuid)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$address) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Address does not exist',
+                ], 404);
+            }
+
+            // 1️⃣ Reset all user's addresses
+            UserAddress::where('user_id', $user->id)
+                ->update(['is_default_address' => 0]);
+
+            // 2️⃣ Set selected address as default
+            $address->update([
+                'is_default_address' => 1
+            ]);
+
+            $msg = "Address set as default address";
+            activityLog($user, "address set as default address", $msg);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Address set as default successfully.',
+            ], 200);
+        } catch (Exception $e) {
+            $msg = "Error during set default address - " . $e->getMessage();
+            activityLog($request->user(), "error during set default address", $msg);
+
+            return response()->json([
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

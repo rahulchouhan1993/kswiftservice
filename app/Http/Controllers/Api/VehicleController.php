@@ -128,7 +128,7 @@ class VehicleController extends Controller
                 'year' => 'required',
                 'fuel_type' => [
                     'required',
-                    Rule::in(['diesel', 'petrol', 'electric', 'hybrid']),
+                    Rule::in(['diesel', 'petrol', 'electric', 'hybrid', 'cng', 'lpg']),
                 ],
                 'transmission' => [
                     'required',
@@ -162,13 +162,13 @@ class VehicleController extends Controller
 
             if ($request->has('vehicle_photos')) {
 
-                // 1. Delete old photos from storage
-                foreach ($vehicle->vehicle_photos as $oldPhoto) {
-                    Storage::disk('public')->delete('vehicle_photos/' . $oldPhoto->photo);
-                }
+                // // 1. Delete old photos from storage
+                // foreach ($vehicle->vehicle_photos as $oldPhoto) {
+                //     Storage::disk('public')->delete('vehicle_photos/' . $oldPhoto->photo);
+                // }
 
-                // 2. Delete from DB
-                VehiclePhoto::where('vehicle_id', $vehicle->id)->delete();
+                // // 2. Delete from DB
+                // VehiclePhoto::where('vehicle_id', $vehicle->id)->delete();
 
                 // 3. Upload new photos
                 foreach ($request->vehicle_photos as $photo) {
@@ -213,7 +213,7 @@ class VehicleController extends Controller
     {
         try {
             $user = $request->user();
-            $vehicles = Vehicle::with(['vehicle_photos'])->whereUserId($user->id)->get();
+            $vehicles = Vehicle::with(['vehicle_photos', 'vehile_make:id,name'])->whereUserId($user->id)->get();
 
             return response()->json([
                 'status' => true,
@@ -238,7 +238,7 @@ class VehicleController extends Controller
     {
         try {
             $user = $request->user();
-            $vehicle = Vehicle::with(['vehicle_photos'])->firstWhere('uuid', $uuid);
+            $vehicle = Vehicle::with(['vehicle_photos', 'vehile_make:id,name'])->firstWhere('uuid', $uuid);
             if (!$vehicle) {
                 return response()->json([
                     'status' => false,
@@ -336,6 +336,48 @@ class VehicleController extends Controller
         } catch (Exception $e) {
             $msg = "error during vehicle delete - " . $e->getMessage();
             activityLog($request->user(), "error during vehicle delete", $msg);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+    /**
+     * Delete Vehicle Photo
+     * @param string $uuid Vehicle Photo UUID
+     * @return mixed
+     */
+    public function deleteVehiclePhoto(Request $request, $uuid)
+    {
+        try {
+            $user = $request->user();
+            $photo = VehiclePhoto::firstWhere('uuid', $uuid);
+
+            if (!$photo) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vehicle photo does not exist',
+                ], 404);
+            }
+
+            Storage::disk('public')->delete('vehicle_photos/' . $photo->photo);
+            $photo->delete();
+
+            $msg = "vehicle photo deleted";
+            activityLog($user, "vehicle photo deleted", $msg);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Vehicle photo deleted successfully.',
+            ]);
+        } catch (Exception $e) {
+            $msg = "error during vehicle photo delete - " . $e->getMessage();
+            activityLog($request->user(), "error during vehicle photo delete", $msg);
 
             return response()->json([
                 'status' => false,

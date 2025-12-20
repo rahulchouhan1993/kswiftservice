@@ -129,9 +129,10 @@ class AuthController extends Controller
                 ]);
             }
 
+            // $phone = '91' . $user->phone;
             // $otp = rand(100000, 999999);
             // $wpi = new Msg91;
-            // $resp = $wpi->sendOTP($user->phone, $otp);
+            // $resp = $wpi->sendOTP($phone, $otp);
             // if ($resp['status']) {
             //     $user->update([
             //         'otp' => $otp,
@@ -219,7 +220,8 @@ class AuthController extends Controller
 
             $token = $user->createToken('api_token')->plainTextToken;
             $user->load([
-                'vehicles'
+                'vehicles',
+                'garage'
             ]);
 
             FcmToken::updateOrCreate(
