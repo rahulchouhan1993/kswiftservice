@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Category;
@@ -15,6 +16,7 @@ use App\Models\School;
 use App\Models\SubCategory;
 use App\Models\SuperAdmin;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +49,13 @@ class AdminDashboardController extends Controller
         $completedjobs = MechanicJob::whereStatus('completed')->count();
         $cancelledjobs = MechanicJob::whereStatus('cancelled')->count();
         $booking = Booking::query();
+        $activityLogs = ActivityLog::with('user')
+            ->whereBetween('created_at', [
+                Carbon::today()->startOfDay(),
+                Carbon::today()->endOfDay(),
+            ])
+            ->orderBy('created_at', 'DESC')
+            ->paginate(7);
 
         return Inertia::render('SuperAdmin/Dashboard', [
             'authUser'   => $auth,
@@ -58,6 +67,7 @@ class AdminDashboardController extends Controller
             'completedjobs' => $completedjobs,
             'cancelledjobs' => $cancelledjobs,
             'newMessagesData' => $newMessages->get(),
+            'activity_logs' => $activityLogs
         ]);
     }
 

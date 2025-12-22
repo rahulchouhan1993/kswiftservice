@@ -11,10 +11,14 @@ import { FaBars } from 'react-icons/fa';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { FaUsers } from 'react-icons/fa6';
 import { GrUserSettings } from 'react-icons/gr';
+import { useHelpers } from '@/Components/Helpers';
+import UserAvatarCard from '@/Components/UserAvatarCard';
+import Pagination from '@/Components/Pagination';
 const rowsPerPage = 5;
 
-export default function Dashboard({ customers, mechanics, bookings, newMessages, injobs, completedjobs, cancelledjobs, newMessagesData }) {
+export default function Dashboard({ customers, mechanics, bookings, newMessages, injobs, completedjobs, cancelledjobs, newMessagesData, activity_logs }) {
     const [menuOpen, setMenuOpen] = useState(false);
+    const { capitalizeWords } = useHelpers();
 
     const handlePdfDownload = () => {
         const doc = new jsPDF();
@@ -89,9 +93,9 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                 {/* <AuthInfo /> */}
                 <div>
                     <div className="min-h-screen dark:bg-[#0a0e25] bg-gray-100 text-white p-2 sm:p-4 md:p-6">
-                        <div className='grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 items-stretch'>
+                        <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch'>
                             <div className='w-full h-full flex flex-col  sm:p-4 p-0 sm:bg-white sm:dark:bg-[#131836] rounded-xl relative overflow-hidden shadow-md'>
-                                <div className="h-full grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                                <div className="h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
 
                                     <Link href={route('superadmin.user.list')}>
                                         <div className="bg-white dark:bg-[#1b213a] rounded-xl p-4 relative overflow-hidden shadow-md flex flex-col justify-between">
@@ -120,7 +124,6 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                                         </div>
                                     </Link>
 
-
                                     <Link href={route('superadmin.user.list')}>
                                         <div className="bg-white dark:bg-[#1b213a] rounded-xl p-4 relative overflow-hidden shadow-md flex flex-col justify-between">
                                             <div className="flex justify-between items-start">
@@ -141,7 +144,6 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                                             </div>
                                         </div>
                                     </Link>
-
 
                                     <Link href={route('superadmin.booking.list')}>
                                         <div className="bg-white dark:bg-[#1b213a] rounded-xl p-4 relative overflow-hidden shadow-md flex flex-col justify-between">
@@ -248,6 +250,54 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                                         </div>
                                     </Link>
                                 </div>
+                            </div>
+
+                            <div className='w-full h-full flex flex-col  sm:p-4 p-0 sm:bg-white sm:dark:bg-[#131836] rounded-xl relative overflow-hidden shadow-md'>
+                                <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
+                                    <thead className="border-b border-gray-300 dark:border-blue-900 ">
+                                        <tr>
+                                            <th className="p-2 text-start whitespace-nowrap">Sr. No</th>
+                                            <th className="p-2 text-start whitespace-nowrap">User</th>
+                                            <th className="p-2 text-start whitespace-nowrap">Title</th>
+                                            <th className="p-2 text-start whitespace-nowrap">Date</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {activity_logs.data.length === 0 ? (
+                                            <tr>
+                                                <td
+                                                    colSpan={5}
+                                                    className="text-center py-6 text-gray-600 dark:text-gray-300"
+                                                >
+                                                    <DataNotExist />
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            activity_logs.data.map((l, index) => (
+                                                <tr
+                                                    key={index}
+                                                    className="bg-white text-black hover:bg-gray-100 dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
+                                                >
+                                                    <td className="p-2 text-sm">{index + 1}</td>
+                                                    <td className="p-2 text-sm">
+                                                        {l?.user ? (
+                                                            <UserAvatarCard user={l?.user} />
+                                                        ) : (
+                                                            "--"
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2 text-sm">{capitalizeWords(l?.title)}</td>
+                                                    <td className="p-2 text-sm">{l?.received_at || '--'}</td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+
+                                </table>
+                                {activity_logs.total > 0 && activity_logs.last_page > 1 && (
+                                    <Pagination paginate={activity_logs} className="my-4" />
+                                )}
                             </div>
                         </div>
 

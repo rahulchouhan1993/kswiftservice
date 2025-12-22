@@ -638,7 +638,8 @@ class BookingController extends Controller
                 'drop_address',
                 'customer',
                 'mechanic',
-                'review'
+                'review',
+                'payment'
             ])
                 ->whereUserId($user->id)
                 ->orderBy('id', 'DESC')
@@ -722,6 +723,16 @@ class BookingController extends Controller
                     'is_default_address' => $booking->drop_address->is_default_address,
                 ] : null;
 
+                $payment = $booking->payment ? [
+                    "id" => $booking->payment->id,
+                    "txnId" => $booking->payment->txnId,
+                    "amount" => $booking->payment->amount,
+                    "payment_mode" => $booking->payment->payment_mode,
+                    "status" => $booking->payment->status,
+                    "invoice_url" => $booking->payment->invoice_url,
+                    "received_at" => $booking->payment->received_at,
+                ] : null;
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -748,7 +759,8 @@ class BookingController extends Controller
                     'vehicle' => $vehicle,
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
-                    'review' => $review
+                    'review' => $review,
+                    'payment' => $payment
                 ];
             });
 

@@ -14,7 +14,7 @@ export default function RowActionsMenu({ children }) {
             const rect = buttonRef.current.getBoundingClientRect();
             setPosition({
                 top: rect.bottom + window.scrollY + 1,
-                left: rect.right + window.scrollX - 180, // dropdown width
+                left: rect.right + window.scrollX - 200, // dropdown width
             });
         }
     }, [open]);
@@ -59,7 +59,7 @@ export default function RowActionsMenu({ children }) {
                             left: position.left,
                             zIndex: 1,
                         }}
-                        className="w-40 rounded-xl shadow-2xl
+                        className="w-48 rounded-xl shadow-2xl
                                    bg-white dark:bg-[#0f1435]
                                    border border-gray-200 dark:border-blue-900
                                    animate-fade-in"

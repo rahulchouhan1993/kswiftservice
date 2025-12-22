@@ -179,7 +179,7 @@ export default function List({ list, search, status, states, cities }) {
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {kycBadge(l.kyc_status === "completed")}
+                                                {kycBadge(l.kyc_status === "complete")}
                                             </td>
 
                                             <td className="px-3 py-2 text-center">

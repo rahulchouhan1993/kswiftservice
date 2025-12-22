@@ -80,7 +80,7 @@ class ChatController extends Controller
                 'to_user'       => 'required|integer',
                 'message'       => 'required|string',
 
-                'booking_id'    => 'nullable|integer',
+                'booking_id'    => 'nullable',
                 'ticket_id'     => 'nullable|integer',
 
                 'attachment'    => 'nullable|array',
@@ -96,7 +96,7 @@ class ChatController extends Controller
             }
 
             if ($request->booking_id) {
-                $booking = Booking::with(['vehicle.vehile_make'])->find($request->booking_id);
+                $booking = Booking::with(['vehicle.vehile_make'])->firstWhere('uuid', $request->booking_id);
 
                 if (!$booking) {
                     return response()->json([
@@ -116,7 +116,7 @@ class ChatController extends Controller
                     ], 404);
                 }
             } elseif ($booking) {
-                $ticket = Ticket::where('booking_id', $booking->id)
+                $ticket = Ticket::find($booking->id)
                     ->where('user_id', $user->id)
                     ->first();
 

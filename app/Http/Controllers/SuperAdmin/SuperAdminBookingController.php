@@ -110,6 +110,10 @@ class SuperAdminBookingController extends Controller
             return back()->with('error', "Garage does not exist.");
         }
 
+        if (empty($garage->mechanic)) {
+            return back()->with('error', "Garage mechanic account deleted.");
+        }
+
         $booking = Booking::find($request->booking_id);
         if (!$booking) {
             return back()->with('error', "Booking does not exist.");
