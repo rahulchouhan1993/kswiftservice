@@ -170,9 +170,7 @@ export default function List({ list, search, status, states, cities }) {
                                                         user_type: "mechanic",
                                                     })}
                                                 >
-                                                    <span className="px-2 py-1 rounded-full
-                                                                     bg-blue-100 text-blue-700
-                                                                     dark:bg-blue-900/30 dark:text-blue-300">
+                                                    <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                         {l.mechanic_booking_count}
                                                     </span>
                                                 </a>

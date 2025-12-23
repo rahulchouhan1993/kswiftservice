@@ -15,6 +15,7 @@ import RowActionsMenu from "@/Components/RowActionsMenu";
 import RoundBtn from "@/Components/RoundBtn";
 
 import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
+import TextInput from "@/Components/TextInput";
 
 export default function List({ list, search, status, mechanics, user_id, user_type }) {
     const timerRef = useRef(null);
@@ -107,16 +108,11 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                         </div>
 
                         <div className="w-full sm:max-w-[260px]">
-                            <input
+                            <TextInput
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
                                 placeholder="Search booking ID..."
-                                className="w-full px-3 py-2 text-sm rounded-lg
-                                           border border-gray-300 dark:border-blue-900
-                                           bg-white dark:bg-[#0a0e25]
-                                           text-gray-800 dark:text-gray-200
-                                           focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
@@ -124,20 +120,18 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                     {/* Table */}
                     <div className="overflow-x-auto overflow-y-visible rounded-xl border border-gray-200 dark:border-blue-900">
                         <table className="min-w-full text-sm">
-                            <thead className="sticky top-0 z-10
-                                              bg-gray-100 dark:bg-[#0a0e25]
-                                              text-gray-700 dark:text-gray-300
-                                              border-b border-gray-300 dark:border-blue-900">
+                            <thead className="sticky top-0 z-10 bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900">
                                 <tr>
                                     {[
-                                        "#ID",
+                                        "Booking Id",
+                                        "Booking Date",
                                         "Customer",
                                         "Mechanic",
-                                        "Assign",
-                                        "Delivery",
+                                        "Assigned Date",
+                                        "Delivery Date",
                                         "Vehicle",
-                                        "Booking",
                                         "Payment",
+                                        "Status",
                                         "Action",
                                     ].map((h) => (
                                         <th
@@ -161,11 +155,12 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                     list.data.map((l, i) => (
                                         <tr
                                             key={i}
-                                            className="border-b border-gray-200 dark:border-blue-900
-                                                       hover:bg-gray-50 dark:hover:bg-[#12184a]
-                                                       transition"
+                                            className="border-b border-gray-200 dark:border-blue-900 hover:bg-gray-50 dark:hover:bg-[#12184a]transition"
                                         >
                                             <td className="px-3 py-2 text-center">{l.booking_id}</td>
+                                            <td className="px-3 py-2 text-center sm:table-cell hidden">
+                                                {l.booking_date || "--"}
+                                            </td>
 
                                             <td className="px-3 py-2">
                                                 <UserAvatarCard user={l.customer} />
@@ -192,11 +187,11 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {bookingBadge(l.booking_status)}
+                                                {paymentBadge(l.payment?.status || "pending")}
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {paymentBadge(l.payment?.status || "pending")}
+                                                {bookingBadge(l.booking_status)}
                                             </td>
 
                                             <td className="px-2 py-2 text-center">

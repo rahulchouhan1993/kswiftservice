@@ -57,11 +57,14 @@ class AdminDashboardController extends Controller
             ->orderBy('created_at', 'DESC')
             ->paginate(7);
 
+        // return $booking->whereNotIn('booking_status', ['requested', 'closed', 'completed'])->get();
+
         return Inertia::render('SuperAdmin/Dashboard', [
             'authUser'   => $auth,
             'customers' => $customers,
             'mechanics' => $mechanics,
             'bookings' => $booking->count(),
+            // 'active_bookings_list' => $booking->count(),
             'newMessages' => $newMessages->count(),
             'injobs' => $injobs,
             'completedjobs' => $completedjobs,

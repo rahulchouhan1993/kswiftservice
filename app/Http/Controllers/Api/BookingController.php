@@ -212,6 +212,8 @@ class BookingController extends Controller
                 'vehicle_id' => $booking->vehicle_id,
                 'date' => $booking->date,
                 'time' => $booking->time,
+                'delivery_date' => $booking->delivered_at,
+                'assigned_date' => $booking->assigned_date,
                 'pickup_type' => $booking->pickup_type,
                 'pickup_id' => $booking->pickup_id,
                 'drop_id' => $booking->drop_id,
@@ -392,7 +394,7 @@ class BookingController extends Controller
                 'name' => $booking->mechanic->name,
             ] : null;
 
-            $payment = $booking->payment ? [
+            $payment = ($booking->payment && $booking->payment->status == 'success') ? [
                 "id" => $booking->payment->id,
                 "txnId" => $booking->payment->txnId,
                 "amount" => $booking->payment->amount,
@@ -413,6 +415,8 @@ class BookingController extends Controller
                 'user_id' => $booking->user_id,
                 'date' => $booking->date,
                 'time' => $booking->time,
+                'delivery_date' => $booking->delivered_at,
+                'assigned_date' => $booking->assigned_date,
                 'pickup_type' => $booking->pickup_type,
                 'pickup_id' => $booking->pickup_id,
                 'drop_id' => $booking->drop_id,
@@ -515,7 +519,7 @@ class BookingController extends Controller
 
                 // Payment
                 $paymentModel = optional($booking->payment);
-                $payment = $paymentModel->id ? [
+                $payment = ($paymentModel && $paymentModel->status === 'success') ? [
                     "id" => $paymentModel->id,
                     "txnId" => $paymentModel->txnId,
                     "amount" => $paymentModel->amount,
@@ -584,6 +588,8 @@ class BookingController extends Controller
                     'vehicle_id' => $booking->vehicle_id,
                     'date' => $booking->date,
                     'time' => $booking->time,
+                    'delivery_date' => $booking->delivered_at,
+                    'assigned_date' => $booking->assigned_date,
                     'pickup_type' => $booking->pickup_type,
                     'pickup_id' => $booking->pickup_id,
                     'drop_id' => $booking->drop_id,
@@ -723,7 +729,7 @@ class BookingController extends Controller
                     'is_default_address' => $booking->drop_address->is_default_address,
                 ] : null;
 
-                $payment = $booking->payment ? [
+                $payment = ($booking->payment && $booking->payment->status == 'success') ? [
                     "id" => $booking->payment->id,
                     "txnId" => $booking->payment->txnId,
                     "amount" => $booking->payment->amount,
@@ -740,6 +746,8 @@ class BookingController extends Controller
                     'vehicle_id' => $booking->vehicle_id,
                     'date' => $booking->date,
                     'time' => $booking->time,
+                    'delivery_date' => $booking->delivered_at,
+                    'assigned_date' => $booking->assigned_date,
                     'pickup_type' => $booking->pickup_type,
                     'pickup_id' => $booking->pickup_id,
                     'drop_id' => $booking->drop_id,
@@ -1029,6 +1037,64 @@ class BookingController extends Controller
                 ],
             ], 200);
         } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Upload Booking Delivery Timings
+     * @param Request $request
+     * @return mixed
+     */
+    public function updateBookingDeliveryTimeing(Request $request)
+    {
+        try {
+            $user = $request->user();
+            if ($user->role != 'mechanic') {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Only mechnaic can update booking delivery timings",
+                ], 500);
+            }
+
+            $request->validate([
+                'uuid' => [
+                    'required',
+                    Rule::exists('bookings', 'uuid'),
+                ],
+
+                'date_time' => [
+                    'required',
+                ]
+            ]);
+
+            $booking = Booking::firstWhere('uuid', $request->uuid);
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Booking does not exist",
+                ], 500);
+            }
+            $booking->update([
+                'delivery_date' => $request->date_time
+            ]);
+
+            $msg = "Mechanic update delivery time for booking " . $booking->booking_id;
+            activityLog($user, "Booking delivery date time updated", $msg);
+
+            return response()->json([
+                'status' => true,
+                'message' => "Booking delivery date & time updated.",
+            ]);
+        } catch (Exception $e) {
+            $msg = "error during update booking delivery date & time " . $e->getMessage();
+            activityLog($request->user(), "error in booking delivery date time updation", $msg);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

@@ -78,12 +78,13 @@ class ChatController extends Controller
 
             $request->validate([
                 'to_user'       => 'required|integer',
-                'message'       => 'required|string',
+
+                'message'       => 'required_without:attachment|nullable|string',
 
                 'booking_id'    => 'nullable',
                 'ticket_id'     => 'nullable|integer',
 
-                'attachment'    => 'nullable|array',
+                'attachment'    => 'required_without:message|nullable|array',
                 'attachment.*'  => 'file|mimes:jpeg,jpg,png,webp,pdf,doc,docx,mp4,mov,avi,mkv|max:51200',
             ]);
 

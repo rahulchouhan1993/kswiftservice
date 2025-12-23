@@ -66,7 +66,6 @@ export default function Edit({ user, states, cities }) {
 
     const closeModal = () => {
         setOpen(false);
-        reset();
     }
 
     const userTypeOptions = [

@@ -175,7 +175,7 @@ class GarageController extends Controller
                 'pincode' => 'required',
                 'bay_count' => 'required',
                 'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-                'garage_photos' => 'required|array|min:1',
+                'garage_photos' => 'nullable|array|min:1',
                 'garage_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5048',
             ];
 

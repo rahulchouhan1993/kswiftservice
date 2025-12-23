@@ -9,6 +9,7 @@ use App\Models\UserAddress;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -186,46 +187,50 @@ class ProfileController extends Controller
     {
         try {
             $request->validate([
-                'country' => 'required',
-                'state' => 'required',
-                'city' => 'required',
-                'address' => [
-                    'required',
-                ],
-                'pincode' => [
-                    'required',
-                    'digits:6'
-                ],
-                'address_type' => ['required'],
-                'is_default_address' => 'required'
+                'country'            => 'required',
+                'state'              => 'required',
+                'city'               => 'required',
+                'address'            => 'required',
+                'pincode'            => 'required|digits:6',
+                'address_type'       => 'required',
+                'is_default_address' => 'required|boolean',
             ]);
 
             $user = $request->user();
+
+            DB::beginTransaction();
+            if ($request->is_default_address) {
+                UserAddress::where('user_id', $user->id)
+                    ->update(['is_default_address' => 0]);
+            }
+
             $address = UserAddress::create([
-                'user_id' => $user->id,
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'address' => $request->address,
-                'pincode' => $request->pincode,
-                'address_type' => $request->address_type,
-                'is_default_address' => $request->is_default_address ? 1 : 0
+                'user_id'            => $user->id,
+                'country_id'         => $request->country,
+                'state_id'           => $request->state,
+                'city_id'            => $request->city,
+                'address'            => $request->address,
+                'pincode'            => $request->pincode,
+                'address_type'       => $request->address_type,
+                'is_default_address' => $request->is_default_address ? 1 : 0,
             ]);
 
-            $msg = "user new address added";
-            activityLog($user, "user new address added", $msg);
+            DB::commit();
+
+            activityLog($user, "user new address added", "user new address added");
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Address added successfully.',
                 'address' => $address
             ]);
         } catch (Exception $e) {
-            $msg = "error during save address - " . $e->getMessage();
-            activityLog($request->user(), "error during save address", $msg);
+            DB::rollBack();
+
+            activityLog($request->user(), "error during save address", $e->getMessage());
 
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -242,7 +247,11 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            $address = UserAddress::firstWhere('uuid', $uuid);
+
+            $address = UserAddress::where('uuid', $uuid)
+                ->where('user_id', $user->id)
+                ->first();
+
             if (!$address) {
                 return response()->json([
                     'status' => false,
@@ -250,46 +259,49 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-
             $request->validate([
-                'country' => 'required',
-                'state' => 'required',
-                'city' => 'required',
-                'address' => [
-                    'required',
-                ],
-                'pincode' => [
-                    'required',
-                    'digits:6'
-                ],
-                'address_type' => ['required'],
-                'is_default_address' => ['required']
+                'country'            => 'required',
+                'state'              => 'required',
+                'city'               => 'required',
+                'address'            => 'required',
+                'pincode'            => 'required|digits:6',
+                'address_type'       => 'required',
+                'is_default_address' => 'required|boolean',
             ]);
+
+            DB::beginTransaction();
+            if ($request->is_default_address) {
+                UserAddress::where('user_id', $user->id)
+                    ->where('id', '!=', $address->id)
+                    ->update(['is_default_address' => 0]);
+            }
 
             $address->update([
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'address' => $request->address,
-                'pincode' => $request->pincode,
-                'address_type' => $request->address_type,
-                'is_default_address' => $request->is_default_address ? 1 : 0
+                'country_id'         => $request->country,
+                'state_id'           => $request->state,
+                'city_id'            => $request->city,
+                'address'            => $request->address,
+                'pincode'            => $request->pincode,
+                'address_type'       => $request->address_type,
+                'is_default_address' => $request->is_default_address ? 1 : 0,
             ]);
 
-            $msg = "address updated";
-            activityLog($user, "address updated", $msg);
+            DB::commit();
+
+            activityLog($user, "address updated", "address updated");
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Address updated successfully.',
                 'address' => $address
             ]);
         } catch (Exception $e) {
-            $msg = "error during update address - " . $e->getMessage();
-            activityLog($request->user(), "error during update address", $msg);
+            DB::rollBack();
+
+            activityLog($request->user(), "error during update address", $e->getMessage());
 
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

@@ -14,6 +14,7 @@ import { GrUserSettings } from 'react-icons/gr';
 import { useHelpers } from '@/Components/Helpers';
 import UserAvatarCard from '@/Components/UserAvatarCard';
 import Pagination from '@/Components/Pagination';
+import ActivityLogMessage from './ActivityLogMessage';
 const rowsPerPage = 5;
 
 export default function Dashboard({ customers, mechanics, bookings, newMessages, injobs, completedjobs, cancelledjobs, newMessagesData, activity_logs }) {
@@ -253,13 +254,19 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                             </div>
 
                             <div className='w-full h-full flex flex-col  sm:p-4 p-0 sm:bg-white sm:dark:bg-[#131836] rounded-xl relative overflow-hidden shadow-md'>
-                                <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white">
+                                <div className="w-full md:w-auto">
+                                    <h2 className="text-md font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                        Activity Logs
+                                    </h2>
+                                </div>
+                                <table className=" min-w-full bg-gray-100 text-black  dark:bg-[#0a0e25] dark:text-white my-2">
                                     <thead className="border-b border-gray-300 dark:border-blue-900 ">
                                         <tr>
-                                            <th className="p-2 text-start whitespace-nowrap">Sr. No</th>
+                                            <th className="p-2 text-start whitespace-nowrap">SNo.</th>
                                             <th className="p-2 text-start whitespace-nowrap">User</th>
                                             <th className="p-2 text-start whitespace-nowrap">Title</th>
                                             <th className="p-2 text-start whitespace-nowrap">Date</th>
+                                            <th className="p-2 text-start whitespace-nowrap">Action</th>
                                         </tr>
                                     </thead>
 
@@ -289,6 +296,9 @@ export default function Dashboard({ customers, mechanics, bookings, newMessages,
                                                     </td>
                                                     <td className="p-2 text-sm">{capitalizeWords(l?.title)}</td>
                                                     <td className="p-2 text-sm">{l?.received_at || '--'}</td>
+                                                    <td className="p-2 text-sm">
+                                                        <ActivityLogMessage log={l} />
+                                                    </td>
                                                 </tr>
                                             ))
                                         )}

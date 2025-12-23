@@ -17,6 +17,8 @@ import { Delete } from "lucide-react";
 import { MdDeleteForever } from "react-icons/md";
 import RoundBtn from "@/Components/RoundBtn";
 import { FaRegEye } from "react-icons/fa6";
+import TextInput from "@/Components/TextInput";
+import { SlCalender } from "react-icons/sl";
 
 export default function List({ list, search, status, states, cities }) {
     const timerRef = useRef(null);
@@ -84,33 +86,25 @@ export default function List({ list, search, status, states, cities }) {
                         </div>
 
                         <div className="sm:max-w-[260px] w-full">
-                            <input
+                            <TextInput
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
                                 placeholder="Search by name..."
-                                className="w-full px-3 py-2 text-sm rounded-lg
-                                           border border-gray-300 dark:border-blue-900
-                                           bg-white dark:bg-[#0a0e25]
-                                           text-gray-800 dark:text-gray-200
-                                           focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-xl
-                                    border border-gray-200 dark:border-blue-900">
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-blue-900">
                         <table className="min-w-full text-sm">
-                            <thead className="bg-gray-100 dark:bg-[#0a0e25]
-                                              text-gray-700 dark:text-gray-300
-                                              border-b border-gray-300 dark:border-blue-900">
+                            <thead className="bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900">
                                 <tr>
                                     {[
                                         "Sr",
-                                        "#ID",
-                                        "User",
-                                        "Bookings",
+                                        "Customer Id",
+                                        "Customer",
+                                        "Total Bookings",
                                         "Status",
                                         "Member Since",
                                         "Action",
@@ -136,8 +130,7 @@ export default function List({ list, search, status, states, cities }) {
                                     list.data.map((l, index) => (
                                         <tr
                                             key={index}
-                                            className="border-b border-gray-200 dark:border-blue-900
-                                                       hover:bg-gray-50 dark:hover:bg-[#12184a]"
+                                            className="border-b border-gray-200 dark:border-blue-900 hover:bg-gray-50 dark:hover:bg-[#12184a]"
                                         >
                                             <td className="px-3 py-2 text-center">{index + 1}</td>
                                             <td className="px-3 py-2 text-center">{l.id}</td>
@@ -147,9 +140,7 @@ export default function List({ list, search, status, states, cities }) {
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {l.role === "customer"
-                                                    ? l.user_booking_count
-                                                    : l.mechanic_booking_count}
+                                                {l.role === "customer" ? l.user_booking_count : l.mechanic_booking_count}
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
@@ -164,6 +155,30 @@ export default function List({ list, search, status, states, cities }) {
                                             <td className="px-2 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
+                                                        <RoundBtn
+                                                            className="bg-gray-600 hover:bg-gray-700 focus:ring-gray-400"
+                                                        >
+                                                            <Link
+                                                                href={route("superadmin.user.details", { uuid: l.uuid })}
+                                                                className="flex gap-2"
+                                                            >
+                                                                <FaRegEye size={18} />
+                                                                <span>View Details</span>
+                                                            </Link>
+                                                        </RoundBtn>
+
+                                                        <RoundBtn
+                                                            className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-400"
+                                                        >
+                                                            <Link
+                                                                href={route("superadmin.booking.list", { user_id: l.id, user_type: 'customer' })}
+                                                                className="flex gap-2"
+                                                            >
+                                                                <SlCalender size={18} />
+                                                                <span>View Bookings</span>
+                                                            </Link>
+                                                        </RoundBtn>
+
                                                         <StatusToggle
                                                             action={route("superadmin.user.update.status", { uuid: l.uuid })}
                                                             checked={l.status === 1}
@@ -173,18 +188,6 @@ export default function List({ list, search, status, states, cities }) {
                                                                 className: "bg-green-600 hover:bg-green-700",
                                                             }}
                                                         />
-
-                                                        <RoundBtn
-                                                            className="bg-gray-600 hover:bg-gray-700 focus:ring-gray-400"
-                                                        >
-                                                            <Link
-                                                                href={route("superadmin.user.details", { uuid: l.uuid })}
-                                                                className="flex gap-2"
-                                                            >
-                                                                <FaRegEye size={18} />
-                                                                <span>View Info</span>
-                                                            </Link>
-                                                        </RoundBtn>
 
                                                         <Edit user={l} />
                                                         <DeleteUserAction

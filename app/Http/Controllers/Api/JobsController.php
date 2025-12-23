@@ -76,7 +76,7 @@ class JobsController extends Controller
                     "title"               => $title,
                     "customer"            => $booking->customer,
                     "mechanic"            => $job->mechanic,
-                    "payment"            => $job->booking->payment
+                    "payment" => ($job->booking->payment && $job->booking->payment->status === 'success') ? $job->booking->payment : null
                 ];
             });
 
@@ -279,7 +279,7 @@ class JobsController extends Controller
                     "services"       => $services,
                     "service_total"  => $services->sum('service_price'),
 
-                    "payment" => $payment ? [
+                    "payment" => ($payment && $payment->status == 'success') ? [
                         "id"            => $payment->id,
                         "txnId"         => $payment->txnId,
                         "amount"        => $payment->amount,
@@ -290,7 +290,7 @@ class JobsController extends Controller
                     ] : null,
                 ]
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -104,9 +105,30 @@ class Booking extends Model
     }
 
     protected $appends = [
+        'booking_date',
         'assigned_at',
         'delivered_at',
     ];
+
+    public function bookingDate(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->date || !$this->time) {
+                    return '--/--/---- --:--';
+                }
+
+                // return Carbon::parse(
+                //     $this->date . ' ' . $this->time
+                // )->format('d-M-Y h:i A');
+
+                return Carbon::parse(
+                    $this->date . ' ' . $this->time
+                )->format('d-M-Y');
+            }
+        );
+    }
+
 
     public function assignedAt(): Attribute
     {
@@ -123,7 +145,7 @@ class Booking extends Model
         return Attribute::make(
             get: fn() =>
             $this->delivery_date
-                ? $this->delivery_date->format('d-M-Y')
+                ? $this->delivery_date->format('d-M-Y h:i A')
                 : '--/--/----'
         );
     }

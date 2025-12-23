@@ -63,6 +63,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-home-page-bookings-list', [BookingController::class, 'getHomePageBooksList']);
         Route::post('/upload-service-video-or-photo', [BookingController::class, 'uploadBookingVideos']);
         Route::get('/fetch-service-video-or-photo/{uuid}', [BookingController::class, 'fetchServicesVideos']);
+        Route::post('/update-delivery-timing', [BookingController::class, 'updateBookingDeliveryTimeing']);
     });
 
     Route::prefix('/ticket')->group(function () {
@@ -116,6 +117,7 @@ Route::middleware('apiauth')->group(function () {
     Route::prefix('/notifications')->group(function () {;
         Route::get('/list', [NotificationController::class, 'notificationsList']);
         Route::get('/update-status/{uuid}', [NotificationController::class, 'updateStatus']);
+        Route::get('/mark-all-notification-read', [NotificationController::class, 'markAllNotificationsRead']);
     });
 
     Route::prefix('/chats')->group(function () {;

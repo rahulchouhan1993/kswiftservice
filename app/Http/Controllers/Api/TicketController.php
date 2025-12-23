@@ -24,13 +24,16 @@ class TicketController extends Controller
         try {
             $user = $request->user();
 
-            $tickets = Ticket::with([
-                'documents',
-                'chats',
-                'booking'
-            ])
+            $tickets = Ticket::with(['documents', 'chats', 'booking'])
                 ->whereUserId($user->id)
-                ->orderBy('id', 'DESC')
+                ->orderByRaw("
+                    CASE
+                        WHEN ticket_status = 'closed' THEN 1
+                        ELSE 0
+                    END
+                ")
+                // ->orderBy('created_at', 'DESC')
+                // ->orderBy('id', 'DESC')
                 ->get()
                 ->map(function ($ticket) {
                     return [
@@ -58,10 +61,12 @@ class TicketController extends Controller
                         ]),
 
                         'booking' => $ticket->booking ? [
-                            'id'          => $ticket->booking->id,
-                            'uuid'        => $ticket->booking->uuid,
-                            'booking_id'  => $ticket->booking->booking_id,
-                            'created_at'  => $ticket->booking->created_at,
+                            'id'         => $ticket->booking->id,
+                            'uuid'       => $ticket->booking->uuid,
+                            'booking_id' => $ticket->booking->booking_id,
+                            'created_at' => $ticket->booking->created_at,
+                            'delivery_date' => $ticket->booking->delivered_at,
+                            'assigned_date' => $ticket->booking->assigned_date,
                         ] : null,
                     ];
                 });
@@ -69,19 +74,15 @@ class TicketController extends Controller
             return response()->json([
                 'status'  => true,
                 'message' => 'Tickets list fetched successfully',
-                'tickets' => $tickets
+                'tickets' => $tickets,
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
-
-
-
-
 
 
     /**
