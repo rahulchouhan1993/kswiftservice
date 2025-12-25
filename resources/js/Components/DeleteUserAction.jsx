@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import ProcessingLoader from "./ProcessingLoader";
 import RoundBtn from "@/Components/RoundBtn";
+import { RiDeleteBinFill } from "react-icons/ri";
 
 export default function DeleteUserAction({
     update,
@@ -60,7 +61,7 @@ export default function DeleteUserAction({
                 className={
                     btnclasses
                         ? btnclasses
-                        : "w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-600 dark:hover:bg-red/10 text-gray-900 dark:text-gray-200 hover:text-white transition"
+                        : "w-9 h-9 flex items-center justify-center rounded-full border hover:bg-red-600 dark:hover:bg-red/10 text-gray-900 dark:text-gray-200 hover:text-white transition"
                 }
                 data-tooltip-target={tooltip}
                 onClick={() => setOpen(true)}
@@ -68,20 +69,7 @@ export default function DeleteUserAction({
                 {btntext ? (
                     btntext
                 ) : (
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166"
-                        />
-                    </svg>
+                    <RiDeleteBinFill />
                 )}
             </button>
         );

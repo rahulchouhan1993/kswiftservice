@@ -13,7 +13,7 @@ import StatusToggle from "@/Components/StatusToggle";
 import Tooltip from "@/Components/Tooltip";
 
 export default function UserProfile({ user }) {
-    const { capitalizeWords } = useHelpers();
+    const { capitalizeWords, displayInRupee } = useHelpers();
 
     const infoCard = (icon, label, value) => (
         <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-[#1e2a4a]">
@@ -86,6 +86,14 @@ export default function UserProfile({ user }) {
                                 targetEl={`tooltip-status-${user?.uuid}`}
                                 title={user?.status === 1 ? "Deactivate User" : "Activate User"}
                             />
+                        </div>
+
+                        <div className="flex items-center justify-center px-4 py-1.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 font-semibold text-sm min-w-[120px] text-center shadow-sm">
+                            Total Business: {displayInRupee(user?.mechanic_earnings_sum_amount || 0)}
+                        </div>
+
+                        <div className="flex items-center justify-center px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300 font-semibold text-sm min-w-[120px] text-center shadow-sm">
+                            Total Bookings: {user?.mechanic_booking_count || 0}
                         </div>
 
 

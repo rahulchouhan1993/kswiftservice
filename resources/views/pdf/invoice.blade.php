@@ -19,14 +19,14 @@
         body {
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 11px;
-            color: #333;
+            color: #0A2540;
             margin: 0;
             padding: 0;
         }
 
         .invoice {
             width: 100%;
-            border-top: 4px solid #17a2b8;
+            border-top: 5px solid #1EA7E1;
         }
 
         .invoice-inner {
@@ -49,17 +49,18 @@
         .company-name {
             font-size: 16px;
             font-weight: bold;
-            color: #17a2b8;
+            color: #1EA7E1;
         }
 
         .invoice-title {
             font-size: 14px;
             font-weight: bold;
+            color: #0A2540;
         }
 
         .muted {
             font-size: 10.5px;
-            color: #666;
+            color: #475569;
             line-height: 1.6;
         }
 
@@ -67,9 +68,11 @@
             text-align: right;
         }
 
+        /* Bill To Section */
         .bill-table {
             margin-top: 18px;
-            background: #f7f7f7;
+            background: #EAF6FB;
+            border: 1px solid #D1E9F4;
         }
 
         .bill-table td {
@@ -79,22 +82,24 @@
 
         .label {
             font-weight: bold;
-            color: #17a2b8;
+            color: #1EA7E1;
             margin-bottom: 4px;
         }
 
+        /* Items Table */
         .items {
             margin-top: 20px;
         }
 
         .items th {
-            background: #f3f3f3;
-            border: 1px solid #ddd;
+            background: #F0F9FD;
+            color: #0A2540;
+            border: 1px solid #D1E9F4;
             padding: 8px;
         }
 
         .items td {
-            border: 1px solid #ddd;
+            border: 1px solid #D1E9F4;
             padding: 8px;
         }
 
@@ -103,6 +108,7 @@
             text-align: right;
         }
 
+        /* Totals */
         .total-section {
             margin-top: 20px;
         }
@@ -113,13 +119,13 @@
         }
 
         .totals td {
-            border: 1px solid #ddd;
+            border: 1px solid #D1E9F4;
             padding: 7px;
         }
 
         .total-highlight {
-            background: #17a2b8;
-            color: #fff;
+            background: #1EA7E1;
+            color: #ffffff;
             font-weight: bold;
             font-size: 13px;
         }
@@ -131,10 +137,10 @@
         .footer-note {
             margin-top: 35px;
             padding-top: 10px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid #D1E9F4;
             text-align: center;
             font-size: 11px;
-            color: #c10808;
+            color: #0A2540;
         }
 
         .clear {
@@ -147,9 +153,8 @@
 
     @php
         $platformFeeTotal = 1000;
-
-        $platformFeeGst = $platformFeeTotal * 0.18; // 180
-        $platformFeeBase = $platformFeeTotal - $platformFeeGst; // 820
+        $platformFeeGst = $platformFeeTotal * 0.18;
+        $platformFeeBase = $platformFeeTotal - $platformFeeGst;
 
         $subtotal = $platformFeeBase;
         $totalGst = $platformFeeGst;
@@ -217,7 +222,7 @@
                 </tr>
             </table>
 
-            <!-- ITEMS (STATIC) -->
+            <!-- ITEMS -->
             <table class="items">
                 <thead>
                     <tr>
@@ -272,7 +277,7 @@
 
             <!-- FOOTER -->
             <div class="footer-note">
-                If you have any queries, then feel free to write us at
+                If you have any queries, feel free to write to
                 <strong>info@kswiftservices.com</strong>
             </div>
 

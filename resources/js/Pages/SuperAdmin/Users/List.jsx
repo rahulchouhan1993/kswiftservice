@@ -63,59 +63,83 @@ export default function List({ list, search, status, states, cities }) {
         return <span className={`${badgeBase} ${colors[status]}`}>{status}</span>;
     };
 
+
     return (
         <AuthenticatedLayout>
             <Head title="Manage Users" />
             <div className="pt-[60px]" />
 
             <div className="p-2 sm:p-4">
-                <div className="rounded-2xl bg-white dark:bg-[#0f1435]
-                                shadow-xl border border-gray-200 dark:border-blue-950">
+                <div className="rounded-2xl bg-white dark:bg-[#0f1435] shadow-xl border border-gray-200 dark:border-blue-950">
 
-                    {/* Filters */}
-                    <div className="p-4 flex flex-col sm:flex-row gap-3">
-                        <Add states={states} cities={cities} />
-
-                        <div className="sm:max-w-[220px] w-full">
-                            <SelectInput
-                                value={status}
-                                onChange={handleStatusChange}
-                                options={statusOptions}
-                                placeholder="Filter Status"
-                            />
+                    <div className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex-shrink-0">
+                            <Add states={states} cities={cities} />
                         </div>
 
-                        <div className="sm:max-w-[260px] w-full">
-                            <TextInput
-                                ref={searchRef}
-                                onKeyUp={handleSearch}
-                                defaultValue={search}
-                                placeholder="Search by name..."
-                            />
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <div className="w-full sm:w-[220px]">
+                                <SelectInput
+                                    value={status}
+                                    onChange={handleStatusChange}
+                                    options={statusOptions}
+                                    placeholder="Filter Status"
+                                />
+                            </div>
+
+                            <div className="w-full sm:w-[260px]">
+                                <TextInput
+                                    ref={searchRef}
+                                    onKeyUp={handleSearch}
+                                    defaultValue={search}
+                                    placeholder="Search by name, email, phone no..."
+                                />
+                            </div>
                         </div>
                     </div>
+
 
                     {/* Table */}
                     <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-blue-900">
                         <table className="min-w-full text-sm">
-                            <thead className="bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900">
+                            <thead
+                                className="bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900"
+                            >
                                 <tr>
-                                    {[
-                                        "Sr",
-                                        "Customer Id",
-                                        "Customer",
-                                        "Total Bookings",
-                                        "Status",
-                                        "Member Since",
-                                        "Action",
-                                    ].map((h) => (
-                                        <th
-                                            key={h}
-                                            className="px-3 py-2 text-xs font-semibold uppercase text-center"
-                                        >
-                                            {h}
-                                        </th>
-                                    ))}
+                                    {/* Sr.No */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-14">
+                                        Sr.No
+                                    </th>
+
+                                    {/* Customer Id */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-28">
+                                        Customer Id
+                                    </th>
+
+                                    {/* Name */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-left w-56">
+                                        Name
+                                    </th>
+
+                                    {/* Total Bookings */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-32">
+                                        Total Bookings
+                                    </th>
+
+                                    {/* Status */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-24">
+                                        Status
+                                    </th>
+
+                                    {/* Member Since */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-32">
+                                        Member Since
+                                    </th>
+
+                                    {/* Action */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-20">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
 
@@ -179,16 +203,6 @@ export default function List({ list, search, status, states, cities }) {
                                                             </Link>
                                                         </RoundBtn>
 
-                                                        <StatusToggle
-                                                            action={route("superadmin.user.update.status", { uuid: l.uuid })}
-                                                            checked={l.status === 1}
-                                                            roundBtn
-                                                            roundBtnProps={{
-                                                                label: "Status",
-                                                                className: "bg-green-600 hover:bg-green-700",
-                                                            }}
-                                                        />
-
                                                         <Edit user={l} />
                                                         <DeleteUserAction
                                                             action={route(
@@ -201,6 +215,15 @@ export default function List({ list, search, status, states, cities }) {
                                                                 icon: <MdDeleteForever size={18} />,
                                                                 label: "Delete",
                                                                 className: "bg-red-600 hover:bg-red-700 focus:ring-red-400"
+                                                            }}
+                                                        />
+                                                        <StatusToggle
+                                                            action={route("superadmin.user.update.status", { uuid: l.uuid })}
+                                                            checked={l.status === 1}
+                                                            roundBtn
+                                                            roundBtnProps={{
+                                                                label: "Status",
+                                                                className: "bg-green-600 hover:bg-green-700",
                                                             }}
                                                         />
 

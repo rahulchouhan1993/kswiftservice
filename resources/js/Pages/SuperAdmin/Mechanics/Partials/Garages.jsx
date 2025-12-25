@@ -46,7 +46,7 @@ export default function Garages({ garages = [], className = '' }) {
                     <tbody>
                         {garages.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="py-8 text-center">
+                                <td colSpan={7} className="py-8 text-center">
                                     <DataNotExist />
                                 </td>
                             </tr>

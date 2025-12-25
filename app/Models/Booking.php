@@ -86,7 +86,7 @@ class Booking extends Model
 
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'booking_id', 'id');
+        return $this->hasOne(Payment::class, 'booking_id', 'id')->where('status', 'success')->latest();
     }
 
     public function pickup_address()
@@ -136,7 +136,7 @@ class Booking extends Model
             get: fn() =>
             $this->assigned_date
                 ? $this->assigned_date->format('d-M-Y')
-                : '--/--/----'
+                : null
         );
     }
 
@@ -146,7 +146,7 @@ class Booking extends Model
             get: fn() =>
             $this->delivery_date
                 ? $this->delivery_date->format('d-M-Y h:i A')
-                : '--/--/----'
+                : null
         );
     }
 }

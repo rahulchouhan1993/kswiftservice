@@ -64,6 +64,12 @@ class PaymentController extends Controller
             ]);
 
             $mechanicAmount = round($payment->amount * 0.20, 2);
+            if (empty($booking->mechanic_id)) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Mechanic not found in this booking",
+                ], 500);
+            }
             MechanicEarning::create([
                 'user_id'      => $payment->user_id,
                 'mechanic_id'  => $booking->mechanic_id,
@@ -98,6 +104,10 @@ class PaymentController extends Controller
                 'invoice_path' => $fileName,
             ]);
 
+            $booking->update([
+                'booking_status' => 'in_process'
+            ]);
+
             $msg = "payment done by " . $user->name;
             activityLog($user, "payment done", $msg);
 
@@ -126,23 +136,27 @@ class PaymentController extends Controller
             }
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-                $deviceToken = $user->fcm_token->token;
+                $deviceToken = optional($user->fcm_token)->token;
+
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('payment_successful');
                     $uData = [
                         'BOOKING_ID' => $booking->booking_id,
                     ];
+
                     $tempWData = parseNotificationTemplate($temp, $uData);
                     $data = [
                         'key1' => 'value1',
                         'key2' => 'value2',
                     ];
+
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
-                    if (!empty($resp) && $resp['name']) {
+
+                    if (is_array($resp) && isset($resp['name'])) {
                         Notification::create([
                             'user_id' => $user->id,
-                            'type' => 'push',
-                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                            'type'    => 'push',
+                            'data'    => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
                         ]);
                     }
                 }

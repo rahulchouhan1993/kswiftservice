@@ -40,6 +40,12 @@ class SuperAdminBookingController extends Controller
         $search = $request->query('search');
         $status = $request->query('status');
 
+        $role = null;
+        if ($user_id) {
+            $user = User::find($user_id);
+            $role = $user->role;
+        }
+
         $baseQuery = Booking::with([
             'customer',
             'services',
@@ -89,6 +95,7 @@ class SuperAdminBookingController extends Controller
             'mechanics' => $mechanics,
             'user_id' => $user_id,
             'user_type' => $user_type,
+            'role' => $role
         ]);
     }
 
@@ -128,7 +135,7 @@ class SuperAdminBookingController extends Controller
 
         $booking->update([
             'garage_id' => $garage->id,
-            'booking_status' => 'pending'
+            'booking_status' => 'awaiting_acceptance'
         ]);
 
         if (env("CAN_SEND_MESSAGE")) {
@@ -196,7 +203,7 @@ class SuperAdminBookingController extends Controller
         $customer = $booking->customer;
         $booking->update([
             'garage_id' => null,
-            'booking_status' => 'requested'
+            'booking_status' => 'pending'
         ]);
 
         if (env("CAN_SEND_MESSAGE")) {

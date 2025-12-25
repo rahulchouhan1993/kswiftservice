@@ -38,41 +38,167 @@ class AdminDashboardController extends Controller
      * Display Dashboard
      * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
         $auth = Auth::user();
 
-        $customers = User::whereRole('customer')->count();
-        $mechanics = User::whereRole('mechanic')->count();
-        $newMessages = ContactUsMessage::whereIsRead(0)->orderBy('created_at', 'DESC');
-        $injobs = MechanicJob::whereStatus('accepted')->count();
+        /* ---------------- Dashboard Counters ---------------- */
+        $customers     = User::whereRole('customer')->count();
+        $mechanics     = User::whereRole('mechanic')->count();
+        $injobs        = MechanicJob::whereStatus('accepted')->count();
         $completedjobs = MechanicJob::whereStatus('completed')->count();
         $cancelledjobs = MechanicJob::whereStatus('cancelled')->count();
-        $booking = Booking::query();
+
+        $newMessages = ContactUsMessage::whereIsRead(0)
+            ->orderBy('created_at', 'DESC');
+
         $activityLogs = ActivityLog::with('user')
             ->whereBetween('created_at', [
                 Carbon::today()->startOfDay(),
                 Carbon::today()->endOfDay(),
             ])
             ->orderBy('created_at', 'DESC')
-            ->paginate(7);
+            ->paginate(7, ['*'], 'activity_page');
 
-        // return $booking->whereNotIn('booking_status', ['requested', 'closed', 'completed'])->get();
+        $bookings = Booking::whereNotIn('booking_status', ['requested', 'closed', 'completed'])
+            ->with([
+                'customer',
+                'services.service_type',
+                'mechanic',
+                'payment',
+                'vehicle.vehile_make',
+                'vehicle.vehicle_photos',
+                'pickup_address',
+                'drop_address',
+            ])
+            ->orderBy('id', 'DESC')
+            ->paginate(10, ['*'], 'booking_page')
+            ->through(function ($booking) {
+
+                $customerModel = $booking->customer;
+                $customer = $customerModel ? [
+                    'id'    => $customerModel->id,
+                    'uuid'    => $customerModel->uuid,
+                    'role'    => $customerModel->role,
+                    'name'  => $customerModel->name . ' ' . $customerModel->last_name,
+                    'email' => $customerModel->email,
+                    'phone' => $customerModel->phone,
+                    'profile_photo_url' => $customerModel->profile_photo_url,
+                ] : null;
+
+                $paymentModel = $booking->payment;
+                $payment = ($paymentModel && $paymentModel->status === 'success') ? [
+                    'id'           => $paymentModel->id,
+                    'txnId'        => $paymentModel->txnId,
+                    'amount'       => $paymentModel->amount,
+                    'payment_mode' => $paymentModel->payment_mode,
+                    'status'       => $paymentModel->status,
+                    'invoice_url'  => $paymentModel->invoice_url,
+                    'received_at'  => $paymentModel->received_at,
+                ] : null;
+
+                $services = $booking->services->isNotEmpty()
+                    ? $booking->services->map(fn($service) => [
+                        'id' => $service->id,
+                        'service_type' => $service->service_type ? [
+                            'id'         => $service->service_type->id,
+                            'name'       => $service->service_type->name,
+                            'base_price' => $service->service_type->base_price,
+                        ] : null,
+                    ])
+                    : null;
+
+                $mechanicModel = $booking->mechanic;
+                $mechanic = $mechanicModel ? [
+                    'id'    => $mechanicModel->id,
+                    'uuid'    => $mechanicModel->uuid,
+                    'role'    => $mechanicModel->role,
+                    'name'  => $mechanicModel->name . ' ' . $mechanicModel->last_name,
+                    'email' => $mechanicModel->email,
+                    'phone' => $mechanicModel->phone,
+                    'profile_photo_url' => $mechanicModel->profile_photo_url,
+                ] : null;
+
+                $vehicleModel = $booking->vehicle;
+                $vehicle = $vehicleModel ? [
+                    'id'             => $vehicleModel->id,
+                    'vehicle_number' => $vehicleModel->vehicle_number,
+                    'model'          => $vehicleModel->model,
+                    'vehicle_type'   => $vehicleModel->vehicle_type,
+                    'fuel_type'      => $vehicleModel->fuel_type,
+                    'vehile_make'    => $vehicleModel->vehile_make
+                        ? $vehicleModel->vehile_make
+                        : null,
+                    'vehicle_photos' => $vehicleModel->vehicle_photos ?? [],
+                ] : null;
+
+                $pickup = $booking->pickup_address;
+                $pickupAddress = $pickup ? [
+                    'id' => $pickup->id,
+                    'address_type' => $pickup->address_type,
+                    'country_id' => $pickup->country_id,
+                    'state_id' => $pickup->state_id,
+                    'city_id' => $pickup->city_id,
+                    'address' => $pickup->address,
+                    'pincode' => $pickup->pincode,
+                    'is_default_address' => $pickup->is_default_address,
+                ] : null;
+
+                // Drop Address
+                $drop = $booking->drop_address;
+                $dropAddress = $drop ? [
+                    'id' => $drop->id,
+                    'address_type' => $drop->address_type,
+                    'country_id' => $drop->country_id,
+                    'state_id' => $drop->state_id,
+                    'city_id' => $drop->city_id,
+                    'address' => $drop->address,
+                    'pincode' => $drop->pincode,
+                    'is_default_address' => $drop->is_default_address,
+                ] : null;
+
+
+                return [
+                    'id'             => $booking->id,
+                    'uuid'           => $booking->uuid,
+                    'booking_id'     => $booking->booking_id,
+                    'date'           => $booking->date,
+                    'time'           => $booking->time,
+                    'booking_status' => $booking->booking_status,
+                    'assigned_at'    => $booking->assigned_at,
+                    'delivered_at'   => $booking->delivered_at,
+                    'booking_date'   => $booking->booking_date,
+                    'created_at'     => $booking->created_at,
+                    'pickup_type' => $booking->pickup_type,
+                    'pickup_address' => $pickupAddress,
+                    'drop_address' => $dropAddress,
+
+                    'customer' => $customer,
+                    'services' => $services,
+                    'vehicle'  => $vehicle,
+                    'mechanic' => $mechanic,
+                    'payment'  => $payment,
+                ];
+            });
 
         return Inertia::render('SuperAdmin/Dashboard', [
-            'authUser'   => $auth,
-            'customers' => $customers,
-            'mechanics' => $mechanics,
-            'bookings' => $booking->count(),
-            // 'active_bookings_list' => $booking->count(),
-            'newMessages' => $newMessages->count(),
-            'injobs' => $injobs,
-            'completedjobs' => $completedjobs,
-            'cancelledjobs' => $cancelledjobs,
-            'newMessagesData' => $newMessages->get(),
-            'activity_logs' => $activityLogs
+            'authUser'        => $auth,
+            'customers'       => $customers,
+            'mechanics'       => $mechanics,
+            'active_bookings' => $bookings,
+
+            'newMessages'     => $newMessages->count(),
+            'newMessagesData' => $newMessages->limit(5)->get(),
+            'injobs'          => $injobs,
+            'completedjobs'   => $completedjobs,
+            'cancelledjobs'   => $cancelledjobs,
+            'activity_logs'   => $activityLogs,
         ]);
     }
+
+
+
+
 
 
     /**

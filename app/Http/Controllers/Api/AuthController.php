@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\FacebookApi;
 use App\Http\Controllers\Controller;
 use App\Models\FcmToken;
+use App\Models\Notification;
 use App\Models\User;
 use App\Msg91;
+use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,9 +16,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 use function App\activityLog;
+use function App\createMessageData;
+use function App\createMessageHistory;
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 
 class AuthController extends Controller
 {
+    use PushNotification;
+
+
     /**
      * Register User
      * @param Request $request
@@ -234,6 +244,42 @@ class AuthController extends Controller
 
             $msg = "login verification otp verified";
             activityLog($user, "login otp verified", $msg);
+
+            if ($user->is_profile_updated == 0) {
+                if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                    $deviceToken = $user->fcm_token->token;
+                    if ($deviceToken) {
+                        $temp = getNotificationTemplate('customer_welcome_on_signup');
+                        $data = [
+                            'key1' => 'value1',
+                            'key2' => 'value2',
+                        ];
+
+                        $resp = $this->sendPushNotification($deviceToken, $temp, $data);
+                        if (!empty($resp) && $resp['name']) {
+                            $n = Notification::create([
+                                'user_id' => $user->id,
+                                'type' => 'push',
+                                'data' => json_encode($temp, JSON_UNESCAPED_UNICODE),
+                            ]);
+                        }
+                    }
+                }
+
+                if (env("CAN_SEND_MESSAGE")) {
+                    if ($user->role == 'customer') {
+                        $templateName = "customer_welcome_message";
+                    } elseif ($user->role == 'mechanic') {
+                        $templateName = "mecanic_welcome_message";
+                    }
+                    $lang = "en";
+                    $phone = $user->phone;
+                    $msgData = createMessageData($phone, $templateName, $lang);
+                    $fb = new FacebookApi();
+                    $resp = $fb->sendMessage($msgData);
+                    createMessageHistory($templateName, $user, $phone, $resp);
+                }
+            }
 
             return response()->json([
                 'status' => true,

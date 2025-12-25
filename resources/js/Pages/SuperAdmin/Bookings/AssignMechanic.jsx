@@ -122,7 +122,7 @@ export default function AssignGarage({ booking }) {
         <>
             <RoundBtn
                 onClick={() => setOpen(true)}
-                className="bg-green-600 hover:bg-green-700 focus:ring-green-400"
+                className="bg-green-600 hover:bg-green-700 focus:ring-green-400 gap-2"
             >
                 <FaWarehouse />
                 <span>Assign Mechanic</span>
@@ -232,14 +232,18 @@ export default function AssignGarage({ booking }) {
                         )}
 
                         <div>
-                            <label className="text-sm font-semibold mb-2 block">Select Garage</label>
+                            <label className="text-sm font-semibold mb-2 block">
+                                Select Garage
+                            </label>
 
                             {garages.length === 0 ? (
-                                <p className="text-gray-500">No garages found.</p>
+                                <p className="text-gray-500 text-sm">
+                                    No garages found.
+                                </p>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {garages.map((g) => {
-                                        const selected = data.garage_id == g.id;
+                                        const selected = data.garage_id === g.id;
 
                                         return (
                                             <div
@@ -251,42 +255,55 @@ export default function AssignGarage({ booking }) {
                                                     }`}
                                             >
                                                 {/* Garage Details */}
-                                                <div className="flex-1">
-                                                    <p className="font-semibold">{capitalizeWords(g.name)}</p>
+                                                <div>
+                                                    <p className="font-semibold text-sm">
+                                                        {capitalizeWords(g.name)}
+                                                    </p>
 
-                                                    {/* Owner Name */}
-                                                    <p className="text-sm opacity-75">Owner: {g.owner_name}</p>
+                                                    <p className="text-xs opacity-75 mt-1">
+                                                        Owner: {g.owner_name}
+                                                    </p>
 
-                                                    {/* Phone */}
-                                                    <p className="text-sm opacity-75">Phone: {g.phone}</p>
+                                                    <p className="text-xs opacity-75">
+                                                        Phone: {g.phone}
+                                                    </p>
 
-                                                    {/* Address */}
                                                     <p className="text-xs mt-1 opacity-75">
                                                         {g.address} - {g.pincode}
                                                     </p>
                                                 </div>
 
-                                                {/* ⭐ Rating Display in Bottom Right */}
-                                                <div className="absolute bottom-2 right-3 flex text-yellow-500">
-                                                    {Array.from({ length: 5 }).map((_, i) => (
-                                                        <span key={i}>{i < (g.rating ?? 4) ? "★" : "☆"}</span>
-                                                    ))}
-                                                </div>
+                                                {/* Divider */}
+                                                <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
 
-                                                {/* Selected Badge */}
-                                                {selected && (
-                                                    <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                                                        Selected
+                                                {/* Footer */}
+                                                <div className="flex items-center justify-between">
+                                                    {/* ⭐ Rating */}
+                                                    <div className="flex items-center gap-1 text-yellow-500 text-sm">
+                                                        {Array.from({ length: 5 }).map((_, i) => (
+                                                            <span key={i}>
+                                                                {i < (g.rating ?? 4) ? "★" : "☆"}
+                                                            </span>
+                                                        ))}
+                                                        <span className="text-xs text-gray-500 ml-1">
+                                                            ({g.rating ?? 4}.0)
+                                                        </span>
                                                     </div>
-                                                )}
+
+                                                    {/* Selected Badge */}
+                                                    {selected && (
+                                                        <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                                            Selected
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         );
                                     })}
                                 </div>
-
-
                             )}
                         </div>
+
 
                         {/* Footer */}
                         <div className="border-t pt-3 flex justify-end gap-3">

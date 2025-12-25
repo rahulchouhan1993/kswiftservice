@@ -66,6 +66,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'kyc_response',
     ];
 
     protected function casts(): array
@@ -171,5 +172,10 @@ class User extends Authenticatable
     public function mechanic_booking()
     {
         return $this->hasMany(Booking::class, 'mechanic_id', 'id');
+    }
+
+    public function mechanic_earnings()
+    {
+        return $this->hasMany(MechanicEarning::class, 'mechanic_id', 'id');
     }
 }

@@ -654,15 +654,19 @@ if (!function_exists('perametersValues')) {
  * Create the message data for the API.
  */
 if (!function_exists('createMessageData')) {
-    function createMessageData($phone, $template, $lang, $parameters, $btnData = null)
+    function createMessageData($phone, $template, $lang, $parameters = null, $btnData = null)
     {
-        $components = [
-            [
+        $components = [];
+
+        // Body component (only if parameters exist)
+        if (!empty($parameters)) {
+            $components[] = [
                 "type" => "body",
                 "parameters" => $parameters
-            ]
-        ];
+            ];
+        }
 
+        // Button components
         if (!empty($btnData)) {
             foreach ($btnData as $btn) {
                 $components[] = [
@@ -679,7 +683,8 @@ if (!function_exists('createMessageData')) {
             }
         }
 
-        return [
+        // Base payload
+        $payload = [
             "messaging_product" => "whatsapp",
             "to" => '91' . $phone,
             "type" => "template",
@@ -688,9 +693,15 @@ if (!function_exists('createMessageData')) {
                 "language" => [
                     "code" => $lang
                 ],
-                "components" => $components
             ]
         ];
+
+        // Add components ONLY if not empty
+        if (!empty($components)) {
+            $payload["template"]["components"] = $components;
+        }
+
+        return $payload;
     }
 }
 
@@ -722,8 +733,25 @@ if (!function_exists('getNotificationTemplate')) {
     function getNotificationTemplate($event)
     {
         return [
+            //Customer Welcome
+            'customer_welcome_on_signup' => [
+                'title' => 'Thanks for signing up! 🎉',
+                'body'  => "We’re excited to have you as part of our community. Your account is ready to use.",
+            ],
 
-            // 3. Booking Confirmed
+            //Mechanic Welcome
+            'mechanic_welcome_on_signup' => [
+                'title' => 'Thanks for signing up as a mechanic! 🎉',
+                'body'  => "To start receiving service requests, please complete your profile.",
+            ],
+
+            //New Job Assigned
+            'mechanic_new_job_assigned' => [
+                'title' => 'New Job Assigned',
+                'body' => "Hi, \nA new job has been assigned to you 🧑‍🔧"
+            ],
+
+            //Booking Confirmed
             'booking_confirmed' => [
                 'title' => 'Booking Confirmed 🎉',
                 'body'  =>
@@ -733,7 +761,7 @@ if (!function_exists('getNotificationTemplate')) {
                     "🔖 Booking ID: [BOOKING_ID]",
             ],
 
-            // 5. Mechanic Assigned
+            //Mechanic Assigned
             'mechanic_assigned' => [
                 'title' => 'Mechanic Assigned 🔧',
                 'body'  =>

@@ -106,6 +106,7 @@ class BookingController extends Controller
                 'extra_services' => $request->extra_services,
                 'pickup_id' => $request->pickup_type === 'pickup' ? $paddress->id : null,
                 'drop_id' => $request->pickup_type === 'pickup' ? $daddress->id : null,
+                'booking_status' => 'pending'
             ]);
 
             // Store services
@@ -236,18 +237,33 @@ class BookingController extends Controller
             activityLog($user, "service booked", $msg);
 
             if (env("CAN_SEND_MESSAGE")) {
-                $templateName = "msg_to_customer_on_booking_registered";
+                $msgUsers = ['admin', 'customer'];
                 $lang = "en";
-                $phone = $user->phone;
-                $data = [
-                    $user->name,
-                    $booking->booking_id,
-                ];
-                $perameters = generateParameters($data);
-                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
-                $fb = new FacebookApi();
-                $resp = $fb->sendMessage($msgData);
-                createMessageHistory($templateName, $user, $phone, $resp);
+                foreach ($msgUsers as $u) {
+                    if ($u == 'admin') {
+                        $templateName = "msg_to_customer_on_booking_registered";
+                        $phone = env("ADMIN_PHONE");
+                        $data = [
+                            env("ADMIN_NAME"),
+                            $booking->booking_id,
+                            $user->name,
+                            $user->phone,
+                            $booking->booking_id,
+                        ];
+                    } else {
+                        $templateName = "msg_to_customer_on_booking_registered";
+                        $phone = $user->phone;
+                        $data = [
+                            $user->name,
+                            $booking->booking_id,
+                        ];
+                    }
+                    $perameters = generateParameters($data);
+                    $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                    $fb = new FacebookApi();
+                    $resp = $fb->sendMessage($msgData);
+                    createMessageHistory($templateName, $user, $phone, $resp);
+                }
             }
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {

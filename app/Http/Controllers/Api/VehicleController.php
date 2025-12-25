@@ -287,7 +287,7 @@ class VehicleController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Vehicle ' . $status . ' succesfully',
+                'message' => "Vehicle status updated as " . $status . " successfully.",
             ]);
         } catch (Exception $e) {
             $msg = "error during vehicle status updation - " . $e->getMessage();

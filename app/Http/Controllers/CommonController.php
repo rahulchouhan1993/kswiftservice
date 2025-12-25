@@ -19,6 +19,7 @@ class CommonController extends Controller
         $type = $request->type;
 
         $garages = Garage::query()
+            ->with(['reviews'])
             ->whereStatus(1)
             ->when($type !== 'all', function ($q) use ($pincode) {
                 if ($pincode) {

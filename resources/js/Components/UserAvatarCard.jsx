@@ -18,7 +18,7 @@ const UserAvatarCard = ({ user, displayRole = false }) => {
     return (
         <Link href={userRoute} className="block">
             <div
-                className="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#1a1f4a] transition items-center"
+                className="flex gap-2 px-2 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#1a1f4a] transition items-center"
             >
                 {/* Avatar */}
                 <img

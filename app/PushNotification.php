@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\FcmToken;
 use Exception;
 use Google\Auth\ApplicationDefaultCredentials;
 use Illuminate\Support\Facades\Http;
@@ -30,7 +31,21 @@ trait PushNotification
                 'Content-Type'  => 'application/json',
             ])->post($fcmUrl, ['message' => $notification]);
 
-            return $response->json();
+            $result = $response->json();
+
+            if (
+                isset($result['error']['details'][0]['errorCode']) &&
+                $result['error']['details'][0]['errorCode'] === 'UNREGISTERED'
+            ) {
+                Log::warning('FCM token unregistered', [
+                    'token' => $token
+                ]);
+
+                FcmToken::where('token', $token)->delete();
+                return false;
+            }
+
+            return $result;
         } catch (Exception $e) {
             Log::error("Error sending push notifications: " . $e->getMessage());
             return false;

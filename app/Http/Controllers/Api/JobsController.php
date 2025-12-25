@@ -125,18 +125,29 @@ class JobsController extends Controller
                 'rejection_reason' => $validated['rejection_reason'] ?? null
             ]);
 
-            $booking->update(
-                $validated['status'] === 'accepted'
-                    ? [
-                        'mechanic_id' => $user->id,
-                        'booking_status' => 'accepted',
-                        'assigned_date' => now()
-                    ]
-                    : ['booking_status' => $validated['status']]
-            );
 
-            $msg = "mechanic job status updated as - " . $job->status;
-            activityLog($user, "mechanic jobs status updated", $msg);
+            if ($validated['status'] === 'accepted') {
+                $booking->mechanic_id = $user->id;
+                $booking->booking_status = 'awaiting_payment';
+                $booking->assigned_date = Carbon::now();
+                $booking->save();
+            } elseif ($validated['status'] === 'rejected') {
+                $booking->booking_status = 'pending';
+                $booking->garage_id = null;
+                $booking->save();
+            } else {
+                $booking->booking_status = $validated['status'];
+                $booking->save();
+            }
+
+            if ($validated['status'] === 'rejected') {
+                $msg = "mechanic rejected the booking - " . $booking->booking_id;
+                activityLog($user, "mechanic rejected the booking " . $booking->booking_id, $msg);
+            } else {
+                $msg = "mechanic job status updated as - " . $job->status;
+                activityLog($user, "mechanic jobs status updated", $msg);
+            }
+
 
             if (env("CAN_SEND_MESSAGE") && $request->status == 'accepted' || $request->status == 'completed') {
                 if ($request->status == 'accepted') {

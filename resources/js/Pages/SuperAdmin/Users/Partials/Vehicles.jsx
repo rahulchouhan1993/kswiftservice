@@ -4,11 +4,10 @@ import Tooltip from "@/Components/Tooltip";
 import { FaCar, FaCaravan } from "react-icons/fa6";
 import { RiMotorbikeFill } from "react-icons/ri";
 import VehicleDetails from "./VehicleDetails";
+import { useHelpers } from "@/Components/Helpers";
 
 export default function Vehicles({ user, className = "" }) {
     const vehicles = user?.vehicles || [];
-
-    console.log('vehicles', vehicles);
 
     return (
         <section
@@ -50,6 +49,8 @@ export default function Vehicles({ user, className = "" }) {
 
 function VehicleCard({ vehicle }) {
     const firstPhoto = vehicle.vehicle_photos?.[0]?.photo_url;
+    const { capitalizeWords, replaceUnderscoreWithSpace } = useHelpers();
+
 
     // Vehicle Icons Based on Type
     const getVehicleIcon = (type) => {
@@ -125,26 +126,23 @@ function VehicleCard({ vehicle }) {
                 </h3>
 
                 <p className="text-sm">
-                    <span className="font-semibold">Make:</span> {vehicle?.vehile_make?.name || '--'}
+                    <span className="font-semibold">Make:</span> {capitalizeWords(vehicle?.vehile_make?.name) || '--'}
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold">Model:</span> {vehicle?.model || '--'}
+                    <span className="font-semibold">Model:</span> {capitalizeWords(vehicle?.model) || '--'}
+                </p>
+                <p className="text-sm">
+                    <span className="font-semibold">Fuel Type:</span> {capitalizeWords(vehicle?.fuel_type) || '--'}
+                </p>
+                <p className="text-sm">
+                    <span className="font-semibold">Transmission:</span> {capitalizeWords(vehicle?.transmission) || '--'}
                 </p>
             </div>
 
-            <div className="flex justify-end p-4 pt-0">
-                <VehicleDetails vehicle={vehicle} />
-                <div data-tooltip-target={`tooltip-delete-${vehicle.uuid}`}>
-                    <DeleteUserAction
-                        action=""
-                        message="Are you sure you want to delete this vehicle?"
-                    />
-                </div>
-
-                <Tooltip
-                    targetEl={`tooltip-delete-${vehicle.uuid}`}
-                    title="Delete Vehicle"
-                />
+            <div className="flex justify-end p-4 pt-0 gap-2">
+                <Tooltip title="View Details">
+                    <VehicleDetails vehicle={vehicle} />
+                </Tooltip>
             </div>
         </div>
     );

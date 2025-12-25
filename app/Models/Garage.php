@@ -78,4 +78,9 @@ class Garage extends Model
     {
         return $this->hasOne(City::class, 'id', 'city_id');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(BookingReview::class, 'garage_id', 'id');
+    }
 }

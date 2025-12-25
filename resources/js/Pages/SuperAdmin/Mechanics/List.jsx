@@ -16,10 +16,14 @@ import DeleteUserAction from "@/Components/DeleteUserAction";
 import { MdDeleteForever } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa6";
 import RoundBtn from "@/Components/RoundBtn";
+import { useHelpers } from "@/Components/Helpers";
+import { SlCalender } from "react-icons/sl";
+import TextInput from "@/Components/TextInput";
 
 export default function List({ list, search, status, states, cities }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
+    const { displayInRupee } = useHelpers();
 
     const statusOptions = [
         { value: "active", label: "Active" },
@@ -81,66 +85,87 @@ export default function List({ list, search, status, states, cities }) {
             <div className="pt-[60px]" />
 
             <div className="p-2 sm:p-4">
-                <div className="rounded-2xl bg-white dark:bg-[#0f1435]
-                                shadow-xl border border-gray-200 dark:border-blue-950">
+                <div className="rounded-2xl bg-white dark:bg-[#0f1435] shadow-xl border border-gray-200 dark:border-blue-950">
 
-                    {/* ================= Filters ================= */}
-                    <div className="p-4 flex flex-col sm:flex-row gap-3">
-                        <Add states={states} cities={cities} />
-
-                        <div className="sm:max-w-[220px] w-full">
-                            <SelectInput
-                                value={status}
-                                onChange={handleStatusChange}
-                                options={statusOptions}
-                                placeholder="Filter Status"
-                            />
+                    <div className="p-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex-shrink-0">
+                            <Add states={states} cities={cities} />
                         </div>
 
-                        <div className="sm:max-w-[260px] w-full">
-                            <input
-                                ref={searchRef}
-                                onKeyUp={handleSearch}
-                                defaultValue={search}
-                                placeholder="Search by name..."
-                                className="w-full px-3 py-2 text-sm rounded-lg
-                                           border border-gray-300 dark:border-blue-900
-                                           bg-white dark:bg-[#0a0e25]
-                                           text-gray-800 dark:text-gray-200
-                                           focus:ring-2 focus:ring-blue-500"
-                            />
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <div className="w-full sm:w-[220px]">
+                                <SelectInput
+                                    value={status}
+                                    onChange={handleStatusChange}
+                                    options={statusOptions}
+                                    placeholder="Filter Status"
+                                />
+                            </div>
+
+                            <div className="w-full sm:w-[260px]">
+                                <TextInput
+                                    ref={searchRef}
+                                    onKeyUp={handleSearch}
+                                    defaultValue={search}
+                                    placeholder="Search by name, email, phone no..."
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    {/* ================= Table ================= */}
-                    <div className="overflow-x-auto rounded-xl
-                                    border border-gray-200 dark:border-blue-900">
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-blue-900">
                         <table className="min-w-full text-sm">
                             <thead
-                                className="bg-gray-100 dark:bg-[#0a0e25]
-                                           text-gray-700 dark:text-gray-300
-                                           border-b border-gray-300 dark:border-blue-900"
+                                className="bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900"
                             >
                                 <tr>
-                                    {[
-                                        "Sr",
-                                        "#ID",
-                                        "Mechanic",
-                                        "Bookings",
-                                        "Aadhar Verified",
-                                        "Status",
-                                        "Member Since",
-                                        "Action",
-                                    ].map((h) => (
-                                        <th
-                                            key={h}
-                                            className="px-3 py-2 text-xs font-semibold uppercase text-center"
-                                        >
-                                            {h}
-                                        </th>
-                                    ))}
+                                    {/* Sr */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-12">
+                                        Sr
+                                    </th>
+
+                                    {/* ID */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-20">
+                                        #ID
+                                    </th>
+
+                                    {/* Mechanic */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-left w-56">
+                                        Mechanic
+                                    </th>
+
+                                    {/* Bookings */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-24">
+                                        Bookings
+                                    </th>
+
+                                    {/* Total Business */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-right w-32">
+                                        Total Business
+                                    </th>
+
+                                    {/* Aadhar Verified */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-32">
+                                        Aadhar Verified
+                                    </th>
+
+                                    {/* Status */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-24">
+                                        Status
+                                    </th>
+
+                                    {/* Member Since */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-32">
+                                        Member Since
+                                    </th>
+
+                                    {/* Action */}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center w-20">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
+
 
                             <tbody>
                                 {list.data.length === 0 ? (
@@ -177,6 +202,12 @@ export default function List({ list, search, status, states, cities }) {
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
+                                                <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+                                                    {displayInRupee(l.mechanic_earnings_sum_amount || 0)}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
                                                 {kycBadge(l.kyc_status === "complete")}
                                             </td>
 
@@ -193,20 +224,6 @@ export default function List({ list, search, status, states, cities }) {
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
 
-                                                        <StatusToggle
-                                                            action={route(
-                                                                "superadmin.mechanic.update.status",
-                                                                { uuid: l.uuid }
-                                                            )}
-                                                            checked={l.status === 1}
-                                                            roundBtn
-                                                            roundBtnProps={{
-                                                                label: "Status",
-                                                                className:
-                                                                    "bg-green-600 hover:bg-green-700",
-                                                            }}
-                                                        />
-
                                                         <RoundBtn
                                                             className="bg-gray-600 hover:bg-gray-700 focus:ring-gray-400"
                                                         >
@@ -215,9 +232,22 @@ export default function List({ list, search, status, states, cities }) {
                                                                 className="flex gap-2"
                                                             >
                                                                 <FaRegEye size={18} />
-                                                                <span>View Info</span>
+                                                                <span>View Details</span>
                                                             </Link>
                                                         </RoundBtn>
+
+                                                        <RoundBtn
+                                                            className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-400"
+                                                        >
+                                                            <Link
+                                                                href={route("superadmin.booking.list", { user_id: l.id, user_type: 'mechanic' })}
+                                                                className="flex gap-2"
+                                                            >
+                                                                <SlCalender size={18} />
+                                                                <span>View Bookings</span>
+                                                            </Link>
+                                                        </RoundBtn>
+
                                                         <Edit user={l} />
 
                                                         <DeleteUserAction
@@ -232,6 +262,20 @@ export default function List({ list, search, status, states, cities }) {
                                                                 label: "Delete",
                                                                 className:
                                                                     "bg-red-600 hover:bg-red-700 focus:ring-red-400",
+                                                            }}
+                                                        />
+
+                                                        <StatusToggle
+                                                            action={route(
+                                                                "superadmin.mechanic.update.status",
+                                                                { uuid: l.uuid }
+                                                            )}
+                                                            checked={l.status === 1}
+                                                            roundBtn
+                                                            roundBtnProps={{
+                                                                label: "Status",
+                                                                className:
+                                                                    "bg-green-600 hover:bg-green-700",
                                                             }}
                                                         />
                                                     </div>

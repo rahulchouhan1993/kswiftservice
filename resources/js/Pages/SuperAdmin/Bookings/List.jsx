@@ -16,18 +16,21 @@ import RoundBtn from "@/Components/RoundBtn";
 
 import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
+import { useHelpers } from "@/Components/Helpers";
 
-export default function List({ list, search, status, mechanics, user_id, user_type }) {
+export default function List({ list, search, status, mechanics, user_id, user_type, role }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
+    const { replaceUnderscoreWithSpace } = useHelpers();
 
     const bookingStatusOptions = [
         { value: "", label: "All" },
-        { value: "requested", label: "Requested" },
         { value: "pending", label: "Pending" },
-        { value: "accepted", label: "Accepted" },
-        { value: "rejected", label: "Rejected" },
+        { value: "awaiting_acceptance", label: "Awaiting Acceptance" },
+        { value: "awaiting_payment", label: "Awaiting Payment" },
+        { value: "in_process", label: "In Process" },
         { value: "completed", label: "Completed" },
+        { value: "closed", label: "Closed" },
     ];
 
     useEffect(() => {
@@ -65,16 +68,17 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
 
     const badgeBase = "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize";
 
-    const bookingBadge = (status) => {
+    const statusBadge = (status) => {
+        console.log('status', status);
         const colors = {
-            requested: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
             pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-            accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-            rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
-            completed: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+            awaiting_acceptance: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+            awaiting_payment: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
+            closed: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+            in_process: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+            completed: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
         };
-
-        return <span className={`${badgeBase} ${colors[status] || "bg-gray-200 text-gray-700"}`}>{status}</span>;
+        return <span className={`${badgeBase} ${colors[status]}`}>{replaceUnderscoreWithSpace(status)}</span>;
     };
 
     const paymentBadge = (status) => {
@@ -120,34 +124,59 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                     {/* Table */}
                     <div className="overflow-x-auto overflow-y-visible rounded-xl border border-gray-200 dark:border-blue-900">
                         <table className="min-w-full text-sm">
-                            <thead className="sticky top-0 z-10 bg-gray-100 dark:bg-[#0a0e25] text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-blue-900">
+                            <thead className="bg-gray-100 dark:bg-[#0a0e25]">
                                 <tr>
-                                    {[
-                                        "Booking Id",
-                                        "Booking Date",
-                                        "Customer",
-                                        "Mechanic",
-                                        "Assigned Date",
-                                        "Delivery Date",
-                                        "Vehicle",
-                                        "Payment",
-                                        "Status",
-                                        "Action",
-                                    ].map((h) => (
-                                        <th
-                                            key={h}
-                                            className="px-3 py-2 text-xs font-semibold uppercase whitespace-nowrap"
-                                        >
-                                            {h}
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Booking Id
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Booking Date
+                                    </th>
+
+                                    {(role === 'mechanic' || role === null) && (
+                                        <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                            Customer
                                         </th>
-                                    ))}
+                                    )}
+
+                                    {(role === 'customer' || role === null) && (
+                                        <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                            Mechanic
+                                        </th>
+                                    )}
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Assigned Date
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Delivery Date
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Vehicle
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Payment
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Status
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
+
 
                             <tbody>
                                 {list.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="py-10 text-center">
+                                        <td colSpan={10} className="py-10 text-center">
                                             <DataNotExist />
                                         </td>
                                     </tr>
@@ -155,24 +184,33 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                     list.data.map((l, i) => (
                                         <tr
                                             key={i}
-                                            className="border-b border-gray-200 dark:border-blue-900 hover:bg-gray-50 dark:hover:bg-[#12184a]transition"
+                                            className="border-b border-gray-200 dark:border-blue-900 hover:bg-gray-50 dark:hover:bg-[#12184a]"
                                         >
-                                            <td className="px-3 py-2 text-center">{l.booking_id}</td>
+                                            <td className="px-3 py-2 text-center">
+                                                {l.booking_id}
+                                            </td>
+
                                             <td className="px-3 py-2 text-center sm:table-cell hidden">
                                                 {l.booking_date || "--"}
                                             </td>
 
-                                            <td className="px-3 py-2">
-                                                <UserAvatarCard user={l.customer} />
-                                            </td>
+                                            {(role === 'mechanic' || role === null) && (
+                                                <td className="px-3 py-2">
+                                                    <UserAvatarCard user={l.customer} />
+                                                </td>
+                                            )}
 
-                                            <td className="px-3 py-2">
-                                                {l.mechanic ? (
-                                                    <UserAvatarCard user={l.mechanic} />
-                                                ) : (
-                                                    <span className="text-xs text-gray-500">Not Assigned</span>
-                                                )}
-                                            </td>
+                                            {(role === 'customer' || role === null) && (
+                                                <td className="px-3 py-2">
+                                                    {l.mechanic ? (
+                                                        <UserAvatarCard user={l.mechanic} />
+                                                    ) : (
+                                                        <span className="text-xs text-gray-500">
+                                                            Not Assigned
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            )}
 
                                             <td className="px-3 py-2 text-center sm:table-cell hidden">
                                                 {l.assigned_at || "--"}
@@ -191,28 +229,24 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {bookingBadge(l.booking_status)}
+                                                {statusBadge(l.booking_status)}
                                             </td>
 
-                                            <td className="px-2 py-2 text-center">
+                                            <td className="px-3 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-1">
-                                                        {l.mechanic_id !== null && (
+                                                        {l.mechanic_id && (
                                                             <Link
                                                                 href={route("superadmin.booking.chat.list", { uuid: l.uuid })}
-                                                                className="flex items-center"
                                                             >
-                                                                <RoundBtn
-                                                                    className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-400"
-                                                                >
+                                                                <RoundBtn className="bg-yellow-600 hover:bg-yellow-700">
                                                                     <MdOutlineChat />
                                                                     <span>Chats</span>
                                                                 </RoundBtn>
-
                                                             </Link>
                                                         )}
 
-                                                        {l.booking_status !== 'accepted' && l.booking_status !== 'completed' && (
+                                                        {['pending', 'awaiting_acceptance'].includes(l.booking_status) && (
                                                             <AssignMechanic booking={l} />
                                                         )}
 
@@ -224,11 +258,11 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>
-
                                         </tr>
                                     ))
                                 )}
                             </tbody>
+
                         </table>
                     </div>
 

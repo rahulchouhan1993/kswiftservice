@@ -102,13 +102,18 @@ class GarageController extends Controller
                 $garage->update(['logo' => $photoPath]);
             }
 
+            if ($request->hasFile('garage_photos')) {
+                foreach ($request->file('garage_photos') as $photo) {
+                    $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('garage_photos', $fileName, 'public');
+                    GaragePhoto::create([
+                        'garage_id'    => $garage->id,
+                        'photo'      => $fileName,
+                    ]);
+                }
+            }
+
             foreach ($request->garage_photos as $photo) {
-                $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
-                $photo->storeAs('garage_photos', $fileName, 'public');
-                GaragePhoto::create([
-                    'garage_id'    => $garage->id,
-                    'photo'      => $fileName,
-                ]);
             }
 
             $garage->load('garage_photos');
@@ -227,14 +232,18 @@ class GarageController extends Controller
                 $garage->update(['logo' => $photoPath]);
             }
 
-            foreach ($request->garage_photos as $photo) {
-                $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
-                $photo->storeAs('garage_photos', $fileName, 'public');
-                GaragePhoto::create([
-                    'garage_id'    => $garage->id,
-                    'photo'      => $fileName,
-                ]);
+            if ($request->hasFile('garage_photos')) {
+                foreach ($request->file('garage_photos') as $photo) {
+                    $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('garage_photos', $fileName, 'public');
+
+                    GaragePhoto::create([
+                        'garage_id' => $garage->id,
+                        'photo'     => $fileName,
+                    ]);
+                }
             }
+
 
             $garage->load('garage_photos');
 

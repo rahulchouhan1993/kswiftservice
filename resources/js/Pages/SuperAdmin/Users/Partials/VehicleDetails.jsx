@@ -6,25 +6,28 @@ import { useHelpers } from "@/Components/Helpers";
 
 export default function VehicleDetails({ vehicle }) {
     const [open, setOpen] = useState(false);
-    const { capitalizeWords } = useHelpers();
+    const { capitalizeWords, replaceUnderscoreWithSpace } = useHelpers();
 
     const closeModal = () => setOpen(false);
 
     return (
         <>
-            <RoundBtn onClick={() => setOpen(true)}>
-                <RiInformation2Line size={18} />
+            <RoundBtn
+                onClick={() => setOpen(true)}
+                className="h-9 w-9 "
+            >
+                <RiInformation2Line size={20} />
             </RoundBtn>
+
 
             <Modal
                 show={open}
-                maxWidth="lg"
+                maxWidth="2xl"
                 topCloseButton={true}
                 handleTopClose={closeModal}
             >
                 {/* Header */}
-                <h3 className="px-6 py-3 border-b bg-gray-200 dark:bg-[#131836]
-                               font-semibold text-lg text-gray-800 dark:text-white">
+                <h3 className="px-6 py-3 border-b bg-gray-200 dark:bg-[#131836] font-semibold text-lg text-gray-800 dark:text-white">
                     Vehicle Details
                 </h3>
 
@@ -41,9 +44,7 @@ export default function VehicleDetails({ vehicle }) {
                                 {vehicle.vehicle_photos.map((photo, index) => (
                                     <div
                                         key={index}
-                                        className="overflow-hidden rounded-lg border
-                                                   border-gray-300 dark:border-blue-900
-                                                   bg-gray-100 dark:bg-[#0a0e25]"
+                                        className="overflow-hidden rounded-lg border border-gray-300 dark:border-blue-900 bg-gray-100 dark:bg-[#0a0e25]"
                                     >
                                         <img
                                             src={photo.photo_url}
@@ -73,7 +74,7 @@ export default function VehicleDetails({ vehicle }) {
                         />
                         <DetailRow
                             label="Vehicle Type"
-                            value={capitalizeWords(vehicle?.vehicle_type)}
+                            value={capitalizeWords(replaceUnderscoreWithSpace(vehicle?.vehicle_type))}
                         />
                         <DetailRow
                             label="Year"

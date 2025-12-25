@@ -41,7 +41,11 @@ class SuperAdminMechanicController extends Controller
             $statusValue = null;
         }
 
-        $baseQuery = User::with(['addresses'])->whereRole('mechanic')->withCount(['mechanic_booking'])->orderBy('name')
+        $baseQuery = User::with(['addresses'])
+            ->whereRole('mechanic')
+            ->withSum('mechanic_earnings', 'amount')
+            ->withCount(['mechanic_booking'])
+            ->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
@@ -54,7 +58,6 @@ class SuperAdminMechanicController extends Controller
             });
 
         $users = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
-
         $country = Country::whereName('india')->first();
         $states = State::whereCountryId($country->id)->get()->pluck('id', 'name');
         $cities = City::get();
@@ -239,7 +242,11 @@ class SuperAdminMechanicController extends Controller
      */
     public function details($uuid)
     {
-        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'garage', 'garage.state', 'garage.city'])->where('uuid', $uuid)->first();
+        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'garage', 'garage.state', 'garage.city'])
+            ->withSum('mechanic_earnings', 'amount')
+            ->withCount(['mechanic_booking'])
+            ->where('uuid', $uuid)
+            ->first();
         if (!$user) {
             return back()->with('error', "User does not exist");
         }

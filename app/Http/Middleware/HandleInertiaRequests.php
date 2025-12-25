@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'enquiryCount' => ContactUsMessage::whereIsRead(0)->count(),
-            'newBookingsCount' => Booking::whereBookingStatus('requested')->count(),
+            'newBookingsCount' => Booking::whereBookingStatus('pending')->count(),
             'flash' => [
                 'success' => $request->session()->pull('success'),
                 'error' => $request->session()->pull('error'),
