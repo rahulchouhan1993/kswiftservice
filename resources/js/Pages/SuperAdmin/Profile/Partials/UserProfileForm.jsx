@@ -14,7 +14,7 @@ export default function UserProfileCard({ userData }) {
         email: userData?.email,
         emailVerified: true,
         phone: userData?.phone,
-        whatsapp: userData?.whatsapp_phone,
+        whatsapp: userData?.whatsapp_number,
         role: 'SuperAdmin',
         createdAt: new Date(userData?.created_at),
         updatedAt: new Date(userData?.updated_at),

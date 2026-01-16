@@ -2,26 +2,27 @@ export default function PrimaryButton({
     className = '',
     disabled,
     children,
-    width = 'w-auto', // 🪐 add width prop with default
-    padding = 'px-3 py-1.5', // 🪐 add padding prop with default
+    width = 'w-auto',
+    padding = 'px-3 py-1.5',
     ...props
 }) {
     return (
         <button
             {...props}
+            disabled={disabled}
             className={`
                 ${width}
                 flex items-center gap-2 whitespace-nowrap
-                bg-gradient-to-r from-purple-500 to-indigo-600
+                bg-gradient-to-r
+                from-[#08365C] to-[#52C5FA]
                 text-white text-md font-semibold rounded-md
                 shadow-lg hover:shadow-xl
-                hover:from-purple-600 hover:to-indigo-700
+                hover:from-[#062A47] hover:to-[#3BB9F5]
                 transition duration-300 ease-in-out transform
-                ${disabled ? 'opacity-25 cursor-not-allowed' : ''}
-                ${className}
+                ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
                 ${padding}
+                ${className}
             `}
-            disabled={disabled}
         >
             {children}
         </button>

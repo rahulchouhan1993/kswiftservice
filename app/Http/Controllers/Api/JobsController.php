@@ -8,11 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\MechanicJob;
 use App\Models\Notification;
+use App\Models\User;
 use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\Console\Helper\Helper;
+use Throwable;
 
 use function App\activityLog;
 use function App\createMessageData;
@@ -34,15 +36,15 @@ class JobsController extends Controller
     {
         try {
             $user = $request->user();
-            if (!in_array($status, ['pending', 'accepted', 'rejected', 'completed'])) {
+
+            if (!in_array($status, ['all', 'pending', 'accepted', 'rejected', 'completed'])) {
                 return response()->json([
                     'status'  => false,
-                    'message' => "Status can be [pending, accepted, rejected, completed]"
-                ], 500);
+                    'message' => "Status can be [all, pending, accepted, rejected, completed]"
+                ], 422);
             }
 
-
-            $jobs = MechanicJob::with([
+            $jobsQuery = MechanicJob::with([
                 'booking',
                 'booking.payment',
                 'booking.customer',
@@ -50,33 +52,44 @@ class JobsController extends Controller
                 'booking.services.service_type',
                 'booking.vehicle.vehicle_photos'
             ])
-                ->whereStatus($status)
                 ->whereUserId($user->id)
-                ->orderBy('created_at', 'DESC')
-                ->get();
+                ->orderBy('created_at', 'DESC');
+
+            if ($status !== 'all') {
+                $jobsQuery->whereStatus($status);
+            }
+
+            $jobs = $jobsQuery->get();
 
             $data = $jobs->map(function ($job) {
 
                 $booking = $job->booking;
-                $vehiclePhoto = optional($booking->vehicle->vehicle_photos->first())->photo_url;
-                $bookingId = $booking->booking_id;
-                $bookingCreatedAt = $booking->created_at->format('d M Y');
-                $totalServicePrice = $booking->services->sum(function ($service) {
-                    return $service->service_type->base_price ?? 0;
-                });
-
-                $title = $booking->vehicle->vehicle_number;
 
                 return [
-                    "uuid"       => $job->uuid,
-                    "vehicle_photo"       => $vehiclePhoto,
-                    "booking_id"          => $bookingId,
-                    "booking_created_at"  => $bookingCreatedAt,
-                    "total_service_price" => $totalServicePrice,
-                    "title"               => $title,
-                    "customer"            => $booking->customer,
-                    "mechanic"            => $job->mechanic,
-                    "payment" => ($job->booking->payment && $job->booking->payment->status === 'success') ? $job->booking->payment : null
+                    "uuid"       => $booking->uuid,
+                    "job_uuid" => $job->uuid,
+                    "vehicle_photo" => optional(
+                        $booking->vehicle->vehicle_photos->first()
+                    )->photo_url,
+
+                    "booking_id"          => $booking->booking_id,
+                    "booking_created_at"  => $booking->created_at->format('d M Y'),
+                    "booking_status"      => $booking->booking_status,
+                    "job_status"      => $job->status,
+                    "rejected_date"       => $job->rejected_at,
+
+                    "total_service_price" => $booking->services->sum(
+                        fn($service) => $service->service_type->base_price ?? 0
+                    ),
+
+                    "title"    => $booking->vehicle->vehicle_number,
+                    "customer" => $booking->customer,
+                    "mechanic" => $job->mechanic,
+
+                    "payment" => (
+                        $booking->payment &&
+                        $booking->payment->status === 'success'
+                    ) ? $booking->payment : null,
                 ];
             });
 
@@ -94,6 +107,7 @@ class JobsController extends Controller
     }
 
 
+
     /**
      * Update Job Status
      * @param Request $request
@@ -105,115 +119,172 @@ class JobsController extends Controller
         try {
             $user = $request->user();
             $job = MechanicJob::whereUuid($uuid)->first();
-
             if (!$job) {
-                return response()->json(['status' => false, 'message' => 'Job not found'], 404);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Job not found'
+                ], 404);
             }
 
-            $booking = Booking::with(['customer'])->find($job->booking_id);
+            $booking = Booking::with(['customer', 'garage'])->find($job->booking_id);
             if (!$booking) {
-                return response()->json(['status' => false, 'message' => 'Job booking not found'], 404);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Job booking not found'
+                ], 404);
             }
 
             $validated = $request->validate([
                 'status' => 'required|in:pending,accepted,rejected,completed',
-                'rejection_reason' => $request->status === 'rejected' ? 'required' : 'nullable'
+                'rejection_reason' => 'nullable|string',
             ]);
+
+            if ($validated['status'] === 'rejected' && empty($validated['rejection_reason'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Rejection reason is required'
+                ], 422);
+            }
 
             $job->update([
-                'status' => $validated['status'],
-                'rejection_reason' => $validated['rejection_reason'] ?? null
+                'status'           => $validated['status'],
+                'rejection_reason' => $validated['status'] === 'rejected' ? $validated['rejection_reason'] : null,
+                'rejection_time'   => $validated['status'] === 'rejected' ? Carbon::now() : null,
             ]);
 
+            switch ($validated['status']) {
+                case 'accepted':
+                    $booking->update([
+                        'mechanic_id'   => $user->id,
+                        'booking_status' => 'awaiting_payment',
+                        'assigned_date' => Carbon::now(),
+                    ]);
+                    break;
 
-            if ($validated['status'] === 'accepted') {
-                $booking->mechanic_id = $user->id;
-                $booking->booking_status = 'awaiting_payment';
-                $booking->assigned_date = Carbon::now();
-                $booking->save();
-            } elseif ($validated['status'] === 'rejected') {
-                $booking->booking_status = 'pending';
-                $booking->garage_id = null;
-                $booking->save();
-            } else {
-                $booking->booking_status = $validated['status'];
-                $booking->save();
+                case 'rejected':
+                    $booking->update([
+                        'booking_status' => 'pending',
+                        'garage_id'      => null,
+                    ]);
+                    break;
+
+                default:
+                    $booking->update([
+                        'booking_status' => $validated['status'],
+                    ]);
             }
 
-            if ($validated['status'] === 'rejected') {
-                $msg = "mechanic rejected the booking - " . $booking->booking_id;
-                activityLog($user, "mechanic rejected the booking " . $booking->booking_id, $msg);
-            } else {
-                $msg = "mechanic job status updated as - " . $job->status;
-                activityLog($user, "mechanic jobs status updated", $msg);
-            }
+            activityLog(
+                $user,
+                $validated['status'] === 'rejected' ? "mechanic rejected booking {$booking->booking_id}" : "mechanic job status updated",
+                $validated['status'] === 'rejected' ? "mechanic rejected booking - {$booking->booking_id}" : "status updated as {$validated['status']}"
+            );
 
+            if (env('CAN_SEND_MESSAGE') && in_array($validated['status'], ['accepted', 'completed'])) {
+                $templateName = null;
+                $params = [];
 
-            if (env("CAN_SEND_MESSAGE") && $request->status == 'accepted' || $request->status == 'completed') {
-                if ($request->status == 'accepted') {
-                    $templateName = "msg_to_customer_on_adnavce_payment";
-                    $data = [
+                if ($validated['status'] === 'accepted') {
+                    $templateName = 'msg_to_customer_on_adnavce_payment';
+                    $params = [
                         $booking->customer->name,
-                        Helpers::toRupeeCurrency(1000)
+                        Helpers::toRupeeCurrency(1000),
                     ];
-                } elseif ($request->status == 'completed') {
-                    $templateName = "msg_to_customer_on_service_complete";
-                    $data = [
+                }
+
+                if ($validated['status'] === 'completed') {
+                    $templateName = 'msg_to_customer_on_service_complete';
+                    $params = [
                         $booking->customer->name,
                     ];
                 }
-                $lang = "en";
-                $phone = $booking->customer->phone;
 
-                $perameters = generateParameters($data);
-                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                if ($templateName) {
+                    $msgData = createMessageData(
+                        $booking->customer->phone,
+                        $templateName,
+                        'en',
+                        generateParameters($params)
+                    );
+
+                    $fb = new FacebookApi();
+                    $resp = $fb->sendMessage($msgData);
+
+                    createMessageHistory($templateName, $user, $booking->customer->phone, $resp);
+                }
+            }
+
+            if (env('CAN_SEND_MESSAGE') && $validated['status'] === 'rejected') {
+                $msgData = createMessageData(
+                    env('ADMIN_PHONE'),
+                    'msg_to_admin_on_job_decline_by_admin',
+                    'en',
+                    generateParameters([
+                        $booking->booking_id,
+                        $booking->customer->name,
+                        $user->name,
+                        optional($booking->garage)->name,
+                    ])
+                );
+
                 $fb = new FacebookApi();
                 $resp = $fb->sendMessage($msgData);
-                createMessageHistory($templateName, $user, $phone, $resp);
+                createMessageHistory('msg_to_admin_on_job_decline_by_admin', $user, env('ADMIN_PHONE'), $resp);
             }
 
-            if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $request->status == 'accepted' || $request->status == 'completed') {
-                $deviceToken = $booking->customer->fcm_token->token;
-                if ($deviceToken) {
-                    if ($request->status == 'accepted') {
-                        $temp = getNotificationTemplate('advance_payment');
-                        $uData = [
-                            'CUSTOMER_NAME' => $booking->customer->name,
-                            'AMOUNT' => Helpers::toRupeeCurrency(1000)
-                        ];
-                    } elseif ($request->status == 'completed') {
-                        $temp = getNotificationTemplate('service_completed');
-                        $uData = [
-                            'CUSTOMER_NAME' => $booking->customer->name,
-                        ];
-                    }
-                    $tempWData = parseNotificationTemplate($temp, $uData);
+            $fcmToken =
+                optional(optional($booking->customer)->fcm_token)->token
+                ?? $booking->customer->fcm_token
+                ?? null;
+
+            if (env('CAN_SEND_PUSH_NOTIFICATIONS') && in_array($validated['status'], ['accepted', 'completed']) && $fcmToken) {
+                if ($validated['status'] === 'accepted') {
+                    $template = getNotificationTemplate('advance_payment');
+                    $payload = parseNotificationTemplate($template, [
+                        'CUSTOMER_NAME' => $booking->customer->name,
+                        'AMOUNT'        => Helpers::toRupeeCurrency(1000),
+                    ]);
+
                     $data = [
-                        'key1' => 'value1',
-                        'key2' => 'value2',
+                        'type'          => 'advance_payment',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'job_uuid'  => (string) $job->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
                     ];
-                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
-                    if (!empty($resp) && $resp['name']) {
-                        Notification::create([
-                            'user_id' => $booking->customer->id,
-                            'type' => 'push',
-                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
-                        ]);
-                    }
+                } else {
+                    $template = getNotificationTemplate('service_completed');
+                    $payload = parseNotificationTemplate($template, [
+                        'CUSTOMER_NAME' => $booking->customer->name,
+                    ]);
+                    $data = [
+                        'type'          => 'service_completed',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'job_uuid'  => (string) $job->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
+                    ];
+                }
+
+                $resp = $this->sendPushNotification($fcmToken, $payload, $data);
+
+                if (!empty($resp['name'])) {
+                    Notification::create([
+                        'user_id' => $booking->customer->id,
+                        'type'    => 'push',
+                        'data'    => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                    ]);
                 }
             }
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => "Job status updated as {$validated['status']}",
             ]);
-        } catch (Exception $e) {
-            $msg = "error in mechanic job status updation - " . $e->getMessage();
-            activityLog($request->user(), "error in mechanic job status updation", $msg);
+        } catch (Throwable $e) {
+            activityLog($request->user(), 'error in mechanic job status update', $e->getMessage());
 
             return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
+                'status'  => false,
+                'message' => 'Something went wrong. Please try again.',
             ], 500);
         }
     }
@@ -231,18 +302,25 @@ class JobsController extends Controller
                 'booking.customer',
                 'booking.services.service_type',
                 'booking.vehicle',
+                'booking.vehicle.vehile_make',
                 'booking.payment',
                 'mechanic',
             ])->where('uuid', $request->job_uuid)->first();
 
-            if (!$job || !$job->booking) {
+            if (!$job) {
                 return response()->json([
                     'status'  => false,
-                    'message' => "Job or booking does not exist",
+                    'message' => "Job does not exist",
                 ], 404);
             }
 
             $booking  = $job->booking;
+            if (!$booking) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Booking does not exist in this job",
+                ], 404);
+            }
             $customer = $booking->customer;
             $payment  = $booking->payment;
 
@@ -263,9 +341,14 @@ class JobsController extends Controller
                 "message" => "Booking details fetched successfully",
                 "data"    => [
                     "id"     => $booking->id,
-                    "uuid"     => $booking->uuid,
+                    "uuid"     => $job->uuid,
+                    "booking_uuid"     => $booking->uuid,
                     "booking_id"     => $booking->booking_id,
+                    "booking_status"     => $booking->booking_status,
+                    "delivery_date"     => $booking->delivery_date,
                     "vehicle_number" => optional($booking->vehicle)->vehicle_number,
+                    "vehicle_model" => optional($booking->vehicle)->model ?? null,
+                    "vehicle_make" => optional($booking->vehicle->vehile_make)->name ?? null,
 
                     "booking_date"   => $booking->date
                         ? Carbon::parse($booking->date)->format('D, d M')

@@ -122,7 +122,6 @@ export default function AssignGarage({ booking }) {
         <>
             <RoundBtn
                 onClick={() => setOpen(true)}
-                className="bg-green-600 hover:bg-green-700 focus:ring-green-400 gap-2"
             >
                 <FaWarehouse />
                 <span>Assign Mechanic</span>
@@ -243,6 +242,7 @@ export default function AssignGarage({ booking }) {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {garages.map((g) => {
+                                        console.log('g', g);
                                         const selected = data.garage_id === g.id;
 
                                         return (
@@ -280,13 +280,22 @@ export default function AssignGarage({ booking }) {
                                                 <div className="flex items-center justify-between">
                                                     {/* ⭐ Rating */}
                                                     <div className="flex items-center gap-1 text-yellow-500 text-sm">
-                                                        {Array.from({ length: 5 }).map((_, i) => (
-                                                            <span key={i}>
-                                                                {i < (g.rating ?? 4) ? "★" : "☆"}
-                                                            </span>
-                                                        ))}
+                                                        {Array.from({ length: 5 }).map((_, i) => {
+                                                            const rating = Number(g?.garage_reviews ?? 0);
+
+                                                            if (rating >= i + 1) {
+                                                                return <span key={i}>★</span>;           // full star
+                                                            }
+
+                                                            if (rating >= i + 0.5) {
+                                                                return <span key={i}>☆</span>;           // half-star placeholder
+                                                            }
+
+                                                            return <span key={i} className="text-gray-300">☆</span>; // empty star
+                                                        })}
+
                                                         <span className="text-xs text-gray-500 ml-1">
-                                                            ({g.rating ?? 4}.0)
+                                                            ({Number(g?.garage_reviews ?? 0).toFixed(1)})
                                                         </span>
                                                     </div>
 
@@ -297,6 +306,7 @@ export default function AssignGarage({ booking }) {
                                                         </span>
                                                     )}
                                                 </div>
+
                                             </div>
                                         );
                                     })}

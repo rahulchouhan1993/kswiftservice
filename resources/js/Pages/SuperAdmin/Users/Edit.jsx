@@ -91,7 +91,6 @@ export default function Edit({ user, states, cities }) {
     return (
         <>
             <RoundBtn onClick={() => setOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 focus:ring-blue-400"
             >
                 <Pencil size={18} />
                 <span>Edit</span>

@@ -1,38 +1,26 @@
-import React from "react";
-
-export default function RoundBtn({
-    children,
-    onClick,
-    type = "button",
-    className = "",
-    disabled = false,
-}) {
-    const hasBg = className.split(" ").some(cls => cls.startsWith("bg-"));
-    const hasSize = className.split(" ").some(
-        cls => cls.startsWith("h-") || cls.startsWith("w-")
-    );
-
+export default function RoundBtn({ children, className = "", ...props }) {
     return (
         <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
+            {...props}
             className={`
-                inline-flex items-center justify-center
-                rounded-full
-                text-white text-sm font-medium
-                transition-all duration-200
-                focus:outline-none focus:ring-2 focus:ring-offset-1
-                disabled:opacity-50 disabled:cursor-not-allowed
-                cursor-pointer
+                flex items-center gap-2
+                w-full px-2 py-1.5
+                rounded-md
+                text-xs font-medium
 
-                ${hasSize ? "" : "px-4 py-2"}
+                /* Default */
+                text-[#08365C] dark:text-[#52C5FA]
 
-                ${hasBg
-                    ? ""
-                    : "bg-[#101f3b] hover:bg-[#17305c] focus:ring-[#101f3b]"
-                }
+                /* Hover */
+                hover:text-white
+                hover:bg-gradient-to-r
+                hover:from-[#08365C]
+                hover:to-[#52C5FA]
 
+                /* Dark mode */
+                dark:hover:text-white
+
+                transition duration-200
                 ${className}
             `}
         >

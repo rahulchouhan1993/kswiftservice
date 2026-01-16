@@ -35,7 +35,7 @@ export default function List() {
                 <div className="p-4 w-full dark:bg-[#131836] bg-white shadow-lg rounded-lg">
                     <div>
                         <h1 className="text-2xl p-2 w-full flex items-center gap-2 justify-center rounded-lg dark:bg-blue-950 bg-gray-100 font-bold text-center text-gray-800 dark:text-white mb-4">
-                            <FaUser /> Profile
+                            <FaUser /> SuperAdmin Profile
                         </h1>
                     </div>
 

@@ -1,10 +1,9 @@
 import { Head } from "@inertiajs/react";
 import { useState } from "react";
-import { FaUser, FaRegUser, FaExchangeAlt, FaMapMarkedAlt, FaCar } from "react-icons/fa";
+import { FaUser, FaRegUser, FaExchangeAlt, FaMapMarkedAlt } from "react-icons/fa";
 import UserProfile from "./Partials/UserProfile";
 import Addresses from "./Partials/Addresses";
 import Garages from "./Partials/Garages";
-import Vehicles from "./Partials/Vehicles";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 

@@ -35,6 +35,8 @@ class Garage extends Model
 
     protected $appends = [
         'logo_url',
+        'garage_reviews',
+        'garage_rating'
     ];
 
     protected $casts = [
@@ -82,5 +84,20 @@ class Garage extends Model
     public function reviews()
     {
         return $this->hasMany(BookingReview::class, 'garage_id', 'id');
+    }
+
+    public function getGarageRatingAttribute()
+    {
+        return $this->hasMany(BookingReview::class, 'garage_id', 'id')
+            ->avg('review');
+    }
+
+
+    public function getGarageReviewsAttribute()
+    {
+        return round(
+            $this->hasMany(BookingReview::class, 'garage_id', 'id')->avg('review') ?? 0,
+            1
+        );
     }
 }

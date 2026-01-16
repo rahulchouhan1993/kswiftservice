@@ -179,31 +179,27 @@ export default function List({ list, search, status, states, cities }) {
                                             <td className="px-2 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-2">
-                                                        <RoundBtn
-                                                            className="bg-gray-600 hover:bg-gray-700 focus:ring-gray-400"
+                                                        <Link
+                                                            href={route("superadmin.user.details", { uuid: l.uuid })}
+                                                            className="flex gap-2"
                                                         >
-                                                            <Link
-                                                                href={route("superadmin.user.details", { uuid: l.uuid })}
-                                                                className="flex gap-2"
-                                                            >
+                                                            <RoundBtn>
                                                                 <FaRegEye size={18} />
-                                                                <span>View Details</span>
-                                                            </Link>
-                                                        </RoundBtn>
-
-                                                        <RoundBtn
-                                                            className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-400"
-                                                        >
-                                                            <Link
-                                                                href={route("superadmin.booking.list", { user_id: l.id, user_type: 'customer' })}
-                                                                className="flex gap-2"
-                                                            >
-                                                                <SlCalender size={18} />
-                                                                <span>View Bookings</span>
-                                                            </Link>
-                                                        </RoundBtn>
+                                                                <span>View</span>
+                                                            </RoundBtn>
+                                                        </Link>
 
                                                         <Edit user={l} />
+
+                                                        <StatusToggle
+                                                            action={route("superadmin.user.update.status", { uuid: l.uuid })}
+                                                            checked={l.status === 1}
+                                                            roundBtn
+                                                            roundBtnProps={{
+                                                                label: "Status",
+                                                            }}
+                                                        />
+
                                                         <DeleteUserAction
                                                             action={route(
                                                                 "superadmin.user.delete",
@@ -214,23 +210,21 @@ export default function List({ list, search, status, states, cities }) {
                                                             roundBtnProps={{
                                                                 icon: <MdDeleteForever size={18} />,
                                                                 label: "Delete",
-                                                                className: "bg-red-600 hover:bg-red-700 focus:ring-red-400"
-                                                            }}
-                                                        />
-                                                        <StatusToggle
-                                                            action={route("superadmin.user.update.status", { uuid: l.uuid })}
-                                                            checked={l.status === 1}
-                                                            roundBtn
-                                                            roundBtnProps={{
-                                                                label: "Status",
-                                                                className: "bg-green-600 hover:bg-green-700",
                                                             }}
                                                         />
 
+                                                        <Link
+                                                            href={route("superadmin.booking.list", { user_id: l.id, user_type: 'customer' })}
+                                                            className="flex gap-2"
+                                                        >
+                                                            <RoundBtn>
+                                                                <SlCalender size={18} />
+                                                                <span>Bookings</span>
+                                                            </RoundBtn>
+                                                        </Link>
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>
-
                                         </tr>
                                     ))
                                 )}

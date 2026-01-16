@@ -11,7 +11,7 @@ export default function ActivityLogMessage({ log }) {
     return (
         <>
             <RoundBtn onClick={() => setOpen(true)}>
-                <FaRegEye />
+                <FaRegEye /> Check Details
             </RoundBtn>
 
             <Modal

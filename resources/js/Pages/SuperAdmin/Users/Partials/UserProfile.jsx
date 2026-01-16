@@ -91,7 +91,6 @@ export default function UserProfile({ user }) {
                 {infoCard(<MdOutlinePhone />, "Phone Number", user?.phone)}
                 {infoCard(<MdWhatsapp className="text-green-600" />, "WhatsApp", user?.whatsapp_number)}
                 {infoCard(<FaUserAlt />, "Date of Birth", user?.dob)}
-                {infoCard(<FaIdCard />, "Aadhar Card", user?.aadharcard_no)}
             </div>
 
             {/* TIMESTAMPS */}
@@ -106,6 +105,6 @@ export default function UserProfile({ user }) {
                 </div>
             </div>
 
-        </div >
+        </div>
     );
 }

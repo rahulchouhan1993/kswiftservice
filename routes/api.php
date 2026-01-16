@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CommonController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\GarageController;
 use App\Http\Controllers\Api\JobsController;
 use App\Http\Controllers\Api\MechanicEarningController;
@@ -44,6 +45,8 @@ Route::middleware('apiauth')->group(function () {
     Route::get('/delete-address/{uuid}', [ProfileController::class, 'deleteAddress']);
     Route::get('/set-default-address/{uuid}', [ProfileController::class, 'setDefaultAddress']);
 
+    Route::get('/user-statistics', [ProfileController::class, 'getUserStatistics']);
+
 
     Route::prefix('/vehicle')->group(function () {
         Route::post('/add', [VehicleController::class, 'add']);
@@ -64,6 +67,7 @@ Route::middleware('apiauth')->group(function () {
         Route::post('/upload-service-video-or-photo', [BookingController::class, 'uploadBookingVideos']);
         Route::get('/fetch-service-video-or-photo/{uuid}', [BookingController::class, 'fetchServicesVideos']);
         Route::post('/update-delivery-timing', [BookingController::class, 'updateBookingDeliveryTimeing']);
+        Route::post('/cancel', [BookingController::class, 'cancelBooking']);
     });
 
     Route::prefix('/ticket')->group(function () {
@@ -79,8 +83,10 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/fetch-transaction-history', [PaymentController::class, 'transactionHistory']);
     });
 
+    Route::prefix('/feedback')->group(function () {
+        Route::post('/submit', [FeedbackController::class, 'submitFeedback']);
+    });
 
-    // Mechanic API's
     Route::prefix('/aadhar-card')->group(function () {
         Route::post('/send-verification-otp', [AadharCardController::class, 'sendVerificationOTP']);
         Route::post('/verify-otp', [AadharCardController::class, 'verifyVerificationOTP']);
@@ -97,13 +103,11 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-status', [GarageController::class, 'getGarageStatus']);
     });
 
-
     Route::prefix('/jobs')->group(function () {
         Route::get('/fetch-jobs-list/{status}', [JobsController::class, 'fetchJobsList']);
         Route::get('/get-booking-details', [JobsController::class, 'fetchBookingDetails']);
         Route::post('/update-status/{uuid}', [JobsController::class, 'updateStatus']);
     });
-
 
     Route::prefix('/review')->group(function () {;
         Route::get('/list', [ReviewController::class, 'list']);

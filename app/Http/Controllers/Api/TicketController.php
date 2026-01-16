@@ -7,10 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Ticket;
 use App\Models\TicketDocument;
+use App\Models\User;
+use App\Models\UserChat;
 use Exception;
 use Illuminate\Http\Request;
 
 use function App\activityLog;
+use function App\getNotificationTemplate;
 use function App\uploadRequestFile;
 
 class TicketController extends Controller
@@ -105,7 +108,7 @@ class TicketController extends Controller
             ]);
 
             if ($request->booking_id) {
-                $booking = Booking::find($request->booking_id);
+                $booking = Booking::where('uuid', $request->booking_id)->first();
                 if (!$booking) {
                     return response()->json([
                         'status' => false,
@@ -118,18 +121,34 @@ class TicketController extends Controller
                 'user_id'     => $user->id,
                 'user_role'   => $user->role,
                 'subject'     => $request->subject,
-                'booking_id'  => $booking?->id,
+                'booking_id'  => $booking ? $booking->id : null,
                 'description' => $request->description,
+            ]);
+
+            $superadmin = User::whereRole('admin')->first();
+            $chat = UserChat::create([
+                'from'           => $user->id,
+                'to'             => $superadmin->id,
+                'ticket_id'      => $ticket->id,
+                'booking_id'     => $booking ? $booking->id : null,
+                'sender_role'    => $user->role,
+                'receiver_role'  => $superadmin->role,
+                'message'        => $request->message,
             ]);
 
             if ($request->hasFile('attachment')) {
                 foreach ($request->file('attachment') as $photo) {
                     $fileName = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
                     $photo->storeAs('attachment_photos', $fileName, 'public');
-
                     TicketDocument::create([
                         'ticket_id'  => $ticket->id,
                         'attechement' => $fileName,
+                    ]);
+
+                    $fileName2 = Helpers::shortUuid() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('chat_attechments', $fileName2, 'public');
+                    $chat->update([
+                        'attechment' => $fileName2,
                     ]);
                 }
             }

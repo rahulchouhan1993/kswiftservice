@@ -5,6 +5,20 @@ import GarageInfo from './GarageInfo';
 
 export default function Garages({ garages = [], className = '' }) {
 
+    const renderStars = (rating) => {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+        return (
+            <>
+                {"⭐".repeat(fullStars)}
+                {halfStar && "⭐"}
+                {"☆".repeat(emptyStars)}
+            </>
+        );
+    };
+
     return (
         <section
             className={`
@@ -73,7 +87,7 @@ export default function Garages({ garages = [], className = '' }) {
                                         />
                                         <div>
                                             <p className="font-semibold text-gray-900 dark:text-white">
-                                                {g.name}
+                                                {g.name} <span className="ml-2">{renderStars(g.garage_rating)}</span>
                                             </p>
                                             <p className="text-xs text-gray-500">
                                                 Owner: {g.owner_name}

@@ -133,18 +133,20 @@ export default function List({ list, search, status }) {
                                                 </div>
                                             </td>
                                             <td className="p-1 flex justify-center">
-                                                <RowActionsMenu>
-                                                    <div className="flex flex-col gap-2">
-                                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                {l.is_read === 0 ? <>
+                                                    <RowActionsMenu>
+                                                        <div className="flex flex-col gap-2">
                                                             <StatusToggle
                                                                 action={route("superadmin.enquiries.update.status", { uuid: l?.uuid })}
-                                                                checked={l?.status === 1}
-                                                                className="!mb-0"
+                                                                checked={l.is_read === 1}
+                                                                roundBtn
+                                                                roundBtnProps={{
+                                                                    label: "Mark As Read",
+                                                                }}
                                                             />
-                                                            <span>Status</span>
                                                         </div>
-                                                    </div>
-                                                </RowActionsMenu>
+                                                    </RowActionsMenu>
+                                                </> : ''}
                                             </td>
                                         </tr>
                                     ))

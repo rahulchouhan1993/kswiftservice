@@ -17,6 +17,7 @@ import RoundBtn from "@/Components/RoundBtn";
 import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
 import { useHelpers } from "@/Components/Helpers";
+import RejectedJobs from "./RejectedJobs";
 
 export default function List({ list, search, status, mechanics, user_id, user_type, role }) {
     const timerRef = useRef(null);
@@ -31,6 +32,7 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
         { value: "in_process", label: "In Process" },
         { value: "completed", label: "Completed" },
         { value: "closed", label: "Closed" },
+        { value: "cancelled", label: "Cancelled" },
     ];
 
     useEffect(() => {
@@ -72,10 +74,11 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
         console.log('status', status);
         const colors = {
             pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-            awaiting_acceptance: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-            awaiting_payment: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
+            awaiting_acceptance: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+            awaiting_payment: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
             closed: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
-            in_process: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+            cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+            in_process: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
             completed: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
         };
         return <span className={`${badgeBase} ${colors[status]}`}>{replaceUnderscoreWithSpace(status)}</span>;
@@ -239,7 +242,7 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                             <Link
                                                                 href={route("superadmin.booking.chat.list", { uuid: l.uuid })}
                                                             >
-                                                                <RoundBtn className="bg-yellow-600 hover:bg-yellow-700">
+                                                                <RoundBtn>
                                                                     <MdOutlineChat />
                                                                     <span>Chats</span>
                                                                 </RoundBtn>
@@ -249,6 +252,10 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                         {['pending', 'awaiting_acceptance'].includes(l.booking_status) && (
                                                             <AssignMechanic booking={l} />
                                                         )}
+
+                                                        {l?.rejected_mechanic_job ? <>
+                                                            <RejectedJobs list={l?.rejected_mechanic_job} />
+                                                        </> : ''}
 
                                                         <BookingDetails booking={l} />
 

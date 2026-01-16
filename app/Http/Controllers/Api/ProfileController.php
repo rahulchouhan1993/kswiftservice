@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\MechanicJob;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserAddress;
 use Carbon\Carbon;
@@ -407,6 +410,62 @@ class ProfileController extends Controller
             $msg = "Error during set default address - " . $e->getMessage();
             activityLog($request->user(), "error during set default address", $msg);
 
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Get User Statictics
+     * @param Request
+     * @return mixed
+     */
+    public function getUserStatistics(Request $request)
+    {
+        try {
+            $user = $request->user();
+            if ($user->role === 'customer') {
+                $pending_job = Booking::whereUserId($user->id)->whereStatus('pending')->count();
+                $completed_bookings = Booking::whereUserId($user->id)->whereStatus('completed')->count();
+                $closed_bookings = Booking::whereUserId($user->id)->whereStatus('closed')->count();
+                $open_ticket_count = Ticket::whereUserId($user->id)->whereStatus('pending')->count();
+                $unpaid_bookings = Booking::whereUserId($user->id)->whereDoesntHave('payment')->count();
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => "Customer statistics fetched",
+                    'data' => [
+                        'pending_job' => $pending_job,
+                        'completed_bookings' => $completed_bookings,
+                        'completed_bookings' => $completed_bookings,
+                        'closed_bookings' => $closed_bookings,
+                        'open_ticket_count' => $open_ticket_count,
+                        'unpaid_bookings' => $unpaid_bookings,
+                        'unread_msg_count' => 0,
+                    ]
+                ], 201);
+            } elseif ($user->role === 'mechanic') {
+                $pending_jobs = MechanicJob::whereUserId($user->id)->whereStatus('pending')->count();
+                $completed_jobs = MechanicJob::whereUserId($user->id)->whereStatus('completed')->count();
+                $open_ticket_count = Ticket::whereUserId($user->id)->whereStatus('pending')->count();
+                $unpaid_bookings = Booking::whereMechanicId($user->id)->whereDoesntHave('payment')->count();
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => "Mechanic statistics fetched",
+                    'data' => [
+                        'pending_jobs' => $pending_jobs,
+                        'completed_jobs' => $completed_jobs,
+                        'open_ticket_count' => $open_ticket_count,
+                        'unpaid_bookings' => $unpaid_bookings,
+                        'unread_msg_count' => 0,
+                    ]
+                ], 201);
+            }
+        } catch (Exception $e) {
             return response()->json([
                 'status'  => false,
                 'message' => $e->getMessage(),

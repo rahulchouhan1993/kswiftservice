@@ -42,6 +42,13 @@ class PaymentController extends Controller
                 'payment_mode' => ['required'],
             ]);
 
+            if (strtolower($request->status) !== 'success') {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Payment failed. Please try again.',
+                ], 422);
+            }
+
             $user = $request->user();
             $booking = Booking::find($request->booking_id);
 
@@ -53,12 +60,14 @@ class PaymentController extends Controller
             }
 
             $invoiceNo = Helpers::shortUuid();
+            $mechanicIncome = $request->amount * 0.80;
             $payment = Payment::create([
                 'user_id'       => $user->id,
                 'booking_id'    => $booking->id,
                 'txnId'         => $request->txnId,
                 'payment_mode'  => $request->payment_mode,
                 'amount'        => $request->amount,
+                'admin_income'  => $mechanicIncome,
                 'status'        => $request->status,
                 'invoice_no' => $invoiceNo,
             ]);
@@ -135,6 +144,24 @@ class PaymentController extends Controller
                 createMessageHistory($templateName, $user, $phone, $resp);
             }
 
+
+            if (env("CAN_SEND_MESSAGE") && $booking->mechanic) {
+                $mechanic = $booking->mechanic;
+                $templateName = "msg_to_mechanic_for_inform_user_payment_done";
+                $lang = "en";
+                $phone = $mechanic->phone;
+                $data = [
+                    $mechanic->name,
+                    $user->name,
+
+                ];
+                $perameters = generateParameters($data);
+                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                $fb = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+                createMessageHistory($templateName, $mechanic, $phone, $resp);
+            }
+
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
                 $deviceToken = optional($user->fcm_token)->token;
 
@@ -146,8 +173,10 @@ class PaymentController extends Controller
 
                     $tempWData = parseNotificationTemplate($temp, $uData);
                     $data = [
-                        'key1' => 'value1',
-                        'key2' => 'value2',
+                        'type'          => 'payment_successfull',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'payment_uuid'  => (string) $payment->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
@@ -155,6 +184,37 @@ class PaymentController extends Controller
                     if (is_array($resp) && isset($resp['name'])) {
                         Notification::create([
                             'user_id' => $user->id,
+                            'type'    => 'push',
+                            'data'    => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+            }
+
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $booking->mechanic) {
+                $mechanic = $booking->mechanic;
+                $deviceToken = optional($mechanic->fcm_token)->token;
+
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('inform_mechanic_on_payment_done');
+                    $uData = [
+                        'CUSTOMER_NAME' => $user->name,
+                    ];
+
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'type'          => 'inform_mechanic_on_payment_done',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'payment_uuid'  => (string) $payment->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
+                    ];
+
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+
+                    if (is_array($resp) && isset($resp['name'])) {
+                        Notification::create([
+                            'user_id' => $mechanic->id,
                             'type'    => 'push',
                             'data'    => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
                         ]);

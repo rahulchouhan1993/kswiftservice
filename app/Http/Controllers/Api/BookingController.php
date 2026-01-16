@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\FacebookApi;
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\BookingLog;
 use App\Models\BookingService;
+use App\Models\Garage;
+use App\Models\MechanicJob;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserAddress;
@@ -14,7 +18,9 @@ use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 use function App\activityLog;
 use function App\createMessageData;
@@ -70,6 +76,18 @@ class BookingController extends Controller
                 ], 404);
             }
 
+            $existingBooking = Booking::where('vehicle_id', $vehicle->id)
+                ->where('booking_status', '!=', 'completed')
+                ->latest()
+                ->first();
+
+            if ($existingBooking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Booking already in process for the same vehicle',
+                ], 409);
+            }
+
             // pickup / drop validation
             if ($request->pickup_type === 'pickup') {
                 $paddress = UserAddress::where('id', $request->pickup_address)
@@ -107,6 +125,15 @@ class BookingController extends Controller
                 'pickup_id' => $request->pickup_type === 'pickup' ? $paddress->id : null,
                 'drop_id' => $request->pickup_type === 'pickup' ? $daddress->id : null,
                 'booking_status' => 'pending'
+            ]);
+
+            BookingLog::create([
+                'booking_id' => $booking->id,
+                'user_id' => $booking->user_id,
+                'mechanic_id' => $booking->mechanic_id,
+                'status' => 'pending',
+                'log_msg' => 'new booking created',
+                'booking_date' => Carbon::now()
             ]);
 
             // Store services
@@ -241,11 +268,10 @@ class BookingController extends Controller
                 $lang = "en";
                 foreach ($msgUsers as $u) {
                     if ($u == 'admin') {
-                        $templateName = "msg_to_customer_on_booking_registered";
+                        $templateName = "msg_to_admin_on_new_booking_received";
                         $phone = env("ADMIN_PHONE");
                         $data = [
                             env("ADMIN_NAME"),
-                            $booking->booking_id,
                             $user->name,
                             $user->phone,
                             $booking->booking_id,
@@ -258,34 +284,43 @@ class BookingController extends Controller
                             $booking->booking_id,
                         ];
                     }
-                    $perameters = generateParameters($data);
-                    $msgData = createMessageData($phone, $templateName, $lang, $perameters);
-                    $fb = new FacebookApi();
-                    $resp = $fb->sendMessage($msgData);
-                    createMessageHistory($templateName, $user, $phone, $resp);
+
+                    if ($phone) {
+                        $perameters = generateParameters($data);
+                        $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                        $fb = new FacebookApi();
+                        $resp = $fb->sendMessage($msgData);
+                        createMessageHistory($templateName, $user, $phone, $resp);
+                    }
                 }
             }
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-                $deviceToken = $user->fcm_token->token;
+                $deviceToken = $user->fcm_token->token ?? null;
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('booking_confirmed');
                     $uData = [
                         'CUSTOMER_NAME' => $user->name,
-                        'BOOKING_ID' => $booking->booking_id,
+                        'BOOKING_ID'    => $booking->booking_id,
                     ];
+
                     $tempWData = parseNotificationTemplate($temp, $uData);
                     $data = [
-                        'key1' => 'value1',
-                        'key2' => 'value2',
+                        'type'          => 'new_booking',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
-                    if (!empty($resp) && $resp['name']) {
+                    if (!empty($resp)) {
                         Notification::create([
                             'user_id' => $user->id,
-                            'type' => 'push',
-                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                            'type'    => 'push',
+                            'data'    => json_encode([
+                                'title' => $tempWData['title'] ?? null,
+                                'body'  => $tempWData['body'] ?? null,
+                                'meta'  => $data,
+                            ], JSON_UNESCAPED_UNICODE),
                         ]);
                     }
                 }
@@ -330,8 +365,9 @@ class BookingController extends Controller
                 'customer',
                 'mechanic',
                 'payment',
-                'review'
+                'review',
             ])
+                ->withCount(['cancelled_jobs'])
                 ->where('uuid', $uuid)
                 ->first();
 
@@ -408,6 +444,7 @@ class BookingController extends Controller
             $mechanic = $booking->mechanic ? [
                 'id' => $booking->mechanic->id,
                 'name' => $booking->mechanic->name,
+                'reviews' => $booking->mechanic->mechanic_reviews,
             ] : null;
 
             $payment = ($booking->payment && $booking->payment->status == 'success') ? [
@@ -452,7 +489,8 @@ class BookingController extends Controller
                 'pickup_address' => $pickupAddress,
                 'drop_address' => $dropAddress,
                 'payment' => $payment,
-                'review' => $review
+                'review' => $review,
+                'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
             ];
 
             return response()->json([
@@ -489,9 +527,10 @@ class BookingController extends Controller
                 'vehicle.vehicle_photos',
                 'pickup_address',
                 'drop_address',
-                'review'
+                'review',
             ])
                 ->whereUserId($user->id)
+                ->withCount(['cancelled_jobs'])
                 ->when($status !== 'all', fn($q) => $q->where('booking_status', $status))
                 ->orderBy('id', 'DESC')
                 ->get();
@@ -504,7 +543,6 @@ class BookingController extends Controller
             }
 
             $response = $bookings->map(function ($booking) {
-
                 // Services
                 $services = $booking->services->map(function ($service) {
                     return [
@@ -622,7 +660,8 @@ class BookingController extends Controller
                     'drop_address' => $dropAddress,
                     'payment' => $payment,
                     'mechanic' => $mechanic,
-                    'review' => $review
+                    'review' => $review,
+                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
                 ];
             });
 
@@ -661,8 +700,9 @@ class BookingController extends Controller
                 'customer',
                 'mechanic',
                 'review',
-                'payment'
+                'payment',
             ])
+                ->withCount(['cancelled_jobs'])
                 ->whereUserId($user->id)
                 ->orderBy('id', 'DESC')
                 ->get()->take(2);
@@ -784,7 +824,8 @@ class BookingController extends Controller
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
                     'review' => $review,
-                    'payment' => $payment
+                    'payment' => $payment,
+                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
                 ];
             });
 
@@ -831,6 +872,14 @@ class BookingController extends Controller
 
             $booking->update([
                 'booking_status' => $request->status
+            ]);
+
+            BookingLog::create([
+                'user_id' => $booking->user_id,
+                'mechanic_id' => $booking->mechanic_id,
+                'status' => $request->status,
+                'log_msg' => 'booking status changed as ' . $request->status,
+                'booking_date' => Carbon::now()
             ]);
 
             $msg = "booking status updated at " . $booking->status;
@@ -928,6 +977,15 @@ class BookingController extends Controller
                 'note' => $request->note
             ]);
 
+            BookingLog::create([
+                'booking_id' => $service->booking->id,
+                'user_id' => $service->booking->user_id,
+                'mechanic_id' => $service->booking->mechanic_id,
+                'status' => 'service_proof_uploaded',
+                'log_msg' => "booking service (" . $service->service_type->name . ") proof uploaded",
+                'booking_date' => Carbon::now()
+            ]);
+
             $data = [
                 'service_title' => $service->service_type->name,
                 'photo_url' => $service->photo_url,
@@ -937,8 +995,10 @@ class BookingController extends Controller
 
             $msg = "service (" . $data['service_title'] . ") proof uploaded by mechanic";
             activityLog($user, "service proof uploaded", $msg);
+            $phone = $customer->phone;
 
-            if (env("CAN_SEND_MESSAGE")) {
+
+            if (env("CAN_SEND_MESSAGE") && !empty($phone)) {
                 $templateName = "msg_to_customer_on_upload_service_proof";
                 $lang = "en";
                 $phone = $customer->phone;
@@ -964,8 +1024,10 @@ class BookingController extends Controller
                     ];
                     $tempWData = parseNotificationTemplate($temp, $uData);
                     $mdata = [
-                        'key1' => 'value1',
-                        'key2' => 'value2',
+                        'type' => 'service_proof_uploaded',
+                        'booking_uuid' => (string) $service->booking->uuid,
+                        'service_uuid' => (string) $service->uuid,
+                        'hasReview'     => $service->booking->review ? '1' : '0',
                     ];
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $mdata);
                     if (!empty($resp) && $resp['name']) {
@@ -1081,7 +1143,6 @@ class BookingController extends Controller
             $request->validate([
                 'uuid' => [
                     'required',
-                    Rule::exists('bookings', 'uuid'),
                 ],
 
                 'date_time' => [
@@ -1100,6 +1161,17 @@ class BookingController extends Controller
                 'delivery_date' => $request->date_time
             ]);
 
+
+            BookingLog::create([
+                'booking_id' => $booking->id,
+                'user_id' => $booking->user_id,
+                'mechanic_id' => $booking->mechanic_id,
+                'status' => 'delivery_time_updated',
+                'log_msg' => 'booking delivery time updated',
+                'booking_date' => Carbon::now()
+            ]);
+
+
             $msg = "Mechanic update delivery time for booking " . $booking->booking_id;
             activityLog($user, "Booking delivery date time updated", $msg);
 
@@ -1110,6 +1182,201 @@ class BookingController extends Controller
         } catch (Exception $e) {
             $msg = "error during update booking delivery date & time " . $e->getMessage();
             activityLog($request->user(), "error in booking delivery date time updation", $msg);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Cancell Booking
+     * @param Request $request
+     * @return mixed
+     */
+    public function cancelBooking(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $request->validate([
+                'booking_uuid' => 'required|exists:bookings,uuid',
+                'cancellation_reason' => 'required|string',
+            ]);
+
+            $booking = Booking::where('uuid', $request->booking_uuid)->firstOrFail();
+
+            $garage   = $booking->garage_id ? Garage::find($booking->garage_id) : null;
+            $mechanic = $booking->mechanic;
+
+            $job = MechanicJob::where('booking_id', $booking->id)
+                ->latest()
+                ->first();
+            DB::beginTransaction();
+
+            BookingLog::create([
+                'booking_id'          => $booking->id,
+                'user_id'             => $booking->user_id,
+                'mechanic_id'         => $booking->mechanic_id,
+                'status'              => 'cancelled',
+                'log_msg'             => 'booking cancelled by customer',
+                'booking_date'        => $booking->date,
+                'cancel_date'         => now(),
+                'cancellation_reason' => $request->cancellation_reason,
+                'mechanic_job_id'     => $job?->id,
+            ]);
+
+            $booking->update([
+                'cancellation_reason' => $request->cancellation_reason,
+                'cancelled_by'        => $user->id,
+                'cancel_date'         => now(),
+                'booking_status'      => 'cancelled',
+                'mechanic_id'         => null,
+                'garage_id'           => null,
+                'assigned_date'       => null,
+                'delivery_date'       => null,
+            ]);
+
+            if ($job) {
+                $job->update([
+                    'status'              => 'cancelled',
+                    'cancellation_reason' => $request->cancellation_reason,
+                    'cancelled_by'        => $user->id,
+                    'cancel_date'         => now(),
+                ]);
+            }
+
+            DB::commit();
+            activityLog(
+                $user,
+                "Booking cancelled by user",
+                "Booking cancelled by {$user->name} due to reason ({$request->cancellation_reason})"
+            );
+
+            if (env("CAN_SEND_MESSAGE")) {
+                foreach (['admin', 'customer', 'mechanic'] as $u) {
+                    $lang = "en";
+                    $phone = null;
+                    $data = [];
+
+                    if ($u === 'admin') {
+                        $templateName = "msg_to_superamdin_when_user_cancel_his_booking";
+                        $phone = env("ADMIN_PHONE");
+                        $data = [
+                            $booking->booking_id ?? '--',
+                            $user->name ?? '--',
+                            $user->name ?? 'Customer',
+                            $garage?->name ?? '--',
+                            Helpers::formateDate(now()),
+                            $request->cancellation_reason,
+                        ];
+                    }
+
+                    if ($u === 'customer') {
+                        $templateName = "msg_to_user_on_cancel_his_booking";
+                        $phone = $user->phone;
+                        $data = [
+                            $user->name ?? '--',
+                            $booking->booking_id ?? '--',
+                            $booking->date,
+                        ];
+                    }
+
+                    if ($u === 'mechanic' && $mechanic) {
+                        $templateName = "msg_to_mechanic_when_user_cancel_booking";
+                        $phone = $mechanic->phone;
+                        $data = [
+                            $mechanic->name ?? '--',
+                            $booking->booking_id ?? '--',
+                            $user->name ?? '--',
+                            $booking->date,
+                        ];
+                    }
+
+                    if ($phone && $data) {
+                        $params = generateParameters($data);
+                        $msgData = createMessageData($phone, $templateName, $lang, $params);
+                        $fb = new FacebookApi();
+                        $resp = $fb->sendMessage($msgData);
+                        createMessageHistory($templateName, $user, $phone, $resp);
+                    }
+                }
+            }
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                $deviceToken = optional($user->fcm_token)->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('msg_to_user_booking_cancelled_by_customer');
+                    $tempWData = parseNotificationTemplate($temp, [
+                        'CUSTOMER_NAME' => $user->name,
+                        'BOOKING_ID' => $booking->booking_id,
+                    ]);
+
+                    $meta = [
+                        'type' => 'booking_cancelled',
+                        'booking_uuid' => (string) $booking->uuid,
+                        'hasReview' => $booking->review ? '1' : '0',
+                    ];
+
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $meta);
+
+                    if (is_array($resp) && isset($resp['name'])) {
+                        Notification::create([
+                            'user_id' => $user->id,
+                            'type' => 'push',
+                            'data' => json_encode([
+                                'title' => $tempWData['title'] ?? null,
+                                'body' => $tempWData['body'] ?? null,
+                                'meta' => $meta,
+                            ], JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+
+                // MECHANIC
+                if ($mechanic) {
+                    $deviceToken = optional($mechanic->fcm_token)->token;
+                    if ($deviceToken) {
+                        $temp = getNotificationTemplate('msg_to_mechanic_booking_cancelled_by_customer');
+                        $tempWData = parseNotificationTemplate($temp, [
+                            'MECHANIC_NAME' => $mechanic->name,
+                            'BOOKING_ID' => $booking->booking_id,
+                            'CUSTOMER_NAME' => $user->name,
+                            'CANCELLATION_REASON' => $request->cancellation_reason,
+                        ]);
+
+                        $meta = [
+                            'type' => 'booking_cancelled',
+                            'booking_uuid' => (string) $booking->uuid,
+                            'hasReview' => $booking->review ? '1' : '0',
+                        ];
+
+                        $resp = $this->sendPushNotification($deviceToken, $tempWData, $meta);
+
+                        if (is_array($resp) && isset($resp['name'])) {
+                            Notification::create([
+                                'user_id' => $mechanic->id,
+                                'type' => 'push',
+                                'data' => json_encode([
+                                    'title' => $tempWData['title'] ?? null,
+                                    'body' => $tempWData['body'] ?? null,
+                                    'meta' => $meta,
+                                ], JSON_UNESCAPED_UNICODE),
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Booking successfully cancelled.",
+                'booking' => $booking->fresh(),
+            ]);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            activityLog($request->user(), "error in booking cancellation", $e->getMessage());
 
             return response()->json([
                 'status' => false,

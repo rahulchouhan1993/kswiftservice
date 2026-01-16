@@ -52,7 +52,8 @@ class User extends Authenticatable
         'kyc_response',
         'status',
         'password',
-        'is_profile_updated'
+        'is_profile_updated',
+        'is_signup_complete'
     ];
 
     public static function boot()
@@ -79,6 +80,7 @@ class User extends Authenticatable
 
     protected $appends = [
         'profile_photo_url',
+        'mechanic_reviews',
         'member_since',
         'trashed_at',
         'fcm_token'
@@ -172,6 +174,19 @@ class User extends Authenticatable
     public function mechanic_booking()
     {
         return $this->hasMany(Booking::class, 'mechanic_id', 'id');
+    }
+
+
+    public function getMechanicReviewsAttribute()
+    {
+        if ($this->role !== 'mechanic') {
+            return null;
+        }
+
+        return round(
+            $this->hasMany(BookingReview::class, 'mechanic_id', 'id')->avg('review') ?? 0,
+            1
+        );
     }
 
     public function mechanic_earnings()

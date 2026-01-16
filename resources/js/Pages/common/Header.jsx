@@ -57,10 +57,9 @@ export default function Header() {
                             />
                         </a>
 
-                        {/* Small line under the logo */}
-                        <span className="text-[13px] font-bold text-white mt-1">
+                        {/* <span className="text-[13px] font-bold text-white mt-1">
                             Powered By K Vidya Gupta
-                        </span>
+                        </span> */}
                     </div>
 
 

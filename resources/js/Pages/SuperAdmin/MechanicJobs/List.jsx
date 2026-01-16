@@ -124,7 +124,7 @@ export default function List({ list, search, status }) {
                                 {list.data.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={5}
+                                            colSpan={6}
                                             className="text-center py-6 text-gray-600 dark:text-gray-300"
                                         >
                                             <DataNotExist />

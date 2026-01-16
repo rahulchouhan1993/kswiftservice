@@ -46,7 +46,14 @@ export default function DeleteUserAction({
             return (
                 <RoundBtn
                     onClick={() => setOpen(true)}
-                    className={roundBtnProps.className}
+                    className={`
+                        hover:text-white
+                        hover:bg-gradient-to-r
+                        hover:from-[#08365C]
+                        hover:to-[#52C5FA]
+                        transition
+                        ${roundBtnProps.className || ''}
+                    `}
                 >
                     {roundBtnProps.icon}
                     {roundBtnProps.label && <span>{roundBtnProps.label}</span>}
@@ -54,23 +61,28 @@ export default function DeleteUserAction({
             );
         }
 
-        // ✅ existing behavior (unchanged)
         return (
             <button
                 type="button"
+                data-tooltip-target={tooltip}
+                onClick={() => setOpen(true)}
                 className={
                     btnclasses
                         ? btnclasses
-                        : "w-9 h-9 flex items-center justify-center rounded-full border hover:bg-red-600 dark:hover:bg-red/10 text-gray-900 dark:text-gray-200 hover:text-white transition"
+                        : `
+                            w-9 h-9 flex items-center justify-center rounded-full
+                            border border-gray-200
+                            text-[#52C5FA]
+                            hover:text-white
+                            hover:bg-gradient-to-r
+                            hover:from-[#08365C]
+                            hover:to-[#52C5FA]
+                            transition
+                            dark:border-gray-600
+                        `
                 }
-                data-tooltip-target={tooltip}
-                onClick={() => setOpen(true)}
             >
-                {btntext ? (
-                    btntext
-                ) : (
-                    <RiDeleteBinFill />
-                )}
+                {btntext ? btntext : <RiDeleteBinFill />}
             </button>
         );
     };
@@ -84,13 +96,14 @@ export default function DeleteUserAction({
                     <ProcessingLoader message="We are processing please wait...." />
                 ) : (
                     <div className="p-4 md:p-5 flex flex-col items-center dark:bg-[#0a0e25]">
+
                         <DotLottieReact
                             src="https://lottie.host/ba644b2c-b7e8-4966-ab56-7fc834b4a541/B33sMcMth8.lottie"
                             loop
                             autoplay
                         />
 
-                        <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400 text-center">
+                        <h3 className="mb-5 text-lg text-gray-600 dark:text-gray-400 text-center">
                             {message}
                         </h3>
 
@@ -99,25 +112,38 @@ export default function DeleteUserAction({
                         </span>
 
                         <div className="flex gap-3">
+
+                            {/* ✅ Delete (Danger stays RED) */}
                             <form onSubmit={handleDelete}>
                                 <button
                                     type="submit"
-                                    className="text-white bg-red-600 hover:bg-red-700
-                                               rounded-lg text-sm px-5 py-2.5"
                                     disabled={processing}
+                                    className="
+                                        text-white bg-red-600 hover:bg-red-700
+                                        rounded-lg text-sm px-5 py-2.5
+                                        transition
+                                    "
                                 >
                                     {processing ? "Deleting..." : "Yes, I'm sure"}
                                 </button>
                             </form>
 
+                            {/* ❌ Cancel (Brand Gradient) */}
                             <button
                                 onClick={() => setOpen(false)}
                                 type="button"
-                                className="px-5 py-2.5 text-sm rounded-lg
-                                           bg-white border border-gray-200
-                                           hover:bg-gray-100 dark:bg-[#131836]
-                                           dark:border-gray-600 dark:text-gray-400
-                                           dark:hover:bg-gray-700"
+                                className="
+                                    px-5 py-2.5 text-sm rounded-lg
+                                    border border-gray-200
+                                    text-[#08365C]
+                                    hover:text-white
+                                    hover:bg-gradient-to-r
+                                    hover:from-[#08365C]
+                                    hover:to-[#52C5FA]
+                                    transition
+                                    dark:border-gray-600
+                                    dark:text-[#52C5FA]
+                                "
                             >
                                 No, cancel
                             </button>

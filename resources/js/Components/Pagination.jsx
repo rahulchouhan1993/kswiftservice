@@ -6,12 +6,10 @@ export default function Pagination({ paginate, className = '' }) {
     const { current_page, last_page, links, from, to, total } = paginate;
     const visiblePages = 5;
 
-    // Extract numeric page links
     const pageLinks = links.filter(
         (l) => l.url && !isNaN(Number(l.label))
     );
 
-    // Find current index
     const currentIndex = pageLinks.findIndex(
         (l) => Number(l.label) === current_page
     );
@@ -19,11 +17,22 @@ export default function Pagination({ paginate, className = '' }) {
     const half = Math.floor(visiblePages / 2);
     const start = Math.max(0, currentIndex - half);
     const end = Math.min(pageLinks.length, start + visiblePages);
-
     const visiblePageLinks = pageLinks.slice(start, end);
 
-    const firstLink = links.find((l) => l.label === '« Previous');
-    const lastLink = links.find((l) => l.label === 'Next »');
+    const prevLink = links.find((l) => l.label === '« Previous');
+    const nextLink = links.find((l) => l.label === 'Next »');
+
+    const baseBtn =
+        'rounded-full text-sm w-8 h-8 flex items-center justify-center transition duration-200';
+
+    const activeBtn =
+        'bg-gradient-to-r from-[#08365C] to-[#52C5FA] text-white pointer-events-none';
+
+    const normalBtn =
+        'bg-gray-200 text-gray-700 hover:bg-gradient-to-r hover:from-[#08365C] hover:to-[#52C5FA] hover:text-white';
+
+    const disabledBtn =
+        'bg-gray-400 text-gray-200 pointer-events-none';
 
     return (
         <div className={`w-full px-3 flex justify-between items-center ${className}`}>
@@ -35,26 +44,22 @@ export default function Pagination({ paginate, className = '' }) {
 
                 {/* First */}
                 <Link
-                    href={links[1]?.url || ''}
+                    href={pageLinks[0]?.url || ''}
                     preserveScroll
                     preserveState
-                    className={`rounded-full text-sm w-8 h-8 flex items-center justify-center
-                    ${current_page === 1
-                            ? 'bg-gray-600 text-gray-200 pointer-events-none'
-                            : 'bg-gray-300 hover:bg-[#008F70] hover:text-white'}`}
+                    className={`${baseBtn} ${current_page === 1 ? disabledBtn : normalBtn
+                        }`}
                 >
                     «
                 </Link>
 
                 {/* Previous */}
                 <Link
-                    href={firstLink?.url || ''}
+                    href={prevLink?.url || ''}
                     preserveScroll
                     preserveState
-                    className={`rounded-full text-sm w-8 h-8 flex items-center justify-center
-                    ${!firstLink?.url
-                            ? 'bg-gray-600 text-gray-200 pointer-events-none'
-                            : 'bg-gray-300 hover:bg-[#008F70] hover:text-white'}`}
+                    className={`${baseBtn} ${!prevLink?.url ? disabledBtn : normalBtn
+                        }`}
                 >
                     ‹
                 </Link>
@@ -66,10 +71,8 @@ export default function Pagination({ paginate, className = '' }) {
                         href={link.url}
                         preserveScroll
                         preserveState
-                        className={`rounded-full text-sm w-8 h-8 flex items-center justify-center
-                        ${link.active
-                                ? 'bg-[#008F70] text-white pointer-events-none'
-                                : 'bg-gray-300 hover:bg-[#008F70] hover:text-white'}`}
+                        className={`${baseBtn} ${link.active ? activeBtn : normalBtn
+                            }`}
                     >
                         {link.label}
                     </Link>
@@ -77,13 +80,11 @@ export default function Pagination({ paginate, className = '' }) {
 
                 {/* Next */}
                 <Link
-                    href={lastLink?.url || ''}
+                    href={nextLink?.url || ''}
                     preserveScroll
                     preserveState
-                    className={`rounded-full text-sm w-8 h-8 flex items-center justify-center
-                    ${!lastLink?.url
-                            ? 'bg-gray-600 text-gray-200 pointer-events-none'
-                            : 'bg-gray-300 hover:bg-[#008F70] hover:text-white'}`}
+                    className={`${baseBtn} ${!nextLink?.url ? disabledBtn : normalBtn
+                        }`}
                 >
                     ›
                 </Link>
@@ -93,10 +94,8 @@ export default function Pagination({ paginate, className = '' }) {
                     href={pageLinks[pageLinks.length - 1]?.url || ''}
                     preserveScroll
                     preserveState
-                    className={`rounded-full text-sm w-8 h-8 flex items-center justify-center
-                    ${current_page === last_page
-                            ? 'bg-gray-600 text-gray-200 pointer-events-none'
-                            : 'bg-gray-300 hover:bg-[#008F70] hover:text-white'}`}
+                    className={`${baseBtn} ${current_page === last_page ? disabledBtn : normalBtn
+                        }`}
                 >
                     »
                 </Link>

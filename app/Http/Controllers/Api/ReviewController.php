@@ -5,14 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingReview;
+use App\Models\Notification;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 
+use App\PushNotification;
 use function App\activityLog;
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 
 class ReviewController extends Controller
 {
+    use PushNotification;
 
     /**
      * Fetch Reviews List
@@ -101,6 +107,39 @@ class ReviewController extends Controller
             $booking->update([
                 'booking_status' => 'closed'
             ]);
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $booking->mechanic) {
+                $mechanic = $booking->mechanic;
+                $deviceToken = optional($mechanic->fcm_token)->token;
+
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('notification_to_mechanic_when_customer_submit_review');
+                    $uData = [
+                        'MECHANIC_NAME' => $mechanic->name,
+                        'CUSTOMER_NAME' => $user->name,
+                        'BOOKING_ID' => $booking->booking_id,
+                        'RATING' => $request->review,
+                        'REVIEW_COMMENT' => $request->feedback,
+                    ];
+
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'type'          => 'mechanic_booking_review',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
+                    ];
+
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+
+                    if (is_array($resp) && isset($resp['name'])) {
+                        Notification::create([
+                            'user_id' => $mechanic->id,
+                            'type'    => 'push',
+                            'data'    => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+            }
 
             $msg = "user submit review for service";
             activityLog($user, "review submitted", $msg);

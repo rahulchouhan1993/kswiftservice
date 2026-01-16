@@ -10,6 +10,7 @@ use App\Models\MechanicJob;
 use App\Models\Notification;
 use App\Models\User;
 use App\PushNotification;
+use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -58,7 +59,10 @@ class SuperAdminBookingController extends Controller
             'pickup_address',
             'drop_address',
             'payment',
-            'mechanic_job'
+            'mechanic_job',
+            'rejected_mechanic_job',
+            'rejected_mechanic_job.mechanic',
+            'review'
         ])
             ->orderBy('created_at', 'DESC')
 
@@ -108,74 +112,138 @@ class SuperAdminBookingController extends Controller
      */
     public function assignMechanic(Request $request)
     {
-        $request->validate([
-            'garage_id' => 'required|exists:garages,id'
-        ]);
+        try {
+            $request->validate([
+                'garage_id' => 'required|exists:garages,id'
+            ]);
 
-        $garage = Garage::with(['mechanic'])->find($request->garage_id);
-        if (!$garage) {
-            return back()->with('error', "Garage does not exist.");
-        }
+            $garage = Garage::with(['mechanic'])->find($request->garage_id);
+            if (!$garage) {
+                return back()->with('error', "Garage does not exist.");
+            }
 
-        if (empty($garage->mechanic)) {
-            return back()->with('error', "Garage mechanic account deleted.");
-        }
+            if (empty($garage->mechanic)) {
+                return back()->with('error', "Garage mechanic account deleted.");
+            }
 
-        $booking = Booking::find($request->booking_id);
-        if (!$booking) {
-            return back()->with('error', "Booking does not exist.");
-        }
+            $booking = Booking::find($request->booking_id);
+            if (!$booking) {
+                return back()->with('error', "Booking does not exist.");
+            }
 
-        $customer = $booking->customer;
-        MechanicJob::create([
-            'user_id' => $garage->mechanic->id,
-            'booking_id' => $booking->id,
-            'status' => 'pending'
-        ]);
+            $customer = $booking->customer;
+            $job = MechanicJob::create([
+                'user_id' => $garage->mechanic->id,
+                'booking_id' => $booking->id,
+                'status' => 'pending'
+            ]);
 
-        $booking->update([
-            'garage_id' => $garage->id,
-            'booking_status' => 'awaiting_acceptance'
-        ]);
+            $booking->update([
+                'garage_id' => $garage->id,
+                'booking_status' => 'awaiting_acceptance'
+            ]);
 
-        if (env("CAN_SEND_MESSAGE")) {
-            $templateName = "msg_to_customer_on_assign_mechanic";
-            $lang = "en";
             $phone = $customer->phone;
-            $data = [
-                $customer->name,
-            ];
-            $perameters = generateParameters($data);
-            $msgData = createMessageData($phone, $templateName, $lang, $perameters);
-            $fb = new FacebookApi();
-            $resp = $fb->sendMessage($msgData);
-            createMessageHistory($templateName, $customer, $phone, $resp);
-        }
-
-        if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-            $deviceToken = $customer->fcm_token->token;
-            if ($deviceToken) {
-                $temp = getNotificationTemplate('mechanic_assigned');
-                $uData = [
-                    'CUSTOMER_NAME' => $customer->name,
-                ];
-                $tempWData = parseNotificationTemplate($temp, $uData);
+            if (env("CAN_SEND_MESSAGE")) {
+                $templateName = "msg_to_customer_on_assign_mechanic";
+                $lang = "en";
+                $phone = $customer->phone;
                 $data = [
-                    'key1' => 'value1',
-                    'key2' => 'value2',
+                    $customer->name,
                 ];
-                $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
-                if (!empty($resp) && $resp['name']) {
-                    Notification::create([
-                        'user_id' => $customer->id,
-                        'type' => 'push',
-                        'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
-                    ]);
+                $perameters = generateParameters($data);
+                $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                $fb = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+                createMessageHistory($templateName, $customer, $phone, $resp);
+            }
+
+            if (env("CAN_SEND_MESSAGE") && $garage?->mechanic?->id) {
+                $mechanic     = $garage->mechanic;
+                $vehicle      = $booking->vehicle;
+                $vehicleMake  = $vehicle?->vehile_make;
+
+                $templateName = "msg_to_mechanic_on_new_job_assigned";
+                $lang         = "en";
+                $phone        = $mechanic->phone;
+
+                $serviceNames = $booking->services
+                    ->pluck('service_type.name')
+                    ->filter()
+                    ->implode(', ');
+
+                $data = [
+                    $mechanic->name ?? '',
+                    trim(($vehicleMake?->name ?? '') . ($vehicle?->model ? ' & ' . $vehicle->model : '')),
+                    $vehicle?->vehicle_number ?? '',
+                    $serviceNames,
+                    $serviceNames,
+                ];
+
+                $parameters = generateParameters($data);
+                $msgData = createMessageData($phone, $templateName, $lang, $parameters);
+
+                $fb   = new FacebookApi();
+                $resp = $fb->sendMessage($msgData);
+
+                createMessageHistory($templateName, $mechanic, $phone, $resp);
+            }
+
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                $deviceToken = $customer->fcm_token->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('mechanic_assigned');
+                    $uData = [
+                        'CUSTOMER_NAME' => $customer->name,
+                    ];
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'type'          => 'mechanic_assigned',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
+                    ];
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                    if (!empty($resp) && $resp['name']) {
+                        Notification::create([
+                            'user_id' => $customer->id,
+                            'type' => 'push',
+                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
                 }
             }
-        }
 
-        return back()->with('success', 'Mechanic assigned to booking');
+
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $garage?->mechanic?->id) {
+                $mechanic     = $garage->mechanic;
+                $deviceToken = $mechanic->fcm_token->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('mechanic_new_job_assigned');
+                    $uData = [
+                        'MECHANIC_NAME' => $mechanic->name,
+                    ];
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'type'          => 'mechanic_new_job_assigned',
+                        'booking_uuid'  => (string) $booking->uuid,
+                        'job_uuid'     => $job->uuid,
+                    ];
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                    if (!empty($resp) && $resp['name']) {
+                        Notification::create([
+                            'user_id' => $mechanic->id,
+                            'type' => 'push',
+                            'data' => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
+            }
+
+            return back()->with('success', 'Mechanic assigned to booking');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -206,7 +274,8 @@ class SuperAdminBookingController extends Controller
             'booking_status' => 'pending'
         ]);
 
-        if (env("CAN_SEND_MESSAGE")) {
+        $phone = $customer->phone;
+        if (env("CAN_SEND_MESSAGE" && !empty($phone))) {
             $templateName = "msg_to_customer_on_booking_cancelled";
             $lang = "en";
             $phone = $customer->phone;
@@ -231,8 +300,9 @@ class SuperAdminBookingController extends Controller
                 ];
                 $tempWData = parseNotificationTemplate($temp, $uData);
                 $data = [
-                    'key1' => 'value1',
-                    'key2' => 'value2',
+                    'type'          => 'booking_cancelled',
+                    'booking_uuid'  => (string) $booking->uuid,
+                    'hasReview'     => $booking->review ? '1' : '0',
                 ];
                 $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
                 if (!empty($resp) && $resp['name']) {

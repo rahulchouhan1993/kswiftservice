@@ -4,7 +4,7 @@ import NavLink from '@/Components/NavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { IoLogOut, IoMoon } from "react-icons/io5";
+import { IoLogOut, IoMoon, IoSettingsOutline } from "react-icons/io5";
 import { FaSun, FaBell, FaIdCard, FaBars, FaTimes } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 import NavDropdown from '@/Components/NavDropdown';
@@ -33,6 +33,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const { successAlert, errorAlert, warningAlert, infoAlert } = useAlerts();
     const { flash, errors, messages, enquiryCount, newBookingsCount } = usePage().props;
+
+    console.log('newBookingsCount', newBookingsCount);
+    console.log('enquiryCount', enquiryCount);
 
     useEffect(() => {
         if (errors) {
@@ -93,9 +96,24 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const navLinks = [
         { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard },
-        { href: route('superadmin.settings.vehicle.make.list'), active: route().current('vehicle.make'), label: 'Settings', icon: MdOutlineSettingsSuggest },
-        { href: route('superadmin.user.list'), active: route().current('user.list'), label: 'Customers', icon: FaUsers },
-        { href: route('superadmin.mechanic.list'), active: route().current('mechanic.list'), label: 'Mechanics', icon: BiSolidCarMechanic },
+        {
+            label: 'Settings',
+            icon: IoSettingsOutline,
+            dropdown: true,
+            items: [
+                { label: 'Vehicle Makes', route: 'superadmin.settings.vehicle.make.list' },
+                { label: 'Service Types', route: 'superadmin.settings.service.type.list' },
+            ]
+        },
+        {
+            label: 'Users',
+            icon: FaUsers,
+            dropdown: true,
+            items: [
+                { label: 'Customers', route: 'superadmin.user.list' },
+                { label: 'Mechanics', route: 'superadmin.mechanic.list' },
+            ]
+        },
         {
             href: route('superadmin.enquiries.list'),
             active: route().current('enquiries.list'),
@@ -131,19 +149,33 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </div>
                             </div>
 
-                            <div className="hidden lg:flex items-center space-x-4 ms-5">
-                                {navLinks.map((link, index) => (
-                                    <NavLink key={index} href={link.href} active={link.active}>
-                                        <link.icon className="h-5 w-5 mr-1" />
-                                        {link.label}
+                            {/* DESKTOP NAV */}
+                            <div className="hidden lg:flex items-center space-x-4">
+                                {navLinks.map((link, index) =>
+                                    link.dropdown ? (
+                                        <NavDropdown
+                                            key={index}
+                                            label={
+                                                <span className="flex items-center gap-1">
+                                                    <link.icon className="h-5 w-5" />
+                                                    {link.label}
+                                                </span>
+                                            }
+                                            items={link.items}
+                                        />
+                                    ) : (
+                                        <NavLink
+                                            key={index}
+                                            href={link.href}
+                                            active={link.active}
+                                            count={link.count}
+                                        >
+                                            <link.icon className="h-5 w-5 mr-1" />
+                                            {link.label}
+                                        </NavLink>
 
-                                        {link.count > 0 && (
-                                            <span className="ml-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                                                {link.count}
-                                            </span>
-                                        )}
-                                    </NavLink>
-                                ))}
+                                    )
+                                )}
                             </div>
                         </div>
 
@@ -160,12 +192,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                     { label: 'Profile', route: 'superadmin.update.profile' }
                                 ]}
                             />
-
-                            {/* <Tooltip title="Notification">
-                                <div onClick={() => setIsNotificationOpen(true)} className='flex items-center justify-center p-2 dark:hover:bg-blue-950 hover:bg-gray-300 rounded-full cursor-pointer'>
-                                    <FaBell className='h-5 w-5 dark:text-white text-black' />
-                                </div>
-                            </Tooltip> */}
 
                             <Tooltip title="Logout">
                                 <NavLink

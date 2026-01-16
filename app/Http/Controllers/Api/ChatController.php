@@ -4,18 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Notification;
 use App\Models\SuperAdmin;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserChat;
+use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Throwable;
 
+use function App\getNotificationTemplate;
+use function App\parseNotificationTemplate;
 use function App\uploadRequestFile;
 
 class ChatController extends Controller
 {
+    use PushNotification;
+
     /**
      * Chat Messages List
      * @param Request $request
@@ -73,77 +80,72 @@ class ChatController extends Controller
     {
         try {
             $user = $request->user();
-            $booking = null;
-            $ticket = null;
-
             $request->validate([
-                'to_user'       => 'required|integer',
+                'to_user'       => 'required|integer|exists:users,id',
+                'message'       => 'nullable|required_without:attachment|string',
+                'attachment'    => 'nullable|required_without:message|array',
+                'attachment.*'  => 'file|mimes:jpeg,jpg,png,pdf,mp4|max:51200',
 
-                'message'       => 'required_without:attachment|nullable|string',
-
-                'booking_id'    => 'nullable',
-                'ticket_id'     => 'nullable|integer',
-
-                'attachment'    => 'required_without:message|nullable|array',
-                'attachment.*'  => 'file|mimes:jpeg,jpg,png,webp,pdf,doc,docx,mp4,mov,avi,mkv|max:51200',
+                'booking_id'    => 'nullable|string',
+                'ticket_id'     => 'nullable|string',
             ]);
 
             $toUser = User::find($request->to_user);
             if (!$toUser) {
                 return response()->json([
-                    'status' => false,
+                    'status'  => false,
                     'message' => 'User does not exist',
                 ], 404);
             }
 
-            if ($request->booking_id) {
-                $booking = Booking::with(['vehicle.vehile_make'])->firstWhere('uuid', $request->booking_id);
+            $booking = null;
+            if ($request->filled('booking_id')) {
+                $booking = Booking::with('vehicle.vehile_make')
+                    ->where('uuid', $request->booking_id)
+                    ->first();
 
                 if (!$booking) {
                     return response()->json([
-                        'status' => false,
+                        'status'  => false,
                         'message' => 'Booking does not exist',
                     ], 404);
                 }
             }
 
-            if ($request->ticket_id) {
-                $ticket = Ticket::find($request->ticket_id);
+            $ticket = null;
+            if ($request->filled('ticket_id')) {
+                $ticket = Ticket::where('uuid', $request->ticket_id)->first();
 
                 if (!$ticket) {
                     return response()->json([
-                        'status' => false,
+                        'status'  => false,
                         'message' => 'Ticket does not exist',
                     ], 404);
                 }
-            } elseif ($booking) {
-                $ticket = Ticket::find($booking->id)
-                    ->where('user_id', $user->id)
-                    ->first();
+            }
 
-                if (!$ticket) {
+            if (!$ticket) {
+                if ($booking) {
                     $makeName = $booking->vehicle?->vehile_make?->name ?? 'N/A';
-                    $title = '#' . $booking->booking_id . ' (' . $makeName . ')';
+                    $subject  = '#' . $booking->booking_id . ' (' . $makeName . ')';
 
                     $ticket = Ticket::create([
                         'user_id'     => $user->id,
                         'user_role'   => $user->role,
                         'booking_id'  => $booking->id,
-                        'subject'     => $title,
+                        'subject'     => $subject,
                         'description' => 'Chat initiated from booking',
+                    ]);
+                } else {
+                    $ticket = Ticket::create([
+                        'user_id'     => $user->id,
+                        'user_role'   => $user->role,
+                        'subject'     => 'General Chat',
+                        'description' => 'General chat initiated',
                     ]);
                 }
             }
 
-            // 4️⃣ Neither ticket nor booking provided
-            else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Booking or ticket is required',
-                ], 422);
-            }
-
-            /* -------------------- Create Chat -------------------- */
             $chat = UserChat::create([
                 'from'           => $user->id,
                 'to'             => $toUser->id,
@@ -154,33 +156,53 @@ class ChatController extends Controller
                 'message'        => $request->message,
             ]);
 
-            /* -------------------- Attachments -------------------- */
-            if ($request->hasFile('attachment')) {
-                uploadRequestFile(
-                    $request,
-                    'attachment',
-                    $chat,
-                    'chat_attachments',
-                    'attachment'
-                );
+            if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                $deviceToken = optional($toUser->fcm_token)->token;
+                if ($deviceToken) {
+                    $temp = getNotificationTemplate('new_ticket_message_received');
+                    $uData = [
+                        'CUSTOMER_NAME' => $toUser->name,
+                        'TICKET_ID' => $ticket->ticketId
+                    ];
+
+                    $tempWData = parseNotificationTemplate($temp, $uData);
+                    $data = [
+                        'type'          => 'new_ticket_message_received',
+                        'ticket_uuid'  => (string) $ticket->uuid,
+                        'chat_uuid'  => (string) $chat->uuid,
+                        'hasReview'     => $booking->review ? '1' : '0',
+                    ];
+
+                    $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                    if (is_array($resp) && isset($resp['name'])) {
+                        Notification::create([
+                            'user_id' => $toUser->id,
+                            'type'    => 'push',
+                            'data'    => json_encode($tempWData, JSON_UNESCAPED_UNICODE),
+                        ]);
+                    }
+                }
             }
 
-            /* -------------------- Response -------------------- */
+            if ($request->hasFile('attechment')) {
+                uploadRequestFile($request, 'attechment', $chat, 'chat_attechments', 'attechment');
+            }
+
             return response()->json([
-                'status' => true,
-                'message' => 'Message sent',
-                'chat' => [
-                    'id' => $chat->id,
-                    'ticket_id' => $ticket->id,
-                    'booking_id' => $booking?->id,
-                    'message' => $chat->message,
+                'status'  => true,
+                'message' => 'Message sent successfully',
+                'chat'    => [
+                    'id'            => $chat->id,
+                    'ticket_id'     => $ticket->id,
+                    'booking_id'    => $booking?->id,
+                    'message'       => $chat->message,
                     'attachment_url' => $chat->attachment_url,
-                    'time' => $chat->created_at->format('d M Y · h:i A'),
-                ]
+                    'time'          => $chat->created_at->format('d M Y · h:i A'),
+                ],
             ], 201);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

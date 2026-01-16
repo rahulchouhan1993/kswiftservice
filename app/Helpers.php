@@ -748,7 +748,7 @@ if (!function_exists('getNotificationTemplate')) {
             //New Job Assigned
             'mechanic_new_job_assigned' => [
                 'title' => 'New Job Assigned',
-                'body' => "Hi, \nA new job has been assigned to you 🧑‍🔧"
+                'body' => "Hi [MECHANIC_NAME], \nA new job has been assigned to you 🧑‍🔧"
             ],
 
             //Booking Confirmed
@@ -778,6 +778,17 @@ if (!function_exists('getNotificationTemplate')) {
                     "Your service request ([BOOKING_ID]) has been cancelled ❌.",
             ],
 
+            // Push Notification To Mechanic On Review
+            'notification_to_mechanic_when_customer_submit_review' => [
+                'title' => 'New Review Received ⭐',
+                'body'  =>
+                "Hi [MECHANIC_NAME]\n" .
+                    "You have received a new review from [CUSTOMER_NAME] for booking ([BOOKING_ID]). ⭐\n\n" .
+                    "Rating: [RATING]/5\n" .
+                    "Review: [REVIEW_COMMENT]\n\n" .
+                    "Thank you for providing your service.",
+            ],
+
             // Advance Payment Request
             'advance_payment' => [
                 'title' => 'Advance Payment Required 💳',
@@ -795,6 +806,13 @@ if (!function_exists('getNotificationTemplate')) {
                     "Your booking ([BOOKING_ID]) is now confirmed.",
             ],
 
+            //Notification To Mechanic On Payment Done
+            'inform_mechanic_on_payment_done' => [
+                'title' => 'Customer Payment Done 🎉',
+                'body'  =>
+                "Great news! 🎊\nThe customer ([CUSTOMER_NAME]) has paid for the service successfully 💸✅\n\nYou’re all set to continue or close the job 🚗✨",
+            ],
+
             // Video Proof Uploaded
             'video_uploaded' => [
                 'title' => 'Video Proof Uploaded 🎥',
@@ -810,6 +828,30 @@ if (!function_exists('getNotificationTemplate')) {
                 'body'  =>
                 "Hi [CUSTOMER_NAME]\n" .
                     "Your vehicle service is complete and ready for pickup 🚗✨.",
+            ],
+
+            // Booking Cancelled By Customer
+            'msg_to_user_booking_cancelled_by_customer' => [
+                'title' => 'Booking Cancelled ❌',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "Your service request ([BOOKING_ID]) has been cancelled as per your request ❌.",
+            ],
+
+            //Push notification on chat message
+            'new_ticket_message_received' => [
+                'title' => 'New Message Received 💬',
+                'body'  =>
+                "Hi [CUSTOMER_NAME]\n" .
+                    "You have received a new message on your support ticket ([TICKET_ID]). Please check and reply if needed.",
+            ],
+
+
+            'msg_to_mechanic_booking_cancelled_by_customer' => [
+                'title' => 'Booking Cancelled ❌',
+                'body'  =>
+                "Hi [MECHANIC_NAME]\n" .
+                    "Service request ([BOOKING_ID]) has been cancelled by ([CUSTOMER_NAME]) due to [CANCELLATION_REASON] ❌.",
             ],
 
         ][$event] ?? null;
@@ -835,5 +877,22 @@ if (!function_exists('parseNotificationTemplate')) {
             'title' => $title,
             'body'  => $body,
         ];
+    }
+}
+
+if (!function_exists('setEnv')) {
+    function setEnv($key, $value)
+    {
+        $path = base_path('.env');
+        if (file_exists($path)) {
+            file_put_contents(
+                $path,
+                preg_replace(
+                    "/^{$key}=.*/m",
+                    "{$key}=\"{$value}\"",
+                    file_get_contents($path)
+                )
+            );
+        }
     }
 }

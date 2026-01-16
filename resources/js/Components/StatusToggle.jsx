@@ -9,7 +9,6 @@ export default function StatusToggle({
     tooltip = "",
     className = "",
 
-    /* 🔥 NEW */
     roundBtn = false,
     roundBtnProps = {},
 
@@ -21,30 +20,21 @@ export default function StatusToggle({
         status: checked,
     });
 
-    /* ---------------- Toggle Logic ---------------- */
     const toggleStatus = () => {
         const newStatus = !data.status;
         setData("status", newStatus);
 
         if (action) {
-            setTimeout(() => {
-                subRef.current?.click();
-            }, 50);
+            setTimeout(() => subRef.current?.click(), 50);
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (action) {
-            post(action, {
-                preserveScroll: true,
-            });
-        }
+        if (action) post(action, { preserveScroll: true });
     };
 
-    useEffect(() => {
-        // console.log("StatusToggle errors", errors);
-    }, [errors]);
+    useEffect(() => { }, [errors]);
 
     /* =========================
        RoundBtn Mode
@@ -58,18 +48,25 @@ export default function StatusToggle({
                         e.stopPropagation();
                         toggleStatus();
                     }}
-                    className={roundBtnProps.className}
+                    className={`
+                        hover:text-white
+                        hover:bg-gradient-to-r
+                        hover:from-[#08365C]
+                        hover:to-[#52C5FA]
+                        transition
+                        ${roundBtnProps.className || ''}
+                    `}
                 >
                     {roundBtnProps.icon ? (
                         roundBtnProps.icon
                     ) : data.status ? (
-                        <MdToggleOn size={18} />
+                        <MdToggleOn size={20} />
                     ) : (
-                        <MdToggleOff size={18} />
+                        <MdToggleOff size={20} />
                     )}
 
                     {roundBtnProps.label && (
-                        <span>{roundBtnProps.label}</span>
+                        <span className="ml-1">{roundBtnProps.label}</span>
                     )}
                 </RoundBtn>
 
@@ -81,7 +78,7 @@ export default function StatusToggle({
     }
 
     /* =========================
-       Default Toggle (UNCHANGED)
+       Default Toggle
        ========================= */
     return (
         <form onSubmit={handleSubmit} className="flex">
@@ -97,14 +94,28 @@ export default function StatusToggle({
                     readOnly={processing}
                 />
 
-                <div className="relative w-9 h-5 bg-gray-200
-                                rounded-full peer dark:bg-gray-700
-                                peer-checked:after:translate-x-full
-                                after:content-[''] after:absolute after:top-[2px]
-                                after:start-[2px] after:bg-white after:border
-                                after:rounded-full after:h-4 after:w-4
-                                after:transition-all
-                                peer-checked:bg-[#008F70]" />
+                <div
+                    className="
+                        relative w-9 h-5 rounded-full
+                        bg-gray-300 dark:bg-gray-700
+                        after:content-[''] after:absolute
+                        after:top-[2px] after:start-[2px]
+                        after:h-4 after:w-4 after:bg-white
+                        after:rounded-full after:transition-all
+                        peer-checked:after:translate-x-full
+                        transition
+
+                        /* ✅ Checked = Gradient */
+                        peer-checked:bg-gradient-to-r
+                        peer-checked:from-[#08365C]
+                        peer-checked:to-[#52C5FA]
+
+                        /* ✅ Hover = Gradient */
+                        hover:bg-gradient-to-r
+                        hover:from-[#08365C]
+                        hover:to-[#52C5FA]
+                    "
+                />
             </label>
 
             <button ref={subRef} type="submit" className="hidden">

@@ -13,6 +13,7 @@ class Payment extends Model
         'booking_id',
         'txnId',
         'amount',
+        'admin_income',
         'payment_mode',
         'status',
         'invoice_no',

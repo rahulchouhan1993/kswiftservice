@@ -36,9 +36,9 @@ export default function Footer() {
                                 <div>
                                     <div className="flex-shrink-0 flex flex-col items-start">
                                         <img src={logo} alt="KSwift Logo" className="max-w-[100px] w-full ps-4" />
-                                        <span className="text-[13px] font-bold text-white mt-1">
+                                        {/* <span className="text-[13px] font-bold text-white mt-1">
                                             Powered By K Vidya Gupta
-                                        </span>
+                                        </span> */}
                                     </div>
                                     <div className='social_links mt-4'>
                                         <ul className='flex space-x-2 ps-2 mt-2'>
@@ -67,7 +67,7 @@ export default function Footer() {
                                 <h3 className="text-white font-bold tracking-wide uppercase text-sm">For Customers</h3>
                                 <ul className="space-y-3">
                                     <li><button onClick={() => handleNavigation('/', '#services')} className="fading text-gray-300 hover:text-white transition-colors">Services</button></li>
-                                    <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
+                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
                                     <li><button onClick={() => handleNavigation('/', '#faq')} className="fading text-gray-300 hover:text-white transition-colors">FAQs</button></li>
                                     <li><Link href="/customer-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Customer Terms & Conditions</Link></li>
                                 </ul>
@@ -79,7 +79,7 @@ export default function Footer() {
                                 <ul className="space-y-3">
                                     {/* <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Partner Signup</a></li> */}
                                     <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">Support</Link></li>
-                                    <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
+                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
                                     <li><Link href="/partner-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Partner Terms & Conditions</Link></li>
                                 </ul>
                             </div>

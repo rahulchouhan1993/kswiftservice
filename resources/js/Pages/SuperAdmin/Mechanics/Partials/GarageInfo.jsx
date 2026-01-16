@@ -2,17 +2,33 @@ import { useState } from 'react';
 import Modal from '@/Components/Modal';
 import RoundBtn from '@/Components/RoundBtn';
 import { RiInformation2Line } from 'react-icons/ri';
+import EditBtn from '@/Components/EditBtn';
 
 export default function GarageInfo({ garage }) {
     const [open, setOpen] = useState(false);
 
     if (!garage) return null;
+    const renderStars = (rating) => {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+        return (
+            <>
+                {"⭐".repeat(fullStars)}
+                {halfStar && "⭐"}
+                {"☆".repeat(emptyStars)}
+            </>
+        );
+    };
 
     return (
         <>
-            <RoundBtn onClick={() => setOpen(true)}>
+            <EditBtn
+                onClick={(e) => setOpen(true)}
+            >
                 <RiInformation2Line size={18} />
-            </RoundBtn>
+            </EditBtn>
 
             <Modal
                 show={open}
@@ -29,14 +45,22 @@ export default function GarageInfo({ garage }) {
 
                     {/* LOGO */}
                     {garage.logo_url && (
-                        <div className="flex justify-center">
+                        <div className="flex flex-col items-center gap-2">
                             <img
                                 src={garage.logo_url}
                                 alt={garage.name}
                                 className="h-28 w-28 rounded-xl object-cover shadow-md border"
                             />
+
+                            <div className="flex items-center justify-center">
+                                {renderStars(garage.garage_rating)}
+                                <span className="ml-2 text-sm text-gray-600">
+                                    ({Number(garage.garage_rating).toFixed(1)})
+                                </span>
+                            </div>
                         </div>
                     )}
+
 
                     {/* BASIC INFO */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -3,19 +3,31 @@ import Modal from "@/Components/Modal";
 import RoundBtn from "@/Components/RoundBtn";
 import { HiInformationCircle } from "react-icons/hi";
 import { useHelpers } from "@/Components/Helpers";
+import ServiceProofModal from "./ServiceProofModal";
 
 export default function BookingDetails({ booking }) {
     console.log('booking', booking);
     const [open, setOpen] = useState(false);
     const { displayInRupee, capitalizeWords } = useHelpers();
-
-
     const closeModal = () => setOpen(false);
+
+    const renderStars = (rating) => {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+        return (
+            <>
+                {"⭐".repeat(fullStars)}
+                {halfStar && "⭐"}
+                {"☆".repeat(emptyStars)}
+            </>
+        );
+    };
 
     return (
         <>
             <RoundBtn onClick={() => setOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 focus:ring-blue-400"
             >
                 <HiInformationCircle />
                 <span>Booking Details</span>
@@ -24,18 +36,35 @@ export default function BookingDetails({ booking }) {
             <Modal show={open} maxWidth="2xl" topCloseButton={true} handleTopClose={closeModal}>
                 {/* Header */}
                 <div className="px-6 py-4 border-b bg-gray-100 dark:bg-[#131836] flex justify-between items-center">
-                    <div>
+                    <div className="space-y-2">
+                        {/* Booking Title */}
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-white">
                             Booking #{booking.booking_id}
                         </h3>
-                        <p className="flex text-xs text-gray-500 gap-2">
-                            {booking.date} • {booking.time}
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+
+                        {/* Meta Info */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                            <span>
+                                {booking.date} • {booking.time}
+                            </span>
+
+                            {/* Rating */}
+                            <div className="flex items-center gap-1">
+                                <span className="text-gray-600 dark:text-gray-300">
+                                    Rating:
+                                </span>
+                                {renderStars(booking?.review?.review || 0)}
+                            </div>
+
+                            {/* Status Badge */}
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold
+            bg-blue-100 text-blue-700
+            dark:bg-blue-900/40 dark:text-blue-300">
                                 {capitalizeWords(booking.booking_status)}
                             </span>
-                        </p>
-
+                        </div>
                     </div>
+
                 </div>
 
                 {/* Body */}
@@ -142,19 +171,31 @@ export default function BookingDetails({ booking }) {
                             Services
                         </h4>
 
-                        <ul className="space-y-2">
+                        <ul className="space-y-3">
                             {booking.services?.map((s) => (
                                 <li
                                     key={s.id}
-                                    className="flex justify-between text-sm border-b border-dashed pb-2"
+                                    className="flex items-center justify-between text-sm border-b border-dashed pb-2"
                                 >
-                                    <span>{capitalizeWords(s.service_type?.name)}</span>
-                                    <span className="font-semibold">
-                                        {displayInRupee(s.service_type?.base_price)}
+                                    {/* Service Name */}
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                        {capitalizeWords(s.service_type?.name || '—')}
                                     </span>
+
+                                    {/* Price + Proof */}
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-semibold text-gray-900 dark:text-white">
+                                            {displayInRupee(s.service_type?.base_price || 0)}
+                                        </span>
+
+                                        {s?.photo_url || s?.video_url ? (<>
+                                            <ServiceProofModal service={s} />
+                                        </>) : ''}
+                                    </div>
                                 </li>
                             ))}
                         </ul>
+
                     </section>
 
                     {/* EXTRA SERVICES */}

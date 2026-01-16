@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 use function App\activityLog;
 
@@ -24,7 +25,8 @@ class AadharCardController extends Controller
             $request->validate([
                 'aadhar_card_number' => [
                     'required',
-                    'digits:12'
+                    'digits:12',
+                    Rule::unique('users', 'aadharcard_no')
                 ]
             ]);
 

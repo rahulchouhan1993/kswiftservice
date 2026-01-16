@@ -15,7 +15,7 @@ export default function UpdateProfileInformation({ className = '' }) {
             name: user.name,
             email: user.email,
             phone: user.phone,
-            whatsapp_phone: user.whatsapp_phone,
+            whatsapp_phone: user.whatsapp_number,
         });
 
     const submit = (e) => {

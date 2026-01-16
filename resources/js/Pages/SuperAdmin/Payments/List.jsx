@@ -9,6 +9,10 @@ import SelectInput from "@/Components/SelectInput";
 import UserAvatarCard from "@/Components/UserAvatarCard";
 import { MdCloudDownload } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
+import { Link } from "lucide-react";
+import RoundBtn from "@/Components/RoundBtn";
+import { FaRegEye } from "react-icons/fa6";
+import RowActionsMenu from "@/Components/RowActionsMenu";
 
 export default function List({ list, search, status, start_date, end_date }) {
     const timerRef = useRef(null);
@@ -164,6 +168,7 @@ export default function List({ list, search, status, start_date, end_date }) {
                             <thead className="border-b border-gray-300 dark:border-blue-900">
                                 <tr>
                                     <th className="p-2 text-center">#txnId</th>
+                                    <th className="p-2 text-center">#bookingId</th>
                                     <th className="p-2 text-start">User</th>
                                     <th className="p-2 text-start">Mechanic</th>
                                     <th className="p-2 text-center">Vehicle</th>
@@ -177,7 +182,7 @@ export default function List({ list, search, status, start_date, end_date }) {
                             <tbody>
                                 {list.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="py-6 text-center text-gray-600 dark:text-gray-300">
+                                        <td colSpan={9} className="py-6 text-center text-gray-600 dark:text-gray-300">
                                             <DataNotExist />
                                         </td>
                                     </tr>
@@ -189,6 +194,7 @@ export default function List({ list, search, status, start_date, end_date }) {
                                             dark:bg-[#131836] dark:hover:bg-[#0a0e25] dark:text-white"
                                         >
                                             <td className="p-2">{l?.txnId}</td>
+                                            <td className="p-2">{l?.booking?.booking_id}</td>
 
                                             <td className="p-2 text-start">
                                                 <UserAvatarCard user={l?.user} />
@@ -212,20 +218,24 @@ export default function List({ list, search, status, start_date, end_date }) {
 
                                             <td className="p-2">{l?.received_at || "--"}</td>
 
-                                            <td className="p-2 flex justify-center">
-                                                {l?.invoice_url ? (
-                                                    <a
-                                                        href={l.invoice_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        download
-                                                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                                                    >
-                                                        <MdCloudDownload /> Invoice
-                                                    </a>
-                                                ) : (
-                                                    "--"
-                                                )}
+                                            <td className="p-2 flex justify-center items-center">
+                                                <RowActionsMenu>
+                                                    <div className="flex flex-col gap-2">
+                                                        {l?.invoice_url ? (
+                                                            <a
+                                                                href={l.invoice_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                download
+                                                            >
+                                                                <RoundBtn>
+                                                                    <MdCloudDownload size={18} />
+                                                                    Invoice
+                                                                </RoundBtn>
+                                                            </a>
+                                                        ) : ''}
+                                                    </div>
+                                                </RowActionsMenu>
                                             </td>
                                         </tr>
                                     ))

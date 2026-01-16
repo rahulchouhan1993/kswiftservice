@@ -33,9 +33,15 @@ class MechanicJobsControler extends Controller
             'booking.vehicle.vehile_make',
             'booking.customer'
         ])
+            ->orderByRaw("
+            CASE
+                WHEN status = 'awaiting_acceptance' THEN 1
+                WHEN status = 'pending' THEN 2
+                ELSE 3
+            END
+        ")
             ->orderBy('created_at', 'DESC')
             ->when($search, function ($q) use ($search) {
-
                 $q->where(function ($q) use ($search) {
                     $q->where('cancellation_reason', 'LIKE', "%{$search}%")
                         ->orWhereHas('mechanic', function ($q) use ($search) {

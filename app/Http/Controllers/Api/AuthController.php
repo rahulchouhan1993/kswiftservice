@@ -148,6 +148,11 @@ class AuthController extends Controller
             //         'otp' => $otp,
             //         'otp_expire' => now()->addMinutes(2),
             //     ]);
+            // } else {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => "Failed to sent OTP.",
+            //     ], 500);
             // }
 
             $user->update([
@@ -245,19 +250,21 @@ class AuthController extends Controller
             $msg = "login verification otp verified";
             activityLog($user, "login otp verified", $msg);
 
-            if ($user->is_profile_updated == 0) {
+            $phone = $user->phone;
+            if ($user->is_signup_complete == 0) {
                 if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
                     $deviceToken = $user->fcm_token->token;
                     if ($deviceToken) {
                         $temp = getNotificationTemplate('customer_welcome_on_signup');
                         $data = [
-                            'key1' => 'value1',
-                            'key2' => 'value2',
+                            'type'          => 'customer_welcome',
+                            'user_uuid'  => (string) $user->uuid,
+                            'is_profile_updated' => $user->is_profile_updated ? '1' : '0',
                         ];
 
                         $resp = $this->sendPushNotification($deviceToken, $temp, $data);
                         if (!empty($resp) && $resp['name']) {
-                            $n = Notification::create([
+                            Notification::create([
                                 'user_id' => $user->id,
                                 'type' => 'push',
                                 'data' => json_encode($temp, JSON_UNESCAPED_UNICODE),
@@ -266,7 +273,7 @@ class AuthController extends Controller
                     }
                 }
 
-                if (env("CAN_SEND_MESSAGE")) {
+                if (env("CAN_SEND_MESSAGE") && !empty($phone)) {
                     if ($user->role == 'customer') {
                         $templateName = "customer_welcome_message";
                     } elseif ($user->role == 'mechanic') {
@@ -280,6 +287,10 @@ class AuthController extends Controller
                     createMessageHistory($templateName, $user, $phone, $resp);
                 }
             }
+
+            $user->update([
+                'is_signup_complete' => 1
+            ]);
 
             return response()->json([
                 'status' => true,
