@@ -8,22 +8,19 @@ use Ramsey\Uuid\Uuid;
 class WhatsappMsgHistory extends Model
 {
     protected $fillable = [
-        'user_id',
-        'template_name',
-        'phone',
+        'msg_id',
+        'user_phone',
+        'user_name',
+        'msg_type',
         'status',
-        'response'
+        'is_read',
+        'sent_time',
+        'related_msg_id',
+        'message',
+        'platform'
     ];
 
     protected $casts = [
         'response' => 'array'
     ];
-
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(function ($model) {
-            $model->uuid = Uuid::uuid4();
-        });
-    }
 }

@@ -714,13 +714,14 @@ if (!function_exists('createMessageData')) {
 if (!function_exists('createMessageHistory')) {
     function createMessageHistory($templateName, $user, $phone, $resp)
     {
-        $status = $resp['status'] ? 'Sent.' : 'Sending Failed.';
+        $status = $resp['status'] ? 1 : 3;
         WhatsappMsgHistory::create([
             'user_id' => $user ? $user->id : null,
             'template_name' => $templateName,
-            'phone' => $phone,
+            'user_phone' => $phone,
             'status' => $status,
-            'response' => $resp['result']
+            'response' => $resp['result'],
+            'sent_time' => Carbon::now()
         ]);
     }
 }

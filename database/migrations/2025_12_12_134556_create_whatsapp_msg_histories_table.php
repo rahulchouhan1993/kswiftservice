@@ -14,14 +14,20 @@ return new class extends Migration
     {
         Schema::create('whatsapp_msg_histories', function (Blueprint $table) {
             $table->id();
-            $table->uuid();
             $table->foreignIdFor(User::class)->nullable();
-            $table->string('template_name');
-            $table->string('phone');
-            $table->string('status');
-            $table->longText('response');
+            $table->string('msg_id')->nullable();
+            $table->string('template_name')->nullable();
+            $table->string('user_phone')->nullable();
+            $table->string('user_name')->nullable();
+            $table->string('msg_type')->default(1)->comment('0-Sent,1-Received');
+            $table->string('is_read')->default(0)->comment('0-No, 1-Yes');
+            $table->timestamp('sent_time');
+            $table->string('related_msg_id')->nullable();
+            $table->longText('message')->nullable();
+            $table->string('platform')->nullable();
+            $table->longText('response')->nullable();
+            $table->string('status')->comment('0-sent, delivered-1,read-2,failed-3');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

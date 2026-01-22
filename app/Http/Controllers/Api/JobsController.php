@@ -336,6 +336,14 @@ class JobsController extends Controller
                 ];
             });
 
+            $review = $booking->review ? [
+                'review' => $booking->review->review,
+                'feedback' => $booking->review->feedback,
+            ] : null;
+
+            $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
+
             return response()->json([
                 "status"  => true,
                 "message" => "Booking details fetched successfully",
@@ -382,6 +390,9 @@ class JobsController extends Controller
                         "invoice_url"   => $payment->invoice_url,
                         "received_at"   => $payment->received_at,
                     ] : null,
+
+                    'review' => $review,
+                    'mechanic_review' => $mechanic_review,
                 ]
             ], 200);
         } catch (Exception $e) {

@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
             SubstituteBindings::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'webhook/*',
+        ]);
+
+
+
         $middleware->alias([
             'auth.superadmin' => SuperAdminMiddleware::class,
             'authorized' => RedirectIfAuthenticated::class,

@@ -11,6 +11,7 @@ use App\Models\BookingService;
 use App\Models\Garage;
 use App\Models\MechanicJob;
 use App\Models\Notification;
+use App\Models\ServiceType;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Vehicle;
@@ -42,10 +43,17 @@ class BookingController extends Controller
         try {
             $request->validate([
                 'vehicle_id' => ['required', 'integer'],
-                'services' => ['required', 'array', 'min:1'],
+                'services' => [
+                    'nullable',
+                    'array',
+                    'required_without:extra_services',
+                ],
                 'services.*' => ['integer', 'exists:service_types,id'],
-
-                'extra_services' => ['nullable', 'array'],
+                'extra_services' => [
+                    'nullable',
+                    'array',
+                    'required_without:services',
+                ],
                 'extra_services.*' => ['string'],
 
                 'date' => ['required', 'date_format:d-m-Y', 'after_or_equal:today'],
@@ -54,16 +62,17 @@ class BookingController extends Controller
                 'pickup_type' => ['required', Rule::in(['pickup', 'self_drop'])],
 
                 'pickup_address' => [
-                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup')
+                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup'),
                 ],
 
                 'drop_address' => [
-                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup')
+                    Rule::requiredIf(fn() => $request->pickup_type === 'pickup'),
                 ],
 
                 'additional_note' => ['required'],
             ]);
 
+            $serviceTypeIds = [];
             $user = $request->user();
             $vehicle = Vehicle::where('id', $request->vehicle_id)
                 ->where('user_id', $user->id)
@@ -77,7 +86,7 @@ class BookingController extends Controller
             }
 
             $existingBooking = Booking::where('vehicle_id', $vehicle->id)
-                ->where('booking_status', '!=', 'completed')
+                ->whereNotIn('booking_status', ['completed', 'closed'])
                 ->latest()
                 ->first();
 
@@ -137,12 +146,31 @@ class BookingController extends Controller
             ]);
 
             // Store services
-            foreach ($request->services as $service) {
-                BookingService::create([
-                    'user_id' => $user->id,
-                    'booking_id' => $booking->id,
-                    'service_type_id' => $service,
-                ]);
+            if ($request->services) {
+                foreach ($request->services as $serviceId) {
+                    BookingService::create([
+                        'user_id'         => $user->id,
+                        'booking_id'      => $booking->id,
+                        'service_type_id' => $serviceId,
+                    ]);
+                }
+            }
+
+            if ($request->extra_services) {
+                foreach ($request->extra_services as $extraServiceName) {
+                    $extraService = ServiceType::create([
+                        'name'         => $extraServiceName,
+                        'vehicle_type' => $vehicle->vehicle_type == 'four_wheeler' ? 'car' : 'bike',
+                        'base_price'   => 0,
+                        'booking_id'   => $booking->id,
+                    ]);
+
+                    BookingService::create([
+                        'user_id'         => $user->id,
+                        'booking_id'      => $booking->id,
+                        'service_type_id' => $extraService->id,
+                    ]);
+                }
             }
 
             // Load relationships
@@ -462,6 +490,8 @@ class BookingController extends Controller
                 'feedback' => $booking->review->feedback,
             ] : null;
 
+            $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
             $response = [
                 'id' => $booking->id,
                 'uuid' => $booking->uuid,
@@ -490,6 +520,7 @@ class BookingController extends Controller
                 'drop_address' => $dropAddress,
                 'payment' => $payment,
                 'review' => $review,
+                'mechanic_reviews' => $mechanic_review,
                 'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
             ];
 
@@ -635,6 +666,8 @@ class BookingController extends Controller
                     'feedback' => $booking->review->feedback,
                 ] : null;
 
+                $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -661,6 +694,7 @@ class BookingController extends Controller
                     'payment' => $payment,
                     'mechanic' => $mechanic,
                     'review' => $review,
+                    'mechanic_reviews' => $mechanic_review,
                     'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
                 ];
             });
@@ -749,6 +783,9 @@ class BookingController extends Controller
                     'feedback' => $booking->review->feedback,
                 ] : null;
 
+                $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
+
                 $vehicle = [
                     'id' => $booking->vehicle->id,
                     'vehicle_type' => $booking->vehicle->vehicle_type,
@@ -824,6 +861,7 @@ class BookingController extends Controller
                     'pickup_address' => $pickupAddress,
                     'drop_address' => $dropAddress,
                     'review' => $review,
+                    'mechanic_review' => $mechanic_review,
                     'payment' => $payment,
                     'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
                 ];

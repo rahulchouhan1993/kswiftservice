@@ -15,7 +15,8 @@ class ServiceType extends Model
         'vehicle_type',
         'base_price',
         'slug',
-        'status'
+        'status',
+        'booking_id'
     ];
 
     public static function boot()

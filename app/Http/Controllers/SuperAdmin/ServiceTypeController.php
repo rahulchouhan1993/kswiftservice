@@ -28,7 +28,7 @@ class ServiceTypeController extends Controller
         $search = $request->query('search');
         $status = $request->query('status');
 
-        $baseQuery = ServiceType::orderBy('name')
+        $baseQuery = ServiceType::whereNull('booking_id')->orderBy('name')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%$search%");

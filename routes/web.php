@@ -142,6 +142,11 @@ Route::prefix('/test')->name('test.')->group(function () {
 });
 
 
+Route::prefix('webhook')->group(function () {
+    Route::match(['get', 'post'], '/handle', [WebhookController::class, 'handleWebhook']);
+});
+
+
 // require __DIR__ . '/auth.php';
 Route::get('/clear', function () {
     Artisan::call('cache:clear');
