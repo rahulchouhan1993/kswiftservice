@@ -1,7 +1,5 @@
-import { Head, usePage, router } from "@inertiajs/react";
+import { Head, usePage, router, useForm } from "@inertiajs/react";
 import React, { useState, useEffect, useRef } from "react";
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
 import {
     FiSmile,
     FiPaperclip,
@@ -22,31 +20,37 @@ import NavLink from "@/Components/NavLink";
 import SettingsSidebar from "@/Components/ChatApp/SettingsSidebar";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 
-const DEFAULT_AVATAR =
-    "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg";
+const DEFAULT_AVATAR = "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg";
 
-export default function List() {
-    /** ------------------------------------------------------------------
-     * PROPS FROM BACKEND
-     * ------------------------------------------------------------------ */
+export default function List({ canAdminSendMsg, booking }) {
     const { messages: backendMessages, otherBookings, auth } = usePage().props;
 
+    const getFileType = (url) => {
+        if (!url) return null;
+
+        const ext = url.split(".").pop().toLowerCase();
+
+        if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
+        if (["mp4", "webm", "ogg"].includes(ext)) return "video";
+        if (["pdf"].includes(ext)) return "pdf";
+
+        return "file";
+    };
     const currentUserName = auth?.user?.name;
 
-    /** ------------------------------------------------------------------
-     * FORMAT MESSAGES FOR YOUR UI (LEFT/RIGHT FIXED)
-     * ------------------------------------------------------------------ */
     const messages = Array.isArray(backendMessages)
         ? backendMessages.map((msg, index) => {
             const isCustomer = msg.sender_role === "customer";
 
             return {
                 id: index,
-                side: isCustomer ? "left" : "right",      // LEFT = customer | RIGHT = mechanic
-                bubble: isCustomer ? "blue" : "pink",      // blue for customer, pink for mechanic
-                showAvatar: isCustomer,                    // avatar only for customer
+                side: isCustomer ? "left" : "right",
+                bubble: isCustomer ? "blue" : "pink",
+                showAvatar: isCustomer,
                 author: msg.from,
                 content: msg.message,
+                attachment: msg.attechment,          // 👈 ADD
+                attachmentUrl: msg.attechment_url,   // 👈 ADD
                 timestamp: new Date(msg.created_at).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -54,6 +58,11 @@ export default function List() {
             };
         })
         : [];
+
+    const { data, setData, post, reset, processing } = useForm({
+        message: "",
+        attachment: ""
+    });
 
     const [searchBooking, setSearchBooking] = useState("");
     const chatUsers = Array.isArray(otherBookings)
@@ -75,27 +84,30 @@ export default function List() {
         : [];
 
 
-    /** ------------------------------------------------------------------
-     * EXISTING STATES (UNCHANGED)
-     * ------------------------------------------------------------------ */
-    const [message, setMessage] = useState("");
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
-    const emojiPickerRef = useRef(null);
 
     /** IMAGE HANDLERS */
     const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
-        const newImages = files.map((file) => ({
-            id: Date.now() + Math.random(),
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Clean old preview
+        selectedImages.forEach(img => URL.revokeObjectURL(img.url));
+
+        // New preview
+        const preview = {
+            id: Date.now(),
             url: URL.createObjectURL(file),
             file,
-        }));
-        setSelectedImages((prev) => [...prev, ...newImages]);
+        };
+
+        setSelectedImages([preview]);   // 👈 ONLY ONE
+        setData("attachment", file);    // 👈 ONLY ONE
     };
+
 
     const handleRemoveImage = (id) => {
         setSelectedImages((prev) => {
@@ -105,37 +117,22 @@ export default function List() {
         });
     };
 
-    /** EMOJI PICKER & SIDEBAR HANDLERS */
-    useEffect(() => {
-        const closeOnEsc = (e) => {
-            if (e.key === "Escape") {
-                setShowSidebar(false);
-                setShowEmojiPicker(false);
+    const handleSendMessage = (e) => {
+        e.preventDefault();
+
+        post(
+            route("superadmin.booking.chat.sendmessage", { uuid: booking.uuid }),
+            {
+                forceFormData: true, // 🔥 REQUIRED
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setSelectedImages([]);
+                },
             }
-        };
+        );
+    };
 
-        const closeOnClickOutside = (e) => {
-            if (
-                emojiPickerRef.current &&
-                !emojiPickerRef.current.contains(e.target)
-            ) {
-                setShowEmojiPicker(false);
-            }
-        };
-
-        window.addEventListener("keydown", closeOnEsc);
-        document.addEventListener("mousedown", closeOnClickOutside);
-
-        return () => {
-            window.removeEventListener("keydown", closeOnEsc);
-            document.removeEventListener("mousedown", closeOnClickOutside);
-            selectedImages.forEach((img) => URL.revokeObjectURL(img.url));
-        };
-    }, [selectedImages]);
-
-    /** ------------------------------------------------------------------
-     * UI SECTION — NO DESIGN CHANGE BELOW
-     * ------------------------------------------------------------------ */
     return (
         <AuthenticatedLayout>
             <Head title="Booking Chats" />
@@ -347,7 +344,54 @@ export default function List() {
                                                             : "bg-blue-500 text-white"
                                                             }`}
                                                     >
-                                                        <p className="text-sm">{msg.content}</p>
+                                                        {/* Attachment */}
+                                                        {msg.attachmentUrl && (
+                                                            <div className="mb-2">
+                                                                {getFileType(msg.attachmentUrl) === "image" && (
+                                                                    <img
+                                                                        src={msg.attachmentUrl}
+                                                                        alt="attachment"
+                                                                        className="max-w-[200px] rounded-lg border"
+                                                                    />
+                                                                )}
+
+                                                                {getFileType(msg.attachmentUrl) === "video" && (
+                                                                    <video
+                                                                        src={msg.attachmentUrl}
+                                                                        controls
+                                                                        className="max-w-[220px] rounded-lg border"
+                                                                    />
+                                                                )}
+
+                                                                {getFileType(msg.attachmentUrl) === "pdf" && (
+                                                                    <a
+                                                                        href={msg.attachmentUrl}
+                                                                        target="_blank"
+                                                                        className="text-sm underline text-white"
+                                                                    >
+                                                                        📄 View PDF
+                                                                    </a>
+                                                                )}
+
+                                                                {getFileType(msg.attachmentUrl) === "file" && (
+                                                                    <a
+                                                                        href={msg.attachmentUrl}
+                                                                        target="_blank"
+                                                                        className="text-sm underline text-white"
+                                                                    >
+                                                                        📎 Download File
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Text message */}
+                                                        {msg.content && (
+                                                            <p className="text-sm whitespace-pre-wrap">
+                                                                {msg.content}
+                                                            </p>
+                                                        )}
+
                                                     </div>
 
                                                     <div
@@ -355,7 +399,7 @@ export default function List() {
                                                             }`}
                                                     >
                                                         {msg.author}, {msg.timestamp}
-                                                        <BsCheck2All />
+                                                        {/* <BsCheck2All /> */}
                                                     </div>
                                                 </div>
                                             </div>
@@ -364,33 +408,7 @@ export default function List() {
                                 )}
                             </div>
 
-
-                            {/* Input Section */}
                             <div className="px-1 pt-1 sm:px-3 sm:p-2 bg-white dark:bg-[#131836] border-t">
-                                {showEmojiPicker && (
-                                    <div
-                                        ref={emojiPickerRef}
-                                        className="absolute bottom-[60px] left-10 z-50"
-                                    >
-                                        <Picker
-                                            data={data}
-                                            theme={
-                                                document.documentElement.classList.contains(
-                                                    "dark"
-                                                )
-                                                    ? "dark"
-                                                    : "light"
-                                            }
-                                            onEmojiSelect={(emoji) =>
-                                                setMessage(
-                                                    (prev) =>
-                                                        prev + emoji.native
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                )}
-
                                 {/* Image Preview */}
                                 {selectedImages.length > 0 && (
                                     <div className="flex overflow-x-auto gap-2 p-2 bg-gray-100 dark:bg-[#0a0e25] rounded-lg">
@@ -417,27 +435,15 @@ export default function List() {
                                 )}
 
                                 {/* Input */}
-                                <div className="flex items-center gap-2 mt-2">
+                                <form onSubmit={handleSendMessage} className="flex items-center gap-2 mt-2">
                                     <div className="relative w-full">
-                                        <button
-                                            onClick={() =>
-                                                setShowEmojiPicker(
-                                                    !showEmojiPicker
-                                                )
-                                            }
-                                            className="absolute left-2 top-1/2 -translate-y-1/2"
-                                        >
-                                            <FiSmile className="text-gray-500 w-6 h-6" />
-                                        </button>
-
                                         <textarea
                                             rows={1}
-                                            value={message}
-                                            onChange={(e) =>
-                                                setMessage(e.target.value)
-                                            }
-                                            placeholder="Type a message..."
-                                            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#1b213a] border rounded-full"
+                                            value={data.message}
+                                            onChange={(e) => setData("message", e.target.value)}
+                                            placeholder={!canAdminSendMsg ? 'You cannot send message' : 'Type message here...'}
+                                            disabled={!canAdminSendMsg}
+                                            className="w-full pr-4 py-2 bg-gray-50 dark:bg-[#1b213a] border rounded-full"
                                         ></textarea>
                                     </div>
 
@@ -446,16 +452,16 @@ export default function List() {
                                         <input
                                             type="file"
                                             accept="image/*"
-                                            multiple
+                                            disabled={!canAdminSendMsg}
                                             className="hidden"
                                             onChange={handleImageChange}
                                         />
                                     </label>
 
-                                    <button className="p-3 border rounded-full">
+                                    <button type="submit" className="p-3 border rounded-full">
                                         <IoSend />
                                     </button>
-                                </div>
+                                </form>
                             </div>
                             {/* End Input */}
                         </div>

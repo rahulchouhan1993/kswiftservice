@@ -81,6 +81,7 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
 
             Route::prefix('/chats')->name('chat.')->group(function () {
                 Route::get('/list/{uuid}', [UserChatsController::class, 'list'])->name('list');
+                Route::post('/send-message/{uuid}', [UserChatsController::class, 'sendMessage'])->name('sendmessage');
             });
         });
 

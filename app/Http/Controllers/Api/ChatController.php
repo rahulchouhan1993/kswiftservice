@@ -81,13 +81,11 @@ class ChatController extends Controller
         try {
             $user = $request->user();
             $request->validate([
-                'to_user'       => 'required|integer|exists:users,id',
-                'message'       => 'nullable|required_without:attachment|string',
-                'attachment'    => 'nullable|required_without:message|array',
-                'attachment.*'  => 'file|mimes:jpeg,jpg,png,pdf,mp4|max:51200',
-
-                'booking_id'    => 'nullable|string',
-                'ticket_id'     => 'nullable|string',
+                'to_user' => 'required|exists:users,id',
+                'message' => 'nullable|string|required_without:attachment',
+                'attachment' => 'nullable|file|required_without:message|mimes:jpg,jpeg,png,pdf,mp4|max:51200',
+                'booking_id' => 'nullable|string',
+                'ticket_id' => 'nullable|string',
             ]);
 
             $toUser = User::find($request->to_user);
@@ -184,8 +182,8 @@ class ChatController extends Controller
                 }
             }
 
-            if ($request->hasFile('attechment')) {
-                uploadRequestFile($request, 'attechment', $chat, 'chat_attechments', 'attechment');
+            if ($request->hasFile('attachment')) {
+                $img = uploadRequestFile($request, 'attachment', $chat, 'chat_attechments', 'attechment', null, null, true);
             }
 
             return response()->json([
@@ -198,6 +196,7 @@ class ChatController extends Controller
                     'message'       => $chat->message,
                     'attachment_url' => $chat->attachment_url,
                     'time'          => $chat->created_at->format('d M Y · h:i A'),
+                    'attechment' => $img ?? null
                 ],
             ], 201);
         } catch (Throwable $e) {

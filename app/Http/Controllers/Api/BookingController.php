@@ -659,6 +659,7 @@ class BookingController extends Controller
                 $mechanic = $booking->mechanic ? [
                     'id' => $booking->mechanic->id,
                     'name' => $booking->mechanic->name,
+                    'mechanic_reviews' => $booking->mechanic ? $booking->mechanic->mechanic_reviews : null
                 ] : null;
 
                 $review = $booking->review ? [

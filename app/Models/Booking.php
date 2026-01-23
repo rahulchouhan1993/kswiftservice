@@ -104,6 +104,11 @@ class Booking extends Model
         return $this->hasOne(MechanicJob::class, 'booking_id', 'id')->latest();
     }
 
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class, 'id', 'booking_id')->latest();
+    }
+
     public function cancelled_jobs()
     {
         // return $this->hasMany(MechanicJob::class, 'booking_id', 'id')->where('status', 'cancelled')->latest();

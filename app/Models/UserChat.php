@@ -45,7 +45,7 @@ class UserChat extends Model
         $photo = $this->attechment ?? null;
 
         if ($photo) {
-            return asset('storage/chat_attechements/' . $photo);
+            return asset('storage/chat_attechments/' . $photo);
         }
         return null;
     }

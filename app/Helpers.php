@@ -191,9 +191,22 @@ if (!function_exists('isServiceActive')) {
  * @param string|null $folderPrefix // Folder Name Prefix Where (School Name) For Create School FOlder Seperate Folders
  * @param string|null $fileName // File Name
  */
-function uploadRequestFile(Request $request, string $requestField, $model, string $folder, ?string $modelField = null, $folderPrefix = null, $fileName = null)
-{
-    if ($request->hasFile($requestField)) {
+
+if (!function_exists('uploadRequestFile')) {
+    function uploadRequestFile(
+        Request $request,
+        string $requestField,
+        $model,
+        string $folder,
+        ?string $modelField = null,
+        ?string $folderPrefix = null,
+        ?string $fileName = null,
+        bool $needResponse = false,
+        string $fileTypeField = 'file_type'
+    ) {
+        if (!$request->hasFile($requestField)) {
+            return $needResponse ? null : void;
+        }
 
         $modelField = $modelField ?? $requestField;
 
@@ -201,6 +214,7 @@ function uploadRequestFile(Request $request, string $requestField, $model, strin
             $folder = $folderPrefix . '_' . $folder;
         }
 
+        // Delete old file
         $oldFile = $model->{$modelField};
         if ($oldFile && Storage::disk('public')->exists("{$folder}/{$oldFile}")) {
             Storage::disk('public')->delete("{$folder}/{$oldFile}");
@@ -208,19 +222,27 @@ function uploadRequestFile(Request $request, string $requestField, $model, strin
 
         $file = $request->file($requestField);
         $extension = strtolower($file->getClientOriginalExtension());
+
         if (!$fileName) {
             $fileName = Helpers::shortUuid() . '.' . $extension;
         }
 
-        Storage::disk('public')->put("{$folder}/{$fileName}", file_get_contents($file));
+        $path = "{$folder}/{$fileName}";
 
+        Storage::disk('public')->put($path, file_get_contents($file));
+
+        // Save model
         $model->{$modelField} = $fileName;
         $model->save();
 
-        return $fileName; // ← IMPORTANT RETURN
+        if ($needResponse) {
+            return [
+                'name'       => $fileName,
+                'path'       => $path,
+                'url'        => Storage::disk('public')->url($path),
+            ];
+        }
     }
-
-    return null;
 }
 
 
