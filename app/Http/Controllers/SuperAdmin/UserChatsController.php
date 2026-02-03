@@ -106,7 +106,7 @@ class UserChatsController extends Controller
                 'messages'        => $messages,
                 'customer'        => $customer,
                 'vehicle'         => $vehicle,
-                'canAdminSendMsg' => $canAdminSendMsg,
+                'canAdminSendMsg' => false,
                 'auth'            => ['user' => $request->user()],
             ]);
         } catch (Exception $e) {
