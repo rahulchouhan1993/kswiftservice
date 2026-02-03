@@ -182,8 +182,6 @@ class AuthController extends Controller
     }
 
 
-
-
     /**
      * Verify OTP
      * @param Request $request
@@ -317,6 +315,10 @@ class AuthController extends Controller
         try {
             $user = $request->user();
             $token = $request->user()->currentAccessToken();
+            $fmcToken = FcmToken::whereUserId($user->id)->first();
+            if ($fmcToken) {
+                $fmcToken->delete();
+            }
 
             $msg = "user logout succesfully";
             activityLog($user, "user logout", $msg);

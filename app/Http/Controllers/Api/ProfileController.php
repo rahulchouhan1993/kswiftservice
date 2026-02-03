@@ -9,6 +9,7 @@ use App\Models\MechanicJob;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\UserChat;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -433,6 +434,8 @@ class ProfileController extends Controller
                 $closed_bookings = Booking::whereUserId($user->id)->whereStatus('closed')->count();
                 $open_ticket_count = Ticket::whereUserId($user->id)->whereStatus('pending')->count();
                 $unpaid_bookings = Booking::whereUserId($user->id)->whereDoesntHave('payment')->count();
+                $bookingUnreadMsgCount = UserChat::whereNotNull('booking_id')->whereReceiverRole('customer')->where('to', $user->id)->whereNull('read_time')->count();
+                $ticketUnreadMsgCount = UserChat::whereNull('booking_id')->whereReceiverRole('customer')->where('to', $user->id)->whereNull('read_time')->count();
 
                 return response()->json([
                     'status'  => true,
@@ -444,7 +447,8 @@ class ProfileController extends Controller
                         'closed_bookings' => $closed_bookings,
                         'open_ticket_count' => $open_ticket_count,
                         'unpaid_bookings' => $unpaid_bookings,
-                        'unread_msg_count' => 0,
+                        'booking_unread_msg_count' => $bookingUnreadMsgCount,
+                        'ticket_unread_msg_count' => $ticketUnreadMsgCount,
                     ]
                 ], 201);
             } elseif ($user->role === 'mechanic') {
@@ -452,6 +456,8 @@ class ProfileController extends Controller
                 $completed_jobs = MechanicJob::whereUserId($user->id)->whereStatus('completed')->count();
                 $open_ticket_count = Ticket::whereUserId($user->id)->whereStatus('pending')->count();
                 $unpaid_bookings = Booking::whereMechanicId($user->id)->whereDoesntHave('payment')->count();
+                $bookingUnreadMsgCount = UserChat::whereNotNull('booking_id')->whereReceiverRole('mechanic')->where('to', $user->id)->whereNull('read_time')->count();
+                $ticketUnreadMsgCount = UserChat::whereNull('booking_id')->whereReceiverRole('mechanic')->where('to', $user->id)->whereNull('read_time')->count();
 
                 return response()->json([
                     'status'  => true,
@@ -461,7 +467,8 @@ class ProfileController extends Controller
                         'completed_jobs' => $completed_jobs,
                         'open_ticket_count' => $open_ticket_count,
                         'unpaid_bookings' => $unpaid_bookings,
-                        'unread_msg_count' => 0,
+                        'booking_unread_msg_count' => $bookingUnreadMsgCount,
+                        'ticket_unread_msg_count' => $ticketUnreadMsgCount,
                     ]
                 ], 201);
             }

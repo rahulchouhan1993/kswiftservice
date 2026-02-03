@@ -152,7 +152,7 @@ class PaymentController extends Controller
                 $phone = $mechanic->phone;
                 $data = [
                     $mechanic->name,
-                    $user->name,
+                    $booking->vehicle->vehicle_number,
 
                 ];
                 $perameters = generateParameters($data);
@@ -298,6 +298,15 @@ class PaymentController extends Controller
 
                     $vehicle = $booking->vehicle;
                     $payment = $booking->payment;
+                    $job = $booking->mechanic_job;
+
+                    $mechanic = $booking->mechanic ? [
+                        'name' => $booking->mechanic->name
+                    ] : null;
+
+                    $customer = $booking->customer ? [
+                        'name' => $booking->customer->name
+                    ] : null;
 
                     if (!$vehicle || !$payment) {
                         return null;
@@ -316,6 +325,13 @@ class PaymentController extends Controller
                         ]
                         : null;
 
+                    $review = $booking->review ? [
+                        'review' => $booking->review->review,
+                        'feedback' => $booking->review->feedback,
+                    ] : null;
+
+                    $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
                     return [
                         'booking_id'     => $booking->booking_id,
                         'vehicle_number' => $vehicle->vehicle_number ?? null,
@@ -327,7 +343,13 @@ class PaymentController extends Controller
                         'payment_mode'   => $payment->payment_mode ?? null,
                         'invoice_path'   => $payment->invoice_url ?? null,
                         'vehicle_photos' => $vehiclePhotos,
-                        'mechanic_earning' => $mechanicEarning
+                        'mechanic_earning' => $mechanicEarning,
+                        'mechanic' => $mechanic,
+                        'customer' => $customer,
+                        'review' => $review,
+                        'mechanic_review' => $mechanic_review,
+                        'jobUuid' => $job->uuid,
+                        'bookingUuid' => $booking->uuid,
                     ];
                 })
                 ->filter()
@@ -367,6 +389,24 @@ class PaymentController extends Controller
                 ->map(function ($payment) {
                     $booking = $payment->booking;
                     $vehicle = $booking->vehicle;
+
+                    $mechanic = $booking->mechanic ? [
+                        'name' => $booking->mechanic->name
+                    ] : null;
+
+                    $customer = $booking->customer ? [
+                        'name' => $booking->customer->name
+                    ] : null;
+
+                    $review = $booking->review ? [
+                        'review' => $booking->review->review,
+                        'feedback' => $booking->review->feedback,
+                    ] : null;
+
+                    $job = $booking->mechanic_job;
+
+                    $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+
                     return [
                         'txn_id'     => $payment->txnId,
                         'status'     => $payment->status,
@@ -374,6 +414,12 @@ class PaymentController extends Controller
                         'txn_date'     => Carbon::parse($payment->created_at)->format('d M Y'),
                         'invoice_no'     => $payment->invoice_no,
                         'invoice_url'     => $payment->invoice_url,
+                        'mechanic' => $mechanic,
+                        'customer' => $customer,
+                        'review' => $review,
+                        'mechanic_review' => $mechanic_review,
+                        'jobUuid' => $job->uuid,
+                        'bookingUuid' => $booking->uuid,
                     ];
                 });
 

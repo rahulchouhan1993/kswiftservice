@@ -19,11 +19,18 @@ import { IoMdLogOut } from "react-icons/io";
 import NavLink from "@/Components/NavLink";
 import SettingsSidebar from "@/Components/ChatApp/SettingsSidebar";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
+import SelectInput from "@/Components/SelectInput";
+import InputLabel from "@/Components/InputLabel";
+import StatusToggle from "@/Components/StatusToggle";
+import Tooltip from "@/Components/Tooltip";
 
 const DEFAULT_AVATAR = "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg";
 
-export default function List({ canAdminSendMsg, booking }) {
-    const { messages: backendMessages, otherBookings, auth } = usePage().props;
+export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
+    const { messages: backendMessages, otherBookings, auth, selectedUuid } = usePage().props;
+    const hasSelectedBooking = Boolean(selectedUuid && booking);
+
+
 
     const getFileType = (url) => {
         if (!url) return null;
@@ -83,6 +90,10 @@ export default function List({ canAdminSendMsg, booking }) {
             }))
         : [];
 
+    const chatStatusOptions = [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "InActive" },
+    ];
 
     const [selectedImages, setSelectedImages] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -108,6 +119,7 @@ export default function List({ canAdminSendMsg, booking }) {
         setData("attachment", file);    // 👈 ONLY ONE
     };
 
+    console.log('chatUsers', chatUsers);
 
     const handleRemoveImage = (id) => {
         setSelectedImages((prev) => {
@@ -171,67 +183,6 @@ export default function List({ canAdminSendMsg, booking }) {
                                 }
                             `}
                         >
-                            {/* User Header */}
-                            <div className="sm:px-3 pr-3 py-2">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative">
-                                            <img
-                                                src={DEFAULT_AVATAR}
-                                                width={40}
-                                                height={40}
-                                                className="rounded-full"
-                                            />
-                                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                                        </div>
-                                        <span className="font-medium">
-                                            {auth?.user?.name}
-                                        </span>
-                                    </div>
-
-                                    <HoverMessageTooltip
-                                        trigger={
-                                            <FaEllipsisV className="text-gray-600 dark:text-gray-300 cursor-pointer" />
-                                        }
-                                        messages={[
-                                            <button
-                                                onClick={() => setIsOpen(true)}
-                                                className="px-3 py-2 flex items-center gap-2 text-sm hover:bg-gray-100 dark:hover:bg-[#0a0e25]"
-                                            >
-                                                <FaRegCircleUser /> Profile
-                                            </button>,
-                                            <button
-                                                onClick={() =>
-                                                    setIsSettingsOpen(true)
-                                                }
-                                                className="px-3 py-2 flex items-center gap-2 text-sm hover:bg-gray-100 dark:hover:bg-[#0a0e25]"
-                                            >
-                                                <CiSettings /> Settings
-                                            </button>,
-                                            <NavLink
-                                                href={route("superadmin.logout")}
-                                                method="post"
-                                                as="button"
-                                                className="px-3 py-2 flex items-center gap-2 text-sm hover:bg-gray-100 dark:hover:bg-[#0a0e25]"
-                                            >
-                                                <IoMdLogOut /> Logout
-                                            </NavLink>,
-                                        ]}
-                                        position="left"
-                                    />
-
-                                    <ProfileSidebar
-                                        isOpen={isOpen}
-                                        setIsOpen={setIsOpen}
-                                    />
-
-                                    <SettingsSidebar
-                                        isOpen={isSettingsOpen}
-                                        setIsOpen={setIsSettingsOpen}
-                                    />
-                                </div>
-                            </div>
-
                             {/* Search */}
                             <div className="sm:p-2 px-1">
                                 <div className="relative">
@@ -282,18 +233,26 @@ export default function List({ canAdminSendMsg, booking }) {
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex justify-between">
-                                                        <p className="font-medium truncate">
-                                                            {user.name}
-                                                        </p>
-                                                        <span className="text-xs text-gray-500">
-                                                            {user.timestamp}
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-semibold truncate text-gray-800 dark:text-gray-100">
+                                                                {user?.id}
+                                                            </p>
+                                                            <p className="text-[11px] truncate text-gray-500 dark:text-gray-400">
+                                                                {user?.name}
+                                                            </p>
+                                                        </div>
+                                                        <span className="text-[11px] whitespace-nowrap text-gray-400 dark:text-gray-500">
+                                                            {user?.timestamp}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-gray-500 truncate">
-                                                        {user.lastMessage}
+
+                                                    <p className="mt-0.5 text-sm truncate text-gray-600 dark:text-gray-400">
+                                                        {user?.lastMessage}
                                                     </p>
                                                 </div>
+
+
                                             </div>
                                         ))}
                                     </div>
@@ -303,167 +262,216 @@ export default function List({ canAdminSendMsg, booking }) {
 
                         {/* CHAT WINDOW */}
                         <div className="flex-1 flex flex-col">
-                            {/* Header */}
-                            <div className="bg-white dark:bg-[#131836] border-b px-2 sm:py-3">
-                                <h1 className="text-md md:text-xl font-semibold ml-[40px] sm:ml-[55px] md:ml-0">
-                                    Chat
-                                </h1>
-                            </div>
+                            {hasSelectedBooking ? (<>
+                                <div className="bg-white dark:bg-[#131836] border-b px-3 py-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <h1 className="text-sm md:text-base font-semibold text-gray-800 dark:text-white truncate">
+                                            <span className="font-medium">
+                                                {customer?.name || customer?.phone}
+                                            </span>
+                                            <span className="mx-1 text-gray-400">•</span>
+                                            <span className="text-gray-600 dark:text-gray-300">
+                                                {vehicle?.vehicle_number}
+                                            </span>
+                                            <span className="ml-1 text-gray-500">
+                                                ({vehicle?.make} - {vehicle?.model})
+                                            </span>
+                                        </h1>
+                                        <div className="flex gap-2">
+                                            <InputLabel
+                                                htmlFor="chat_status"
+                                                value="Chat Status"
+                                                className="mb-0.5 text-[11px]"
+                                            />
 
-                            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                                {messages.length === 0 ? (
-                                    <div className="flex justify-center items-center h-full">
-                                        <p className="text-red-500 dark:text-red-400 text-lg">
-                                            No conversation in this booking
+                                            <Tooltip title={booking?.booking_chats_status ? "InActive Chats" : "Activate Chats"}>
+                                                <StatusToggle
+                                                    action={route(
+                                                        "superadmin.booking.chat.update.chat.status",
+                                                        { uuid: booking?.uuid }
+                                                    )}
+                                                    checked={booking?.booking_chats_status === 1}
+                                                    className="!mb-0"
+                                                />
+                                            </Tooltip>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </>) : ''}
+
+
+                            <div className="flex-1 overflow-y-auto p-6">
+                                {!hasSelectedBooking ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-center">
+                                        <div className="text-5xl mb-4">💬</div>
+                                        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                                            No Booking Selected
+                                        </h2>
+                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+                                            Please select any booking from the left panel to view or start a conversation.
                                         </p>
                                     </div>
                                 ) : (
-                                    messages.map((msg) => (
-                                        <div
-                                            key={msg.id}
-                                            className={`flex ${msg.side === "right" ? "justify-end" : "justify-start"}`}
-                                        >
-                                            <div
-                                                className={`flex items-end space-x-2 max-w-xs lg:max-w-md ${msg.side === "right" ? "flex-row-reverse space-x-reverse" : ""
-                                                    }`}
-                                            >
-                                                {/* Avatar only for customer */}
-                                                {msg.showAvatar && (
-                                                    <img
-                                                        src={DEFAULT_AVATAR}
-                                                        width={32}
-                                                        height={32}
-                                                        className="rounded-full"
-                                                    />
-                                                )}
-
-                                                <div className="flex flex-col">
+                                    <div className="space-y-4">
+                                        {messages.length === 0 ? (
+                                            <div className="flex justify-center items-center h-full">
+                                                <p className="text-red-500 dark:text-red-400 text-lg">
+                                                    No conversation in this booking
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            messages.map((msg) => (
+                                                <div
+                                                    key={msg.id}
+                                                    className={`flex ${msg.side === "right" ? "justify-end" : "justify-start"}`}
+                                                >
                                                     <div
-                                                        className={`px-4 py-2 rounded-2xl ${msg.bubble === "pink"
-                                                            ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-                                                            : "bg-blue-500 text-white"
+                                                        className={`flex items-end space-x-2 max-w-xs lg:max-w-md ${msg.side === "right" ? "flex-row-reverse space-x-reverse" : ""
                                                             }`}
                                                     >
-                                                        {/* Attachment */}
-                                                        {msg.attachmentUrl && (
-                                                            <div className="mb-2">
-                                                                {getFileType(msg.attachmentUrl) === "image" && (
-                                                                    <img
-                                                                        src={msg.attachmentUrl}
-                                                                        alt="attachment"
-                                                                        className="max-w-[200px] rounded-lg border"
-                                                                    />
-                                                                )}
+                                                        {/* Avatar only for customer */}
+                                                        {msg.showAvatar && (
+                                                            <img
+                                                                src={DEFAULT_AVATAR}
+                                                                width={32}
+                                                                height={32}
+                                                                className="rounded-full"
+                                                            />
+                                                        )}
 
-                                                                {getFileType(msg.attachmentUrl) === "video" && (
-                                                                    <video
-                                                                        src={msg.attachmentUrl}
-                                                                        controls
-                                                                        className="max-w-[220px] rounded-lg border"
-                                                                    />
-                                                                )}
+                                                        <div className="flex flex-col">
+                                                            <div
+                                                                className={`px-4 py-2 rounded-2xl ${msg.bubble === "pink"
+                                                                    ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                                                                    : "bg-blue-500 text-white"
+                                                                    }`}
+                                                            >
+                                                                {/* Attachment */}
+                                                                {msg.attachmentUrl && (
+                                                                    <a href={msg.attachmentUrl} target="_blank">
+                                                                        <div className="mb-2">
+                                                                            {getFileType(msg.attachmentUrl) === "image" && (
+                                                                                <img
+                                                                                    src={msg.attachmentUrl}
+                                                                                    alt="attachment"
+                                                                                    className="max-w-[200px] rounded-lg border"
+                                                                                />
+                                                                            )}
 
-                                                                {getFileType(msg.attachmentUrl) === "pdf" && (
-                                                                    <a
-                                                                        href={msg.attachmentUrl}
-                                                                        target="_blank"
-                                                                        className="text-sm underline text-white"
-                                                                    >
-                                                                        📄 View PDF
+                                                                            {getFileType(msg.attachmentUrl) === "video" && (
+                                                                                <video
+                                                                                    src={msg.attachmentUrl}
+                                                                                    controls
+                                                                                    className="max-w-[220px] rounded-lg border"
+                                                                                />
+                                                                            )}
+
+                                                                            {getFileType(msg.attachmentUrl) === "pdf" && (
+                                                                                <a
+                                                                                    href={msg.attachmentUrl}
+                                                                                    target="_blank"
+                                                                                    className="text-sm underline text-white"
+                                                                                >
+                                                                                    📄 View PDF
+                                                                                </a>
+                                                                            )}
+
+                                                                            {getFileType(msg.attachmentUrl) === "file" && (
+                                                                                <a
+                                                                                    href={msg.attachmentUrl}
+                                                                                    target="_blank"
+                                                                                    className="text-sm underline text-white"
+                                                                                >
+                                                                                    📎 Download File
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
                                                                     </a>
                                                                 )}
 
-                                                                {getFileType(msg.attachmentUrl) === "file" && (
-                                                                    <a
-                                                                        href={msg.attachmentUrl}
-                                                                        target="_blank"
-                                                                        className="text-sm underline text-white"
-                                                                    >
-                                                                        📎 Download File
-                                                                    </a>
+                                                                {/* Text message */}
+                                                                {msg.content && (
+                                                                    <p className="text-sm whitespace-pre-wrap">
+                                                                        {msg.content}
+                                                                    </p>
                                                                 )}
+
                                                             </div>
-                                                        )}
 
-                                                        {/* Text message */}
-                                                        {msg.content && (
-                                                            <p className="text-sm whitespace-pre-wrap">
-                                                                {msg.content}
-                                                            </p>
-                                                        )}
-
-                                                    </div>
-
-                                                    <div
-                                                        className={`text-xs text-gray-500 mt-1 flex items-center gap-1 ${msg.side === "right" ? "justify-end" : "justify-start"
-                                                            }`}
-                                                    >
-                                                        {msg.author}, {msg.timestamp}
-                                                        {/* <BsCheck2All /> */}
+                                                            <div
+                                                                className={`text-xs text-gray-500 mt-1 flex items-center gap-1 ${msg.side === "right" ? "justify-end" : "justify-start"
+                                                                    }`}
+                                                            >
+                                                                {msg.author}, {msg.timestamp}
+                                                                {/* <BsCheck2All /> */}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    ))
+                                            ))
+                                        )}
+                                    </div>
                                 )}
                             </div>
 
-                            <div className="px-1 pt-1 sm:px-3 sm:p-2 bg-white dark:bg-[#131836] border-t">
-                                {/* Image Preview */}
-                                {selectedImages.length > 0 && (
-                                    <div className="flex overflow-x-auto gap-2 p-2 bg-gray-100 dark:bg-[#0a0e25] rounded-lg">
-                                        {selectedImages.map((img) => (
-                                            <div
-                                                key={img.id}
-                                                className="relative"
-                                            >
-                                                <img
-                                                    src={img.url}
-                                                    className="h-10 w-10 rounded border"
-                                                />
-                                                <button
-                                                    onClick={() =>
-                                                        handleRemoveImage(img.id)
-                                                    }
-                                                    className="absolute top-0 right-0 bg-black text-white text-xs px-1 rounded-full"
+
+                            {hasSelectedBooking ? (<>
+                                <div className="px-1 pt-1 sm:px-3 sm:p-2 bg-white dark:bg-[#131836] border-t">
+                                    {selectedImages.length > 0 && (
+                                        <div className="flex overflow-x-auto gap-2 p-2 bg-gray-100 dark:bg-[#0a0e25] rounded-lg">
+                                            {selectedImages.map((img) => (
+                                                <div
+                                                    key={img.id}
+                                                    className="relative"
                                                 >
-                                                    <FiX />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                                    <img
+                                                        src={img.url}
+                                                        className="h-10 w-10 rounded border"
+                                                    />
+                                                    <button
+                                                        onClick={() =>
+                                                            handleRemoveImage(img.id)
+                                                        }
+                                                        className="absolute top-0 right-0 bg-black text-white text-xs px-1 rounded-full"
+                                                    >
+                                                        <FiX />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
 
-                                {/* Input */}
-                                <form onSubmit={handleSendMessage} className="flex items-center gap-2 mt-2">
-                                    <div className="relative w-full">
-                                        <textarea
-                                            rows={1}
-                                            value={data.message}
-                                            onChange={(e) => setData("message", e.target.value)}
-                                            placeholder={!canAdminSendMsg ? 'You cannot send message' : 'Type message here...'}
-                                            disabled={!canAdminSendMsg}
-                                            className="w-full pr-4 py-2 bg-gray-50 dark:bg-[#1b213a] border rounded-full"
-                                        ></textarea>
-                                    </div>
+                                    {/* Input */}
+                                    <form onSubmit={handleSendMessage} className="flex items-center gap-2 mt-2">
+                                        <div className="relative w-full">
+                                            <textarea
+                                                rows={1}
+                                                value={data.message}
+                                                onChange={(e) => setData("message", e.target.value)}
+                                                placeholder={!canAdminSendMsg ? 'You cannot send message' : 'Type message here...'}
+                                                disabled={!canAdminSendMsg}
+                                                className="w-full pr-4 py-2 bg-gray-50 dark:bg-[#1b213a] border rounded-full"
+                                            ></textarea>
+                                        </div>
 
-                                    <label className="p-2 border rounded-full cursor-pointer">
-                                        <FiPaperclip />
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            disabled={!canAdminSendMsg}
-                                            className="hidden"
-                                            onChange={handleImageChange}
-                                        />
-                                    </label>
+                                        <label className="p-2 border rounded-full cursor-pointer">
+                                            <FiPaperclip />
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                disabled={!canAdminSendMsg}
+                                                className="hidden"
+                                                onChange={handleImageChange}
+                                            />
+                                        </label>
 
-                                    <button type="submit" className="p-3 border rounded-full">
-                                        <IoSend />
-                                    </button>
-                                </form>
-                            </div>
-                            {/* End Input */}
+                                        <button type="submit" className="p-3 border rounded-full" disabled={!canAdminSendMsg}>
+                                            <IoSend />
+                                        </button>
+                                    </form>
+                                </div>
+                            </>) : ''}
                         </div>
                     </div>
                 </div>

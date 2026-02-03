@@ -34,13 +34,12 @@ class UserChatsController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function list(Request $request, $uuid)
+    public function list(Request $request, $uuid = null)
     {
         try {
-            $booking = Booking::firstWhere('uuid', $uuid);
+            // Always load sidebar bookings
             $otherBookings = Booking::with(['vehicle', 'vehicle.vehile_make'])
-                ->whereUserId($booking->user_id)
-                ->orderBy('created_at', "DESC")
+                ->orderBy('created_at', 'DESC')
                 ->get()
                 ->map(function ($b) {
                     return [
@@ -52,51 +51,72 @@ class UserChatsController extends Controller
                     ];
                 });
 
-            if (!$booking) {
-                return response()->json([
-                    'status' => false,
-                    'message' => "Booking does not exist",
-                ], 404);
+            // 👉 DEFAULT EMPTY STATE
+            $booking = null;
+            $messages = [];
+            $customer = null;
+            $vehicle = null;
+            $canAdminSendMsg = false;
+
+            // 👉 If booking is selected
+            if ($uuid) {
+                $booking = Booking::where('uuid', $uuid)->first();
+
+                if (!$booking) {
+                    abort(404, 'Booking not found');
+                }
+
+                $customer = $booking->customer;
+
+                $vehicle = [
+                    'vehicle_number' => $booking->vehicle->vehicle_number ?? null,
+                    'model'          => $booking->vehicle->model ?? null,
+                    'make'           => $booking->vehicle->vehile_make->name ?? null,
+                ];
+
+                $messages = UserChat::where('booking_id', $booking->id)
+                    ->with(['fromUser:id,name', 'toUser:id,name'])
+                    ->orderBy('created_at')
+                    ->get()
+                    ->map(function ($msg) {
+                        return [
+                            'uuid'            => $msg->uuid,
+                            'from'            => $msg->fromUser->name ?? null,
+                            'to'              => $msg->toUser->name ?? null,
+                            'message'         => $msg->message,
+                            'sender_role'     => $msg->sender_role,
+                            'attechment'      => $msg->attechment,
+                            'attechment_url'  => $msg->attechment_url,
+                            'created_at'      => $msg->created_at,
+                        ];
+                    });
+
+                $canAdminSendMsg = UserChat::where('booking_id', $booking->id)
+                    ->where(function ($q) {
+                        $q->where('sender_role', 'superadmin')
+                            ->orWhere('receiver_role', 'superadmin');
+                    })
+                    ->exists();
             }
 
-            $canAdminSendMsg = UserChat::where('booking_id', $booking->id)
-                ->where(function ($q) {
-                    $q->where('sender_role', 'superadmin')
-                        ->orWhere('receiver_role', 'superadmin');
-                })
-                ->exists();
-
-            $messages = UserChat::where('booking_id', $booking->id)
-                ->with(['fromUser:id,name', 'toUser:id,name'])
-                ->get()
-                ->map(function ($msg) {
-                    return [
-                        'uuid'        => $msg->uuid,
-                        'from'        => $msg->fromUser->name ?? null,
-                        'to'          => $msg->toUser->name ?? null,
-                        'message'     => $msg->message,
-                        'sender_role' => $msg->sender_role,
-                        'attechment'  => $msg->attechment,
-                        'attechment_url' => $msg->attechment_url,
-                        'created_at'  => $msg->created_at,
-                    ];
-                });
-
-            return Inertia::render("SuperAdmin/Chats/List", [
-                'messages'       => $messages,
-                'otherBookings'  => $otherBookings,
-                'booking'        => $booking,
-                'auth'           => ['user' => $request->user()],
-                'canAdminSendMsg' => true,
-                'booking' => $booking
+            return Inertia::render('SuperAdmin/Chats/List', [
+                'otherBookings'   => $otherBookings,
+                'selectedUuid'    => $uuid,
+                'booking'         => $booking,
+                'messages'        => $messages,
+                'customer'        => $customer,
+                'vehicle'         => $vehicle,
+                'canAdminSendMsg' => $canAdminSendMsg,
+                'auth'            => ['user' => $request->user()],
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 
 
     /**
@@ -131,7 +151,7 @@ class UserChatsController extends Controller
             ]);
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-                $deviceToken = optional($customer->fcm_token)->token;
+                $deviceToken = $customer->fcm_token ? $customer->fcm_token->token : null;
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('new_ticket_message_received');
                     $uData = [
@@ -209,5 +229,27 @@ class UserChatsController extends Controller
         }
 
         return back()->with('success', "Message sent succesfully");
+    }
+
+
+
+    /**
+     * Update User Status
+     * @param strign UUID $uuid Booking UUID
+     * */
+
+    public function updateChatsStatus(Request $request, $uuid)
+    {
+        $booking = Booking::firstWhere('uuid', $uuid);
+        if (!$booking) {
+            return redirect()->back()->with('error', "Booking not found!");
+        }
+
+        if (!is_bool($request->status)) {
+            return redirect()->back()->with('error', "Invalid Payload!");
+        }
+
+        $booking->update(['booking_chats_status' => ($request->status ? 1 : 0)]);
+        return redirect()->back()->with('success', "Booking chats " . ($request->status ? 'active' : 'inactive') . " successfully");
     }
 }

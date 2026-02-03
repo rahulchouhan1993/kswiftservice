@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuperAdmin\ActivityLogsController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
+use App\Http\Controllers\SuperAdmin\ChatsController;
 use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
 use App\Http\Controllers\SuperAdmin\MechanicJobsControler;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
@@ -80,8 +81,9 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
             Route::post('/cancel-mechanic-assign-request', [SuperAdminBookingController::class, 'cancelAssignMechanicRequest'])->name('cancel.assign.mechanic');
 
             Route::prefix('/chats')->name('chat.')->group(function () {
-                Route::get('/list/{uuid}', [UserChatsController::class, 'list'])->name('list');
-                Route::post('/send-message/{uuid}', [UserChatsController::class, 'sendMessage'])->name('sendmessage');
+                Route::get('/list/{uuid?}', [UserChatsController::class, 'list'])->name('list');
+                Route::post('/send-message/{uuid?}', [UserChatsController::class, 'sendMessage'])->name('sendmessage');
+                Route::post('/{uuid?}/update-chat-status', [UserChatsController::class, 'updateChatsStatus'])->name('update.chat.status');
             });
         });
 

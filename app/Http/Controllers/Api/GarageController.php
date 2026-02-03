@@ -75,6 +75,10 @@ class GarageController extends Controller
                     'status' => $request->friday_status,
                     'timing' => $request->friday_timing,
                 ],
+                'saturday' => [
+                    'status' => $request->saturday_status,
+                    'timing' => $request->saturday_timing,
+                ],
                 'sunday' => [
                     'status' => $request->sunday_status,
                     'timing' => $request->sunday_timing,
@@ -205,6 +209,10 @@ class GarageController extends Controller
                 'friday' => [
                     'status' => $request->friday_status,
                     'timing' => $request->friday_timing,
+                ],
+                'saturday' => [
+                    'status' => $request->saturday_status,
+                    'timing' => $request->saturday_timing,
                 ],
                 'sunday' => [
                     'status' => $request->sunday_status,

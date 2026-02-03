@@ -15,7 +15,8 @@ class UserChat extends Model
         'message',
         'sender_role',
         'receiver_role',
-        'attechment'
+        'attechment',
+        'read_time'
     ];
 
     public static function boot()

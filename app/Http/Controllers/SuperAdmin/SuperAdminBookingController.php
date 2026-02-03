@@ -177,7 +177,6 @@ class SuperAdminBookingController extends Controller
                     trim(($vehicleMake?->name ?? '') . ($vehicle?->model ? ' & ' . $vehicle->model : '')),
                     $vehicle?->vehicle_number ?? '',
                     $serviceNames,
-                    $serviceNames,
                 ];
 
                 $parameters = generateParameters($data);
@@ -191,7 +190,7 @@ class SuperAdminBookingController extends Controller
 
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-                $deviceToken = $customer->fcm_token->token;
+                $deviceToken = $customer->fcm_token ? $customer->fcm_token->token : null;
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('mechanic_assigned');
                     $uData = [
@@ -291,7 +290,7 @@ class SuperAdminBookingController extends Controller
         }
 
         if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-            $deviceToken = $customer->fcm_token->token;
+            $deviceToken = $customer->fcm_token ? $customer->fcm_token->token : null;
             if ($deviceToken) {
                 $temp = getNotificationTemplate('booking_cancelled');
                 $uData = [

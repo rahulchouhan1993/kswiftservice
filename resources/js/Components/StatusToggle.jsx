@@ -2,6 +2,7 @@ import { useForm } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
 import RoundBtn from "@/Components/RoundBtn";
 import { MdToggleOn, MdToggleOff } from "react-icons/md";
+import { useAlerts } from "./Alerts";
 
 export default function StatusToggle({
     checked,
@@ -20,6 +21,7 @@ export default function StatusToggle({
         status: checked,
     });
 
+    const { successAlert, errorAlert, errorsHandling } = useAlerts();
     const toggleStatus = () => {
         const newStatus = !data.status;
         setData("status", newStatus);
@@ -31,8 +33,20 @@ export default function StatusToggle({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (action) post(action, { preserveScroll: true });
+
+        if (!action) return;
+
+        post(action, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // successAlert("Status updated successfully");
+            },
+            onError: () => {
+                // errorAlert("Something went wrong");
+            },
+        });
     };
+
 
     useEffect(() => { }, [errors]);
 

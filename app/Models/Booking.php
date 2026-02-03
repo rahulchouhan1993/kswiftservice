@@ -27,7 +27,8 @@ class Booking extends Model
         'extra_services',
         'user_address_id',
         'status',
-        'booking_status'
+        'booking_status',
+        'booking_chats_status'
     ];
 
     public static function boot()

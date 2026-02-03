@@ -31,8 +31,9 @@ class ChatController extends Controller
     public function chatMessagesList(Request $request, $uuid)
     {
         try {
-            $booking = Booking::firstWhere('uuid', $uuid);
+            $user = $request->user();
 
+            $booking = Booking::firstWhere('uuid', $uuid);
             if (!$booking) {
                 return response()->json([
                     'status' => false,
@@ -40,25 +41,40 @@ class ChatController extends Controller
                 ], 404);
             }
 
-            // Load users related to chats
+            // Determine receiver role dynamically
+            $receiverRole = $user->role === 'customer' ? 'customer' : 'mechanic';
+
+            // Mark unread messages as read (ONLY receiver messages)
+            UserChat::where('booking_id', $booking->id)
+                ->where('receiver_role', $receiverRole)
+                ->where('to', $user->id)
+                ->whereNull('read_time')
+                ->update([
+                    'read_time' => Carbon::now(),
+                ]);
+
+            // Fetch chats
             $messages = UserChat::where('booking_id', $booking->id)
                 ->with(['fromUser:id,name', 'toUser:id,name'])
+                ->orderBy('created_at', 'asc')
                 ->get()
                 ->map(function ($msg) {
                     return [
-                        'uuid'        => $msg->uuid,
-                        'from'        => $msg->fromUser->name ?? null,
-                        'to'          => $msg->toUser->name ?? null,
+                        'uuid' => $msg->uuid,
+                        'from' => $msg->fromUser->name ?? null,
+                        'to' => $msg->toUser->name ?? null,
                         'sender_role' => $msg->sender_role,
-                        'message'     => $msg->message,
+                        'message' => $msg->message,
                         'attachment_url' => $msg->attechment_url,
                         'time' => $msg->created_at->format('d M Y · h:i A'),
+                        'read_time' => $msg->read_time ? $msg->read_time : null,
                     ];
                 });
 
             return response()->json([
                 'status' => true,
                 'message' => "Chat messages fetched",
+                'is_chats_active' => (bool) $booking->booking_chats_status,
                 'chats' => $messages
             ], 200);
         } catch (\Exception $e) {
@@ -68,6 +84,7 @@ class ChatController extends Controller
             ], 500);
         }
     }
+
 
 
 
@@ -106,6 +123,13 @@ class ChatController extends Controller
                     return response()->json([
                         'status'  => false,
                         'message' => 'Booking does not exist',
+                    ], 404);
+                }
+
+                if ($booking->booking_chats_status == 0) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'You cannot send message, chats disabled by admin.',
                     ], 404);
                 }
             }

@@ -14,6 +14,7 @@ use App\Models\Notification;
 use App\Models\ServiceType;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\UserChat;
 use App\Models\Vehicle;
 use App\PushNotification;
 use Carbon\Carbon;
@@ -492,6 +493,20 @@ class BookingController extends Controller
 
             $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
 
+            if ($user->role === 'customer') {
+                $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                    ->whereReceiverRole('customer')
+                    ->where('to', $user->id)
+                    ->whereNull('read_time')
+                    ->count();
+            } else {
+                $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                    ->whereReceiverRole('mechanic')
+                    ->where('to', $user->id)
+                    ->whereNull('read_time')
+                    ->count();
+            }
+
             $response = [
                 'id' => $booking->id,
                 'uuid' => $booking->uuid,
@@ -521,7 +536,8 @@ class BookingController extends Controller
                 'payment' => $payment,
                 'review' => $review,
                 'mechanic_reviews' => $mechanic_review,
-                'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
+                'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0,
+                'booking_unread_msg_count' => $bookingUnreadMsgCount
             ];
 
             return response()->json([
@@ -573,7 +589,7 @@ class BookingController extends Controller
                 ], 201);
             }
 
-            $response = $bookings->map(function ($booking) {
+            $response = $bookings->map(function ($booking) use ($user) {
                 // Services
                 $services = $booking->services->map(function ($service) {
                     return [
@@ -669,6 +685,20 @@ class BookingController extends Controller
 
                 $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
 
+                if ($user->role === 'customer') {
+                    $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                        ->whereReceiverRole('customer')
+                        ->where('to', $user->id)
+                        ->whereNull('read_time')
+                        ->count();
+                } else {
+                    $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                        ->whereReceiverRole('mechanic')
+                        ->where('to', $user->id)
+                        ->whereNull('read_time')
+                        ->count();
+                }
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -696,7 +726,8 @@ class BookingController extends Controller
                     'mechanic' => $mechanic,
                     'review' => $review,
                     'mechanic_reviews' => $mechanic_review,
-                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
+                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0,
+                    'booking_unread_msg_count' => $bookingUnreadMsgCount
                 ];
             });
 
@@ -750,7 +781,7 @@ class BookingController extends Controller
                 ], 201);
             }
 
-            $response = $bookings->map(function ($booking) {
+            $response = $bookings->map(function ($booking) use ($user) {
                 $services = $booking->services->map(function ($service) {
                     return [
                         'id' => $service->id,
@@ -833,6 +864,20 @@ class BookingController extends Controller
                     "received_at" => $booking->payment->received_at,
                 ] : null;
 
+                if ($user->role === 'customer') {
+                    $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                        ->whereReceiverRole('customer')
+                        ->where('to', $user->id)
+                        ->whereNull('read_time')
+                        ->count();
+                } else {
+                    $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                        ->whereReceiverRole('mechanic')
+                        ->where('to', $user->id)
+                        ->whereNull('read_time')
+                        ->count();
+                }
+
                 return [
                     'id' => $booking->id,
                     'uuid' => $booking->uuid,
@@ -864,7 +909,8 @@ class BookingController extends Controller
                     'review' => $review,
                     'mechanic_review' => $mechanic_review,
                     'payment' => $payment,
-                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0
+                    'cancelled_jobs' => $booking->cancelled_jobs_count > 0 ? 1 : 0,
+                    'booking_unread_msg_count' => $bookingUnreadMsgCount
                 ];
             });
 
@@ -1036,7 +1082,6 @@ class BookingController extends Controller
             activityLog($user, "service proof uploaded", $msg);
             $phone = $customer->phone;
 
-
             if (env("CAN_SEND_MESSAGE") && !empty($phone)) {
                 $templateName = "msg_to_customer_on_upload_service_proof";
                 $lang = "en";
@@ -1054,7 +1099,7 @@ class BookingController extends Controller
             }
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
-                $deviceToken = $customer->fcm_token->token;
+                $deviceToken = $customer->fcm_token ? $customer->fcm_token->token : null;
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('video_uploaded');
                     $uData = [

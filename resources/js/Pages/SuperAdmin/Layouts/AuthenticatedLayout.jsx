@@ -17,7 +17,7 @@ import { LuMessageSquareText } from 'react-icons/lu';
 import { GoChecklist } from "react-icons/go";
 import { GrFormCalendar, GrUserSettings } from 'react-icons/gr';
 import { CiViewList } from 'react-icons/ci';
-import { BsReverseListColumnsReverse } from 'react-icons/bs';
+import { BsChatLeftText, BsReverseListColumnsReverse } from 'react-icons/bs';
 import { BiListUl, BiSolidCarMechanic } from 'react-icons/bi';
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -133,6 +133,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
         { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
+        { href: route('superadmin.booking.chat.list'), active: route().current('booking.chat.list'), label: 'Chats', icon: BsChatLeftText },
     ];
 
     return (

@@ -26,7 +26,6 @@ class TicketController extends Controller
     {
         try {
             $user = $request->user();
-
             $tickets = Ticket::with(['documents', 'chats', 'booking'])
                 ->whereUserId($user->id)
                 ->orderByRaw("
@@ -38,7 +37,21 @@ class TicketController extends Controller
                 // ->orderBy('created_at', 'DESC')
                 // ->orderBy('id', 'DESC')
                 ->get()
-                ->map(function ($ticket) {
+                ->map(function ($ticket) use ($user) {
+                    if ($user->role === 'customer') {
+                        $ticketUnreadMsgCount = UserChat::whereTicketId($ticket->id)
+                            ->whereReceiverRole('customer')
+                            ->where('to', $user->id)
+                            ->whereNull('read_time')
+                            ->count();
+                    } else {
+                        $ticketUnreadMsgCount = UserChat::whereTicketId($ticket->id)
+                            ->whereReceiverRole('mechanic')
+                            ->where('to', $user->id)
+                            ->whereNull('read_time')
+                            ->count();
+                    }
+
                     return [
                         'id'          => $ticket->id,
                         'uuid'        => $ticket->uuid,
@@ -71,6 +84,7 @@ class TicketController extends Controller
                             'delivery_date' => $ticket->booking->delivered_at,
                             'assigned_date' => $ticket->booking->assigned_date,
                         ] : null,
+                        'ticket_unread_msg_count' => $ticketUnreadMsgCount
                     ];
                 });
 
@@ -196,6 +210,20 @@ class TicketController extends Controller
                 ], 404);
             }
 
+            if ($user->role === 'customer') {
+                $ticketUnreadMsgCount = UserChat::whereTicketId($ticket->id)
+                    ->whereReceiverRole('customer')
+                    ->where('to', $user->id)
+                    ->whereNull('read_time')
+                    ->count();
+            } else {
+                $ticketUnreadMsgCount = UserChat::whereTicketId($ticket->id)
+                    ->whereReceiverRole('mechanic')
+                    ->where('to', $user->id)
+                    ->whereNull('read_time')
+                    ->count();
+            }
+
             $ticketData = [
                 'id'          => $ticket->id,
                 'uuid'        => $ticket->uuid,
@@ -224,6 +252,7 @@ class TicketController extends Controller
                         'attechment_url' => $chat->attechment_url,
                     ];
                 }),
+                'ticket_unread_msg_count' => $ticketUnreadMsgCount
             ];
 
             return response()->json([

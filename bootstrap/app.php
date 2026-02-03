@@ -33,8 +33,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook/*',
         ]);
 
-
-
         $middleware->alias([
             'auth.superadmin' => SuperAdminMiddleware::class,
             'authorized' => RedirectIfAuthenticated::class,

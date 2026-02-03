@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\MechanicJob;
 use App\Models\Notification;
 use App\Models\User;
+use App\Models\UserChat;
 use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
@@ -55,6 +56,7 @@ class JobsController extends Controller
                 ->whereUserId($user->id)
                 ->orderBy('created_at', 'DESC');
 
+
             if ($status !== 'all') {
                 $jobsQuery->whereStatus($status);
             }
@@ -62,8 +64,17 @@ class JobsController extends Controller
             $jobs = $jobsQuery->get();
 
             $data = $jobs->map(function ($job) {
-
                 $booking = $job->booking;
+                $review = $booking->review ? [
+                    'review' => $booking->review->review,
+                    'feedback' => $booking->review->feedback,
+                ] : null;
+
+                $mechanic_review = $booking->mechanic ? $booking->mechanic->mechanic_reviews : null;
+                $bookingUnreadMsgCount = UserChat::whereBookingId($booking->id)
+                    ->whereReceiverRole('mechanic')
+                    ->whereNull('read_time')
+                    ->count();
 
                 return [
                     "uuid"       => $booking->uuid,
@@ -85,6 +96,11 @@ class JobsController extends Controller
                     "title"    => $booking->vehicle->vehicle_number,
                     "customer" => $booking->customer,
                     "mechanic" => $job->mechanic,
+
+
+                    'review' => $review,
+                    'mechanic_review' => $mechanic_review,
+                    'booking_unread_msg_count' => $bookingUnreadMsgCount,
 
                     "payment" => (
                         $booking->payment &&
@@ -353,6 +369,11 @@ class JobsController extends Controller
                     "booking_uuid"     => $booking->uuid,
                     "booking_id"     => $booking->booking_id,
                     "booking_status"     => $booking->booking_status,
+                    "job_status"     => $job->status,
+                    "cancellation_reason" => $job->cancellation_reason,
+                    "cancel_date" => $job->cancel_date ? Carbon::parse($job->cancel_date)->format('D, d M · h:i A') : null,
+                    "rejection_reason" => $job->rejection_reason,
+                    "rejection_time" => $job->rejection_time ? Carbon::parse($job->rejection_time)->format('D, d M · h:i A') : null,
                     "delivery_date"     => $booking->delivery_date,
                     "vehicle_number" => optional($booking->vehicle)->vehicle_number,
                     "vehicle_model" => optional($booking->vehicle)->model ?? null,
