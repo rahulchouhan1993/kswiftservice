@@ -6,8 +6,10 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import TextAreaWithCount from "@/Components/TextAreaWithCount";
 import PhoneInput from "@/Components/PhoneInput";
+import { useTranslation } from 'react-i18next';
 
 export default function ContactUs() {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         phone: "",
@@ -49,10 +51,10 @@ export default function ContactUs() {
                 <div className="flex pt-[200px] relative z-[10]">
                     <div data-aos="fade-right" className="contacts w-full max-w-[50%] pe-[100px]">
                         <h2 className="text-white font-bold text-4xl mb-2">
-                            Get in Touch With Us
+                            {t('contact.title', 'Get in Touch With Us')}
                         </h2>
                         <p className="text-lg text-gray-200">
-                            We're here to help with service queries, partnership requests, or support needs.
+                            {t('contact.description', "We're here to help with service queries, partnership requests, or support needs.")}
                         </p>
 
                         {/* Phone card */}
@@ -75,8 +77,7 @@ export default function ContactUs() {
                             <div className="bg-black rounded-[19px] p-8   gap-6">
                                 <img className="w-[70px] h-[70px]" src={map} alt="Map icon" />
                                 <h2 className="text-white text-xl mt-3">
-                                    #14 &amp; 1, Chowdeshwari Layout, Near ABS Bricks Factory,
-                                    Honnenahalli, Yelahanka, B.B.M.P North, Karnataka — 560064
+                                    {t('contact.address', '#14 & 1, Chowdeshwari Layout, Near ABS Bricks Factory, Honnenahalli, Yelahanka, B.B.M.P North, Karnataka — 560064')}
                                 </h2>
                             </div>
                         </div>
@@ -86,7 +87,7 @@ export default function ContactUs() {
                     <div data-aos="fade-left" className='w-full relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
                         <div className='w-full bg-black h-full rounded-[19px]'>
                             <div className="px-6 py-4 border-b border-gray-700 text-start">
-                                <p className="text-white text-lg">Send Us a Message</p>
+                                <p className="text-white text-lg">{t('contact.form.title', 'Send Us a Message')}</p>
                             </div>
 
                             <form onSubmit={handleSubmit} method="post">
@@ -95,7 +96,7 @@ export default function ContactUs() {
                                     <div className="w-full">
                                         <InputLabel
                                             className="block text-gray-300 mb-2 uppercase"
-                                            value="Name *"
+                                            value={t('contact.form.name', 'Name *')}
                                         />
                                         <TextInput
                                             id="name"
@@ -108,7 +109,7 @@ export default function ContactUs() {
                                     <div className="w-full mt-3">
                                         <InputLabel
                                             className="block text-gray-300 mb-2 uppercase"
-                                            value="Phone Number *"
+                                            value={t('contact.form.phone', 'Phone Number *')}
                                         />
                                         <PhoneInput
                                             id="phone"
@@ -121,7 +122,7 @@ export default function ContactUs() {
                                     <div className="w-full mt-3">
                                         <InputLabel
                                             className="block text-gray-300 mb-2 uppercase"
-                                            value="Email *"
+                                            value={t('contact.form.email', 'Email *')}
                                         />
                                         <TextInput
                                             id="email"
@@ -134,7 +135,7 @@ export default function ContactUs() {
                                     <div className="w-full mt-3">
                                         <InputLabel
                                             className="block text-gray-300 mb-2 uppercase"
-                                            value="Message *"
+                                            value={t('contact.form.message', 'Message *')}
                                         />
                                         <TextAreaWithCount
                                             className="w-full px-4 py-3 rounded-xl bg-black border border-gray-600 text-white focus:outline-none focus:border-main"
@@ -148,7 +149,7 @@ export default function ContactUs() {
                                         className="btn bg-main text-white border-0 mt-4"
                                         disabled={processing}
                                     >
-                                        Submit
+                                        {t('contact.form.submit', 'Submit')}
                                     </button>
                                 </div>
                             </form>

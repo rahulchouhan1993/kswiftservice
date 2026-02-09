@@ -2,8 +2,10 @@ import { Head, useForm } from "@inertiajs/react";
 import Layout from "./layout/Layout";
 import InputLabel from "@/Components/InputLabel";
 import PhoneInput from "@/Components/PhoneInput";
+import { useTranslation } from 'react-i18next';
 
 export default function AccountDelete() {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors, reset } = useForm({
         phone: "",
     });
@@ -46,16 +48,16 @@ export default function AccountDelete() {
 
                         {/* Title */}
                         <h1 className="px-4 text-2xl md:text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
-                            Submit Account Delete Request
+                            {t('delete_account.title', 'Submit Account Delete Request')}
                         </h1>
                         <p className="text-center text-normal text-main mb-16 uppercase tracking-wider">
-                            LAST UPDATED: OCT 24, 2025
+                            {t('delete_account.last_updated', 'LAST UPDATED: OCT 24, 2025')}
                         </p>
 
                         <div data-aos="fade-left" className='w-full relative p-[1px] mb-4 rounded-[19px] overflow-hidden bg-gradient-to-r from-gray-600 to-gray-800'>
                             <div className='w-full bg-black h-full rounded-[19px]'>
                                 <div className="px-6 py-4 border-b border-gray-700 text-start">
-                                    <p className="text-white text-lg">Send Us a Message</p>
+                                    <p className="text-white text-lg">{t('delete_account.form_title', 'Send Us a Message')}</p>
                                 </div>
 
                                 <form onSubmit={handleSubmit} method="post">
@@ -64,7 +66,7 @@ export default function AccountDelete() {
                                         <div className="w-full mt-3">
                                             <InputLabel
                                                 className="block text-gray-300 mb-2 uppercase"
-                                                value="Phone Number *"
+                                                value={t('delete_account.phone', 'Phone Number *')}
                                             />
                                             <PhoneInput
                                                 id="phone"
@@ -79,7 +81,7 @@ export default function AccountDelete() {
                                             className="btn bg-main text-white border-0 mt-4"
                                             disabled={processing}
                                         >
-                                            Submit
+                                            {t('delete_account.submit', 'Submit')}
                                         </button>
                                     </div>
                                 </form>
@@ -97,7 +99,7 @@ export default function AccountDelete() {
 
                         {/* Footer */}
                         <footer className="mt-16 text-center text-sm text-gray-400">
-                            © 2025 KOUSTUBHA FAST SERVICES. All rights reserved.
+                            {t('delete_account.footer', '© 2025 KOUSTUBHA FAST SERVICES. All rights reserved.')}
                         </footer>
 
                     </div>

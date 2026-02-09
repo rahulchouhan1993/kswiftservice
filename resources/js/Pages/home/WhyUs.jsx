@@ -2,8 +2,11 @@ import React from 'react'
 import icon1 from '../../img/why1.png'
 import icon3 from '../../img/why3.png'
 import icon2 from '../../img/why2.png'
+import { useTranslation } from 'react-i18next';
 
 export default function WhyUs() {
+  const { t } = useTranslation();
+
   return (
     <>
       <section id='why-choose-us' className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
@@ -18,10 +21,10 @@ export default function WhyUs() {
         <div className='z-10 relative'>
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 fading leading-tight">
-              Why Choose Us?
+              {t('why_us.title', 'Why Choose Us?')}
             </h2>
             <p className='text-gray-500 text-base sm:text-lg mb-8 sm:mb-12 fading max-w-3xl mx-auto leading-relaxed'>
-              Discover how partnering with us can elevate your car and bike repair experience, helping you thrive in the digital world.
+              {t('why_us.description', 'Discover how partnering with us can elevate your car and bike repair experience, helping you thrive in the digital world.')}
             </p>
           </div>
           
@@ -38,10 +41,10 @@ export default function WhyUs() {
                   />
                 </div>
                 <h3 className="text-white text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 leading-tight">
-                  Verified Partners
+                  {t('why_us.item1_title', 'Verified Partners')}
                 </h3>
                 <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                  Every Partner passes verified skill checks.
+                  {t('why_us.item1_desc', 'Every Partner passes verified skill checks.')}
                 </p>
               </div>
             </div>
@@ -57,10 +60,10 @@ export default function WhyUs() {
                   />
                 </div>
                 <h3 className="text-white text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 leading-tight">
-                  Transparent Pricing
+                  {t('why_us.item2_title', 'Transparent Pricing')}
                 </h3>
                 <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                  Instant estimates and digital invoices.
+                  {t('why_us.item2_desc', 'Instant estimates and digital invoices.')}
                 </p>
               </div>
             </div>
@@ -76,10 +79,10 @@ export default function WhyUs() {
                   />
                 </div>
                 <h3 className="text-white text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 leading-tight">
-                  Live Tracking
+                  {t('why_us.item3_title', 'Live Tracking')}
                 </h3>
                 <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                  Know exactly what's happening with your car.
+                  {t('why_us.item3_desc', "Know exactly what's happening with your car.")}
                 </p>
               </div>
             </div>

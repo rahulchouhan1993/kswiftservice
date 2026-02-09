@@ -1,12 +1,14 @@
 import { Head } from '@inertiajs/react';
 import Layout from './layout/Layout';
+import { useTranslation } from 'react-i18next';
 
 export default function Services() {
+    const { t } = useTranslation();
 
     return (
         <>
             <Layout>
-                <Head title="Our Services" />
+                <Head title={t('services_page.title', 'Our Services')} />
                 <div className='container mx-auto'>
                     <div className=''>
                         <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%]  z-[-1]">
@@ -20,7 +22,7 @@ export default function Services() {
                                 data-aos="fade-up"
                                 className='text-white mx-auto text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center max-w-4xl leading-tight font-bold'
                             >
-                                We are updating our services.
+                                {t('services_page.updating_message', 'We are updating our services.')}
                             </h1>
 
                         </div>

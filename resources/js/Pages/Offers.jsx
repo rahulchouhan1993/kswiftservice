@@ -1,7 +1,9 @@
 import { Head } from '@inertiajs/react';
 import Layout from './layout/Layout';
+import { useTranslation } from 'react-i18next';
 
 export default function Offers() {
+    const { t } = useTranslation();
 
     return (
         <>
@@ -20,7 +22,7 @@ export default function Offers() {
                                 data-aos="fade-up"
                                 className='text-white mx-auto text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center max-w-4xl leading-tight font-bold'
                             >
-                                We are updating offers
+                                {t('offers.title', 'We are updating offers')}
                             </h1>
 
                         </div>

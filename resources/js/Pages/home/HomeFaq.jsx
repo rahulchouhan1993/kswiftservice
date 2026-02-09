@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 
 // FAQAccordion.jsx
 // Single-file React component (default export) that renders an accordion-style FAQ.
@@ -12,46 +13,41 @@ import React, { useRef, useState, useEffect } from "react";
 // Image path provided by user (will be converted to a URL by the environment):
 const BACKGROUND_IMAGE = "/mnt/data/4ca0a727-3423-4df1-88de-068a50a8918d.png";
 
-const FAQ_ITEMS = [
-  {
-    question: "What is KOUSTUBHA FAST SERVICES?",
-    answer:
-      "It is a digital platform connecting vehicle owners with verified Partners for on-site servicing and repairs.",
-  },
-  {
-    question: "How does the platform work?",
-    answer:
-      "Customers request a service, we match them with a verified partner nearby, and the partner comes to the customer's location to perform the requested service.",
-  },
-  {
-    question: "What types of services are available?",
-    answer:
-      "From routine maintenance to repairs and diagnostics, we support a wide range of vehicle services. Check the service list in the app for details.",
-  },
-  {
-    question: "How are payments handled?",
-    answer:
-      "Payments are processed securely through our payment gateway. Customers can pay via cards or UPI depending on availability.",
-  },
-  {
-    question: "When do Partners receive their payments?",
-    answer:
-      "Partners receive payouts after successful completion of the service and after any necessary verification/processes are completed.",
-  },
-  {
-    question: "Are payments safe on this platform?",
-    answer: "Yes. We use industry-standard encryption and a trusted payment gateway to secure transactions.",
-  },
-  {
-    question: "How are refunds processed?",
-    answer:
-      "Refunds are handled case-by-case. If eligible, refunds will be processed to the original payment method within the timeline described in our policy.",
-  },
-];
-
-export default function HomeFaq({ items = FAQ_ITEMS }) {
+export default function HomeFaq() {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState(0); // start with the first item open
   const contentRefs = useRef([]);
+
+  const items = [
+    {
+      question: t('home_faq.items.0.question', "What is KOUSTUBHA FAST SERVICES?"),
+      answer: t('home_faq.items.0.answer', "It is a digital platform connecting vehicle owners with verified Partners for on-site servicing and repairs."),
+    },
+    {
+      question: t('home_faq.items.1.question', "How does the platform work?"),
+      answer: t('home_faq.items.1.answer', "Customers request a service, we match them with a verified partner nearby, and the partner comes to the customer's location to perform the requested service."),
+    },
+    {
+      question: t('home_faq.items.2.question', "What types of services are available?"),
+      answer: t('home_faq.items.2.answer', "From routine maintenance to repairs and diagnostics, we support a wide range of vehicle services. Check the service list in the app for details."),
+    },
+    {
+      question: t('home_faq.items.3.question', "How are payments handled?"),
+      answer: t('home_faq.items.3.answer', "Payments are processed securely through our payment gateway. Customers can pay via cards or UPI depending on availability."),
+    },
+    {
+      question: t('home_faq.items.4.question', "When do Partners receive their payments?"),
+      answer: t('home_faq.items.4.answer', "Partners receive payouts after successful completion of the service and after any necessary verification/processes are completed."),
+    },
+    {
+      question: t('home_faq.items.5.question', "Are payments safe on this platform?"),
+      answer: t('home_faq.items.5.answer', "Yes. We use industry-standard encryption and a trusted payment gateway to secure transactions."),
+    },
+    {
+      question: t('home_faq.items.6.question', "How are refunds processed?"),
+      answer: t('home_faq.items.6.answer', "Refunds are handled case-by-case. If eligible, refunds will be processed to the original payment method within the timeline described in our policy."),
+    },
+  ];
 
   // Ensure refs length matches items
   useEffect(() => {
@@ -110,8 +106,8 @@ export default function HomeFaq({ items = FAQ_ITEMS }) {
       <div className="max-w-3xl mx-auto">
         
         <div className="text-center mb-8">
-          <h2 className="fading text-white text-3xl lg:text-4xl font-bold mb-2">Frequently Asked Questions</h2>
-          <p className='fading text-gray-500 mb-8'>Explore our FAQ section to discover how we've empowered businesses like yours to thrive online.</p>
+          <h2 className="fading text-white text-3xl lg:text-4xl font-bold mb-2">{t('home_faq.title', 'Frequently Asked Questions')}</h2>
+          <p className='fading text-gray-500 mb-8'>{t('home_faq.subtitle', "Explore our FAQ section to discover how we've empowered businesses like yours to thrive online.")}</p>
         </div>
 
         <div className="space-y-4">

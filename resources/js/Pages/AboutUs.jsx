@@ -7,13 +7,15 @@ import AboutFeatures from './about/AboutFeatures';
 import Teams from './about/Teams';
 import WhyUs from './home/WhyUs';
 import YourCustomers from './home/YourCustomers';
+import { useTranslation, Trans } from 'react-i18next';
 
 export default function AboutUs() {
+    const { t } = useTranslation();
 
     return (
         <>
         <Layout>
-            <Head title="About" />
+            <Head title={t('nav.about_us', 'About')} />
             <div className='container mx-auto'> 
             <div className=''> 
                     <div className=" items-center w-[90%] h-[400px] md:h-[600px] justify-center absolute top-[-70px] left-[5%]  z-[-1]">
@@ -28,17 +30,15 @@ export default function AboutUs() {
                             data-aos="fade-up" 
                             className='text-white mx-auto text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center max-w-4xl leading-tight font-bold'
                         >
-                            Built to Fix How India Maintains Its Vehicles
+                            {t('about.title', 'Built to Fix How India Maintains Its Vehicles')}
                         </h1>
                         
                         <div className='max-w-4xl mx-auto text-gray-300 text-center mt-4 sm:mt-6 space-y-3 sm:space-y-4'>
                             <p data-aos="fade-up" className='text-sm sm:text-base md:text-lg leading-relaxed'>
-                                This platform was created after recognizing a common problem: people don't trust how their vehicles are serviced, 
-                                and Partners don't have the tools or structure to deliver consistent service. Both sides operate manually, 
-                                leading to confusion, delays, and disputes.
+                                {t('about.description_1', "This platform was created after recognizing a common problem: people don't trust how their vehicles are serviced, and Partners don't have the tools or structure to deliver consistent service. Both sides operate manually, leading to confusion, delays, and disputes.")}
                             </p>
                             <p data-aos="fade-up" className='text-sm sm:text-base md:text-lg leading-relaxed'>
-                                We designed a system that brings clarity and structure to a broken process.
+                                {t('about.description_2', 'We designed a system that brings clarity and structure to a broken process.')}
                             </p>
                         </div>
                         
@@ -68,11 +68,10 @@ export default function AboutUs() {
                                     />
                                 </div>
                                 <h2 className='fading text-white text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 leading-tight'>
-                                    Our Mission
+                                    {t('about.mission.title', 'Our Mission')}
                                 </h2>
                                 <p className='fading text-gray-400 text-base sm:text-lg leading-relaxed'>
-                                    To revolutionize vehicle maintenance by connecting drivers with trusted Partners through a seamless digital platform, 
-                                    ensuring transparency, convenience, and quality service for all.
+                                    {t('about.mission.description', 'To revolutionize vehicle maintenance by connecting drivers with trusted Partners through a seamless digital platform, ensuring transparency, convenience, and quality service for all.')}
                                 </p>
                             </div>
                         </div>
@@ -88,12 +87,10 @@ export default function AboutUs() {
                                     />
                                 </div>
                                 <h2 className='fading text-white text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 leading-tight'>
-                                    Our Vision
+                                    {t('about.vision.title', 'Our Vision')}
                                 </h2>
                                 <p className='fading text-gray-400 text-base sm:text-lg leading-relaxed'>
-                                    To build a unified, technology-first ecosystem that becomes the standard for vehicle care. 
-                                    We aim to give customers consistent, accountable service and empower Partners with a stable, efficient workflow. 
-                                    Our vision is a future where quality, transparency, and reliability define every vehicle service.
+                                    {t('about.vision.description', 'To build a unified, technology-first ecosystem that becomes the standard for vehicle care. We aim to give customers consistent, accountable service and empower Partners with a stable, efficient workflow. Our vision is a future where quality, transparency, and reliability define every vehicle service.')}
                                 </p>
                             </div>
                         </div>
@@ -112,10 +109,14 @@ export default function AboutUs() {
                                             
                                     <div className="rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 relative z-1">
                                         <h2 className="fading text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-white max-w-4xl mx-auto leading-tight">
-                                            Numbers That Matter
+                                            {t('about.numbers.title', 'Numbers That Matter')}
                                         </h2>
                                         <p className="fading text-gray-300 text-base sm:text-lg md:text-xl mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
-                                            Join the thousands of Partners and garages who rely on <span className='text-main2 font-bold'>kswiftservices</span> for a steady stream of verified customers every day.
+                                            <Trans
+                                                i18nKey="about.numbers.description"
+                                                defaults="Join the thousands of Partners and garages who rely on <1>kswiftservices</1> for a steady stream of verified customers every day."
+                                                components={{ 1: <span className='text-main2 font-bold' /> }}
+                                            />
                                         </p>
                                         
                                         {/* Stats Grid - Mobile first */}
@@ -123,34 +124,34 @@ export default function AboutUs() {
                                             <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-4xl mx-auto'>
                                                 <li className='fading text-white text-center py-2 sm:py-6 lg:border-b  border-gray-600 last:border-0'>
                                                     <h3 className='font-bold text-3xl sm:text-4xl md:text-5xl mb-2 tracking-tight break-words'>
-                                                        50,000+
+                                                        {t('about.numbers.stats.0.value', '50,000+')}
                                                     </h3>
                                                     <p className='text-gray-400 text-sm sm:text-base break-words'>
-                                                        Happy Customers
+                                                        {t('about.numbers.stats.0.label', 'Happy Customers')}
                                                     </p>
                                                 </li>
                                                 <li className='fading text-white text-center py-2 sm:py-6 lg:border-b  border-gray-600 last:border-0'>
                                                     <h3 className='font-bold text-3xl sm:text-4xl md:text-5xl mb-2 tracking-tight break-words'>
-                                                        2,000+
+                                                        {t('about.numbers.stats.1.value', '2,000+')}
                                                     </h3>
                                                     <p className='text-gray-400 text-sm sm:text-base break-words'>
-                                                        Verified Partners
+                                                        {t('about.numbers.stats.1.label', 'Verified Partners')}
                                                     </p>
                                                 </li>
                                                 <li className='fading text-white text-center py-2 sm:py-6 lg:border-b  border-gray-600 last:border-0'>
                                                     <h3 className='font-bold text-3xl sm:text-4xl md:text-5xl mb-2 tracking-tight break-words'>
-                                                        4.8★
+                                                        {t('about.numbers.stats.2.value', '4.8★')}
                                                     </h3>
                                                     <p className='text-gray-400 text-sm sm:text-base break-words'>
-                                                        Average Service Rating
+                                                        {t('about.numbers.stats.2.label', 'Average Service Rating')}
                                                     </p>
                                                 </li>
                                                 <li className='fading text-white text-center py-2 sm:py-6'>
                                                     <h3 className='font-bold text-3xl sm:text-4xl md:text-5xl mb-2 tracking-tight break-words'>
-                                                        30+
+                                                        {t('about.numbers.stats.3.value', '30+')}
                                                     </h3>
                                                     <p className='text-gray-400 text-sm sm:text-base break-words'>
-                                                        Operating Cities
+                                                        {t('about.numbers.stats.3.label', 'Operating Cities')}
                                                     </p>
                                                 </li>
                                             </ul>

@@ -13,8 +13,11 @@ import Testimonials from './home/Testimonials';
 import YourCustomers from './home/YourCustomers';
 import HomeFaq from './home/HomeFaq';
 import { Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 
 export default function Welcome() {
+    const { t } = useTranslation();
+
     return (
         <Layout>
             <div className="">
@@ -41,10 +44,10 @@ export default function Welcome() {
 
                             <div className="rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 relative z-1">
                                 <h2 className="fading text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-white max-w-4xl mx-auto leading-tight">
-                                    Join the Network. Grow Your Business.
+                                    {t('cta.title', 'Join the Network. Grow Your Business.')}
                                 </h2>
                                 <p className="fading text-gray-300 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
-                                    Thousands of Partners and garages trust us to bring them verified customers daily.
+                                    {t('cta.description', 'Thousands of Partners and garages trust us to bring them verified customers daily.')}
                                 </p>
 
                                 {/* Features list - responsive grid */}
@@ -52,26 +55,26 @@ export default function Welcome() {
                                     <ul className=' text-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto'>
                                         <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                                             <img src={n1} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" />
-                                            <span className="break-words">Build 5 star reputation</span>
+                                            <span className="break-words">{t('cta.features.item1', 'Build 5 star reputation')}</span>
                                         </li>
                                         <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                                             <img src={n2} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" />
-                                            <span className="break-words">Instant customer leads</span>
+                                            <span className="break-words">{t('cta.features.item2', 'Instant customer leads')}</span>
                                         </li>
                                         <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                                             <img src={n3} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" />
-                                            <span className="break-words leading-[16px]">Dedicated garage dashboard</span>
+                                            <span className="break-words leading-[16px]">{t('cta.features.item3', 'Dedicated garage dashboard')}</span>
                                         </li>
                                         <li className='fading text-white flex items-center justify-center sm:justify-start text-sm sm:text-base' >
                                             <img src={n4} className='w-5 h-5 sm:w-6 sm:h-6 me-2 flex-shrink-0' alt="" />
-                                            <span className="break-words">Weekly payments</span>
+                                            <span className="break-words">{t('cta.features.item4', 'Weekly payments')}</span>
                                         </li>
                                     </ul>
                                 </div>
 
                                 {/* CTA Button - responsive */}
                                 <Link href={'/contact-us'} className="fading w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 bg-white text-base sm:text-lg text-main font-semibold rounded-full transition-all duration-300 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black">
-                                    Partner With Us
+                                    {t('cta.btn', 'Partner With Us')}
                                 </Link>
                             </div>
                         </div>

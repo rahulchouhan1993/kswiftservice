@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
 
 
         return array_merge(parent::share($request), [
+            'locale' => app()->getLocale(),
             'messages' => flash()->render('array'),
 
             'auth' => [

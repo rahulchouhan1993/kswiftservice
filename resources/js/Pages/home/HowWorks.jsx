@@ -1,46 +1,48 @@
 import React, { useEffect, useRef, useState } from 'react'
 import hand2 from '../../img/hand2.png'
 import { IoMdCloudDownload } from "react-icons/io";
+import { useTranslation } from 'react-i18next';
 
 export default function HowWorks() {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = React.useState('customers');
     const [openIndex, setOpenIndex] = useState(0) // first open by default
 
     const customers = [
         {
-            title: 'Set Up Your Profile and Vehicle',
-            description: 'Install the app, select whether you’re a customer or Partner, and register your car or bike with its basic details so the system can tailor services accurately.'
+            title: t('how_works.customers.item1_title', 'Set Up Your Profile and Vehicle'),
+            description: t('how_works.customers.item1_desc', 'Install the app, select whether you’re a customer or Partner, and register your car or bike with its basic details so the system can tailor services accurately.')
         },
         {
-            title: 'Choose the Service and Mode of Delivery',
-            description: 'Pick the required service (repair, maintenance) and choose delivery mode — pickup, at-home, or at a partner workshop.'
+            title: t('how_works.customers.item2_title', 'Choose the Service and Mode of Delivery'),
+            description: t('how_works.customers.item2_desc', 'Pick the required service (repair, maintenance) and choose delivery mode — pickup, at-home, or at a partner workshop.')
         },
         {
-            title: 'Automatic Partner Allocation With Live Tracking',
-            description: 'Our system assigns the best nearby partner automatically and provides live tracking so you know ETA and progress.'
+            title: t('how_works.customers.item3_title', 'Automatic Partner Allocation With Live Tracking'),
+            description: t('how_works.customers.item3_desc', 'Our system assigns the best nearby partner automatically and provides live tracking so you know ETA and progress.')
         },
         {
-            title: 'Approve & Monitor Work and Pay Securely',
-            description: 'Review the work, confirm completion, and pay through secure integrated payment options with digital receipts.'
+            title: t('how_works.customers.item4_title', 'Approve & Monitor Work and Pay Securely'),
+            description: t('how_works.customers.item4_desc', 'Review the work, confirm completion, and pay through secure integrated payment options with digital receipts.')
         },
     ]
 
     const partners = [
         {
-            title: 'Create Your Partner Profile',
-            description: 'Sign up as a Partner, complete your profile with necessary details, and get verified to start receiving service requests.'
+            title: t('how_works.partners.item1_title', 'Create Your Partner Profile'),
+            description: t('how_works.partners.item1_desc', 'Sign up as a Partner, complete your profile with necessary details, and get verified to start receiving service requests.')
         },
         {
-            title: 'Receive Service Requests',
-            description: 'Get notified of service requests from customers in your area through the app, allowing you to choose jobs that fit your schedule.'
+            title: t('how_works.partners.item2_title', 'Receive Service Requests'),
+            description: t('how_works.partners.item2_desc', 'Get notified of service requests from customers in your area through the app, allowing you to choose jobs that fit your schedule.')
         },
         {
-            title: 'Provide Quality Service',
-            description: 'Use the app to manage appointments, track service progress, and communicate with customers for a seamless experience.'
+            title: t('how_works.partners.item3_title', 'Provide Quality Service'),
+            description: t('how_works.partners.item3_desc', 'Use the app to manage appointments, track service progress, and communicate with customers for a seamless experience.')
         },
         {
-            title: 'Get Paid Securely',
-            description: 'Complete the service, get customer approval, and receive payments directly through the app with our secure payment system.'
+            title: t('how_works.partners.item4_title', 'Get Paid Securely'),
+            description: t('how_works.partners.item4_desc', 'Complete the service, get customer approval, and receive payments directly through the app with our secure payment system.')
         },
     ]
 
@@ -53,14 +55,14 @@ export default function HowWorks() {
         <div className='container mx-auto'>
             <section className="relative pt-[50px] sm:pt-[70px] lg:pt-[100px] z-10   ">
                 <div className="text-center mb-8 mx-auto max-w-[400px] md:max-w-[700px]">
-                    <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">How it <span className='text-main'>Works</span></h2>
-                    <p className='text-gray-500 mb-8'>Discover how our platform empowers car and bike repair services to thrive in the digital world.</p>
+                    <h2 className="text-white text-3xl lg:text-4xl font-bold mb-2">{t('how_works.title', 'How it')} <span className='text-main'>{t('how_works.title_highlight', 'Works')}</span></h2>
+                    <p className='text-gray-500 mb-8'>{t('how_works.description', 'Discover how our platform empowers car and bike repair services to thrive in the digital world.')}</p>
                 </div>
 
                 <div className=' w-fit mx-auto rounded-full '>
                     <div className='tabs p-2 bg-black rounded-full gap-3 flex justify-center'>
-                        <button onClick={() => setActiveTab('customers')} className={`btn text-white uppercase   !border-1 ${activeTab === 'customers' ? 'bg-main border-[var(--main)]' : '!border-gray-500 !bg-black'} `}>Customers</button>
-                        <button onClick={() => setActiveTab('partners')} className={`btn text-white uppercase  !border-1 ${activeTab === 'partners' ? 'bg-main border-[var(--main)]' : '!border-gray-500 !bg-black'} `}>Partners</button>
+                        <button onClick={() => setActiveTab('customers')} className={`btn text-white uppercase   !border-1 ${activeTab === 'customers' ? 'bg-main border-[var(--main)]' : '!border-gray-500 !bg-black'} `}>{t('how_works.tab_customers', 'Customers')}</button>
+                        <button onClick={() => setActiveTab('partners')} className={`btn text-white uppercase  !border-1 ${activeTab === 'partners' ? 'bg-main border-[var(--main)]' : '!border-gray-500 !bg-black'} `}>{t('how_works.tab_partners', 'Partners')}</button>
                     </div>
                 </div>
 
@@ -71,7 +73,7 @@ export default function HowWorks() {
                             href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share"
                             target="_blank"
                         >
-                            <button className='absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full  bg-main text-white font-medium   transition-all duration-300 shadow-inset shadow-lg flex items-center justify-center  '> <IoMdCloudDownload className="me-2" size='20' /> Download</button>
+                            <button className='absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full  bg-main text-white font-medium   transition-all duration-300 shadow-inset shadow-lg flex items-center justify-center  '> <IoMdCloudDownload className="me-2" size='20' /> {t('how_works.download_btn', 'Download')}</button>
                         </a>
                     </div>
                     <div className='mt-[20px] lg:mt-[40px] lg:mt-0 lg:max-w-[640px] w-full  accordians'>

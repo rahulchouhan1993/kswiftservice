@@ -7,6 +7,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import RoleUsersDynamicDropdown from '@/Components/RoleUsersDynamicDropdown';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import { IoMoon } from "react-icons/io5";
 import { FaChevronDown, FaSun } from "react-icons/fa6";
@@ -21,6 +22,7 @@ import { RiAccountBoxFill } from "react-icons/ri";
 import { MdContactSupport } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoCloseSharp } from "react-icons/io5";
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,6 +35,7 @@ import {
 
 
 export default function AuthenticatedLayout({ header, children }) {
+    const { t } = useTranslation();
     const { hasPermissionLike, hasPermission, hasAnyPermission } = useHelpers();
     const user = usePage().props.auth.user;
     const permissions = usePage().props.auth?.permissions ?? [];
@@ -125,7 +128,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
-                                    Dashboard
+                                    {t('dashboard.title')}
                                 </NavLink>
 
                                 {hasAnyPermission(permissions, ['create.branch', 'edit.branch', 'view.branch', 'delete.branch']) && (
@@ -173,6 +176,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* // for the top right content (Dropdown and theme button) */}
                         <div className="hidden sm:ms-6 sm:flex sm:items-center gap-2 relative" >
+
+                            <LanguageSwitcher className="mr-2" />
 
                             {/* Bell Icon */}
                             <div className='md:block hidden' onMouseEnter={() => handleMouseEnter("bell")} onMouseLeave={handleMouseLeave}  >
@@ -251,6 +256,11 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden gap-2">
+                            {/* Language Switcher - Mobile */}
+                            <div className="sm:hidden flex items-center px-1">
+                                <LanguageSwitcher />
+                            </div>
+
                             <div className='flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-1 rounded-xl text-xl text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition cursor-pointer '>
                                 <ResponsiveNavLink
                                     method="post"

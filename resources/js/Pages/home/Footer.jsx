@@ -4,7 +4,10 @@ import logo from '../../img/swiftlogo.png'
 import { FaInstagram } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 import { IoLogoWhatsapp } from "react-icons/io";
+import { useTranslation } from 'react-i18next';
+
 export default function Footer() {
+    const { t } = useTranslation();
     const phone = "918747998747";
     const encodedMessage = encodeURIComponent("Hi there, I would like to request for service, can you help me out?!");
     const waLink = `https://wa.me/${phone}?text=${encodedMessage}`;
@@ -54,43 +57,43 @@ export default function Footer() {
 
                             {/* Second Column - Quick Links */}
                             <div className="space-y-4">
-                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">Quick Links</h3>
+                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('footer.quick_links.title', 'Quick Links')}</h3>
                                 <ul className="space-y-3">
-                                    <li><button onClick={() => handleNavigation('/', '#why-choose-us')} className="fading text-gray-300 hover:text-white transition-colors">Why choose us</button></li>
-                                    <li><Link href="/about-us" className="fading text-gray-300 hover:text-white transition-colors">About</Link></li>
-                                    <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">Contact</Link></li>
+                                    <li><button onClick={() => handleNavigation('/', '#why-choose-us')} className="fading text-gray-300 hover:text-white transition-colors">{t('footer.quick_links.why_us', 'Why choose us')}</button></li>
+                                    <li><Link href="/about-us" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.quick_links.about', 'About')}</Link></li>
+                                    <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.quick_links.contact', 'Contact')}</Link></li>
                                 </ul>
                             </div>
 
                             {/* Third Column - For Customers */}
                             <div className="space-y-4">
-                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">For Customers</h3>
+                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('footer.for_customers.title', 'For Customers')}</h3>
                                 <ul className="space-y-3">
-                                    <li><button onClick={() => handleNavigation('/', '#services')} className="fading text-gray-300 hover:text-white transition-colors">Services</button></li>
-                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
-                                    <li><button onClick={() => handleNavigation('/', '#faq')} className="fading text-gray-300 hover:text-white transition-colors">FAQs</button></li>
-                                    <li><Link href="/customer-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Customer Terms & Conditions</Link></li>
+                                    <li><button onClick={() => handleNavigation('/', '#services')} className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_customers.services', 'Services')}</button></li>
+                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_customers.download_app', 'Download our app')}</a></li>
+                                    <li><button onClick={() => handleNavigation('/', '#faq')} className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_customers.faqs', 'FAQs')}</button></li>
+                                    <li><Link href="/customer-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_customers.terms', 'Customer Terms & Conditions')}</Link></li>
                                 </ul>
                             </div>
 
                             {/* Fourth Column - For Partners */}
                             <div className="space-y-4">
-                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">For Partners</h3>
+                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('footer.for_partners.title', 'For Partners')}</h3>
                                 <ul className="space-y-3">
                                     {/* <li><a href="#" className="fading text-gray-300 hover:text-white transition-colors">Partner Signup</a></li> */}
-                                    <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">Support</Link></li>
-                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">Download our app</a></li>
-                                    <li><Link href="/partner-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">Partner Terms & Conditions</Link></li>
+                                    <li><Link href="/contact-us" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_partners.support', 'Support')}</Link></li>
+                                    <li><a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_partners.download_app', 'Download our app')}</a></li>
+                                    <li><Link href="/partner-terms-conditions" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.for_partners.terms', 'Partner Terms & Conditions')}</Link></li>
                                 </ul>
                             </div>
 
                             {/* Fifth Column - Legal */}
                             <div className="space-y-4">
-                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">Legal</h3>
+                                <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('footer.legal.title', 'Legal')}</h3>
                                 <ul className="space-y-3">
-                                    <li><Link href="/privacy-and-policy" className="fading text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
-                                    <li><Link href="/terms-and-conditions" className="fading text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
-                                    <li><Link href="/business-policy" className="fading text-gray-300 hover:text-white transition-colors">Business Policy</Link></li>
+                                    <li><Link href="/privacy-and-policy" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.legal.privacy', 'Privacy Policy')}</Link></li>
+                                    <li><Link href="/terms-and-conditions" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.legal.terms', 'Terms & Conditions')}</Link></li>
+                                    <li><Link href="/business-policy" className="fading text-gray-300 hover:text-white transition-colors">{t('footer.legal.business', 'Business Policy')}</Link></li>
                                 </ul>
                             </div>
 
@@ -101,13 +104,13 @@ export default function Footer() {
 
                 {/* Bottom Row */}
                 <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-                    <div>© KSWIFTSERVICES 2025</div>
+                    <div>{t('footer.copyright', '© KSWIFTSERVICES 2025')}</div>
                     <div className="flex flex-wrap justify-center gap-4 mt-4 md:mt-0">
-                        <Link href="/privacy-and-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link>
-                        <Link href="/customer-terms-conditions" className="hover:text-white transition-colors">Customer Terms</Link>
-                        <Link href="/partner-terms-conditions" className="hover:text-white transition-colors">Partner Terms</Link>
-                        <Link href="/business-policy" className="hover:text-white transition-colors">Business Policy</Link>
+                        <Link href="/privacy-and-policy" className="hover:text-white transition-colors">{t('footer.bottom.privacy', 'Privacy Policy')}</Link>
+                        <Link href="/terms-and-conditions" className="hover:text-white transition-colors">{t('footer.bottom.terms', 'Terms & Conditions')}</Link>
+                        <Link href="/customer-terms-conditions" className="hover:text-white transition-colors">{t('footer.bottom.customer_terms', 'Customer Terms')}</Link>
+                        <Link href="/partner-terms-conditions" className="hover:text-white transition-colors">{t('footer.bottom.partner_terms', 'Partner Terms')}</Link>
+                        <Link href="/business-policy" className="hover:text-white transition-colors">{t('footer.bottom.business_policy', 'Business Policy')}</Link>
                     </div>
                 </div>
             </div>
