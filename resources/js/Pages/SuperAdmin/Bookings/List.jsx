@@ -249,6 +249,15 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                             </Link>
                                                         )}
 
+                                                        <Link
+                                                            href={route("superadmin.booking.requests", { uuid: l.uuid })}
+                                                        >
+                                                            <RoundBtn>
+                                                                <MdOutlineChat />
+                                                                <span>Requests</span>
+                                                            </RoundBtn>
+                                                        </Link>
+
                                                         {['pending', 'awaiting_acceptance'].includes(l.booking_status) && (
                                                             <AssignMechanic booking={l} />
                                                         )}

@@ -13,7 +13,7 @@ export default function RowActionsMenu({ children }) {
             const rect = buttonRef.current.getBoundingClientRect();
             setPosition({
                 top: rect.bottom + window.scrollY + 6,
-                left: rect.right + window.scrollX - 170, // SMALL WIDTH
+                left: rect.right + window.scrollX - 170,
             });
         }
     }, [open]);

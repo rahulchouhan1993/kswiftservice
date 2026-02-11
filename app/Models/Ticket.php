@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 
 class Ticket extends Model
 {
@@ -16,7 +18,8 @@ class Ticket extends Model
         'description',
         'attachment',
         'status',
-        'ticket_status'
+        'ticket_status',
+        'chat_status'
     ];
 
     public static function boot()
@@ -29,7 +32,8 @@ class Ticket extends Model
     }
 
     protected $appends = [
-        'attachment_url'
+        'attachment_url',
+        'received_at'
     ];
 
 
@@ -56,6 +60,21 @@ class Ticket extends Model
 
     public function booking()
     {
-        return $this->hasOne(Booking::class, 'booking_id', 'id');
+        return $this->hasOne(Booking::class, 'id', 'booking_id');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function receivedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() =>
+            $this->created_at
+                ? $this->created_at->format('d-M-Y')
+                : null
+        );
     }
 }

@@ -28,7 +28,10 @@ class Booking extends Model
         'user_address_id',
         'status',
         'booking_status',
-        'booking_chats_status'
+        'booking_chats_status',
+        'cancellation_reason',
+        'cancel_date',
+        'cancelled_by',
     ];
 
     public static function boot()
@@ -126,6 +129,7 @@ class Booking extends Model
         'booking_date',
         'assigned_at',
         'delivered_at',
+        'cancelled_at',
     ];
 
     public function bookingDate(): Attribute
@@ -164,6 +168,16 @@ class Booking extends Model
             get: fn() =>
             $this->delivery_date
                 ? $this->delivery_date->format('d-M-Y h:i A')
+                : null
+        );
+    }
+
+    public function cancelledAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() =>
+            $this->cancel_date
+                ? $this->cancel_date->format('d-M-Y h:i A')
                 : null
         );
     }

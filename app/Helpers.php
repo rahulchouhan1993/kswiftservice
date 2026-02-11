@@ -836,6 +836,13 @@ if (!function_exists('getNotificationTemplate')) {
                 "Great news! 🎊\nThe customer ([CUSTOMER_NAME]) has paid for the service successfully 💸✅\n\nYou’re all set to continue or close the job 🚗✨",
             ],
 
+            //Notification To Mechanic On New Vehicle Service Request Received
+            'new_vehicle_service_request' => [
+                'title' => 'New Service Request Received 🎉',
+                'body'  =>
+                "🚗 Hi {Mechanic Name}!\nA new vehicle service booking is available near you. 🛠️\nOpen the app now to check the details and accept the job before someone else does!",
+            ],
+
             // Video Proof Uploaded
             'video_uploaded' => [
                 'title' => 'Video Proof Uploaded 🎥',

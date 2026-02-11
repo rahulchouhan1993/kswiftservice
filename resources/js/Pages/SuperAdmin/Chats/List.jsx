@@ -25,10 +25,25 @@ import StatusToggle from "@/Components/StatusToggle";
 import Tooltip from "@/Components/Tooltip";
 
 const DEFAULT_AVATAR = "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg";
+export default function List({ canAdminSendMsg, chatType, chat, vehicle, customer }) {
 
-export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
+    const listRoute =
+        chatType === "booking"
+            ? "superadmin.booking.chat.list"
+            : "superadmin.ticket.chat.list";
+
+    const sendRoute =
+        chatType === "booking"
+            ? "superadmin.booking.chat.sendmessage"
+            : "superadmin.ticket.sendmessage";
+
+    const statusRoute =
+        chatType === "booking"
+            ? "superadmin.booking.chat.update.chat.status"
+            : "superadmin.ticket.update.chat.status";
+
     const { messages: backendMessages, otherBookings, auth, selectedUuid } = usePage().props;
-    const hasSelectedBooking = Boolean(selectedUuid && booking);
+    const hasSelectedChat = Boolean(selectedUuid && chat);
 
 
 
@@ -132,10 +147,9 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
     const handleSendMessage = (e) => {
         e.preventDefault();
 
-        post(
-            route("superadmin.booking.chat.sendmessage", { uuid: booking.uuid }),
+        post(route(sendRoute, { uuid: chat.uuid }),
             {
-                forceFormData: true, // 🔥 REQUIRED
+                forceFormData: true,
                 preserveScroll: true,
                 onSuccess: () => {
                     reset();
@@ -145,10 +159,17 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
         );
     };
 
+    const chatContainerRef = useRef(null);
+    useEffect(() => {
+        chatContainerRef.current?.scrollTo({
+            top: chatContainerRef.current.scrollHeight,
+            behavior: "smooth",
+        });
+    }, [messages]);
+
     return (
         <AuthenticatedLayout>
-            <Head title="Booking Chats" />
-
+            <Head title={chatType === "booking" ? "Booking Chats" : "Ticket Chats"} />
             <div className="pt-[56px] w-full h-screen">
                 <div className="w-full h-full">
                     <div className="flex bg-gray-100 dark:bg-[#131836] h-full relative text-gray-900 dark:text-white">
@@ -205,7 +226,7 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                             <div className="overflow-y-auto">
                                 <div className="sm:px-1 py-2">
                                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase ml-1 mb-2">
-                                        Recent Bookings
+                                        Recent Chats
                                     </h3>
 
                                     <div className="space-y-1">
@@ -213,12 +234,7 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                                             <div
                                                 key={user.id}
                                                 onClick={() =>
-                                                    router.visit(
-                                                        route(
-                                                            "superadmin.booking.chat.list",
-                                                            { uuid: user.uuid }
-                                                        )
-                                                    )
+                                                    router.visit(route(listRoute, { uuid: user.uuid }))
                                                 }
                                                 className="flex items-center gap-3 sm:px-3 px-1 py-2 hover:bg-gray-100 dark:hover:bg-[#0a0e25] rounded-lg cursor-pointer"
                                             >
@@ -262,7 +278,7 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
 
                         {/* CHAT WINDOW */}
                         <div className="flex-1 flex flex-col">
-                            {hasSelectedBooking ? (<>
+                            {hasSelectedChat ? (<>
                                 <div className="bg-white dark:bg-[#131836] border-b px-3 py-2">
                                     <div className="flex items-center justify-between gap-2">
                                         <h1 className="text-sm md:text-base font-semibold text-gray-800 dark:text-white truncate">
@@ -271,11 +287,16 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                                             </span>
                                             <span className="mx-1 text-gray-400">•</span>
                                             <span className="text-gray-600 dark:text-gray-300">
-                                                {vehicle?.vehicle_number}
+                                                {chatType === "booking"
+                                                    ? vehicle?.vehicle_number
+                                                    : `Ticket #${chat?.ticket_number ?? ""}`}
                                             </span>
-                                            <span className="ml-1 text-gray-500">
-                                                ({vehicle?.make} - {vehicle?.model})
-                                            </span>
+                                            {chatType === "booking" && (
+                                                <span className="ml-1 text-gray-500">
+                                                    ({vehicle?.make} - {vehicle?.model})
+                                                </span>
+                                            )}
+
                                         </h1>
                                         <div className="flex gap-2">
                                             <InputLabel
@@ -284,16 +305,25 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                                                 className="mb-0.5 text-[11px]"
                                             />
 
-                                            <Tooltip title={booking?.booking_chats_status ? "InActive Chats" : "Activate Chats"}>
-                                                <StatusToggle
-                                                    action={route(
-                                                        "superadmin.booking.chat.update.chat.status",
-                                                        { uuid: booking?.uuid }
-                                                    )}
-                                                    checked={booking?.booking_chats_status === 1}
-                                                    className="!mb-0"
-                                                />
-                                            </Tooltip>
+                                            {chat?.booking ? (<>
+                                                <Tooltip title={chat?.booking_chats_status ? "InActive Chats" : "Activate Chats"}>
+                                                    <StatusToggle
+                                                        action={route(statusRoute, { uuid: chat?.uuid })}
+                                                        checked={chat?.booking_chats_status === 1}
+                                                        className="!mb-0"
+                                                    />
+                                                </Tooltip>
+
+                                            </>) : (<>
+                                                <Tooltip title={chat?.chat_status ? "InActive Chats" : "Activate Chats"}>
+                                                    <StatusToggle
+                                                        action={route(statusRoute, { uuid: chat?.uuid })}
+                                                        checked={chat?.chat_status === 1}
+                                                        className="!mb-0"
+                                                    />
+                                                </Tooltip>
+                                            </>)}
+
                                         </div>
 
                                     </div>
@@ -301,12 +331,15 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                             </>) : ''}
 
 
-                            <div className="flex-1 overflow-y-auto p-6">
-                                {!hasSelectedBooking ? (
+                            <div
+                                ref={chatContainerRef}
+                                className="flex-1 overflow-y-auto p-6"
+                            >
+                                {!hasSelectedChat ? (
                                     <div className="flex flex-col items-center justify-center h-full text-center">
                                         <div className="text-5xl mb-4">💬</div>
                                         <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                                            No Booking Selected
+                                            No Chat Selected
                                         </h2>
                                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-sm">
                                             Please select any booking from the left panel to view or start a conversation.
@@ -317,7 +350,7 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                                         {messages.length === 0 ? (
                                             <div className="flex justify-center items-center h-full">
                                                 <p className="text-red-500 dark:text-red-400 text-lg">
-                                                    No conversation in this booking
+                                                    No conversation found
                                                 </p>
                                             </div>
                                         ) : (
@@ -416,7 +449,7 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                             </div>
 
 
-                            {hasSelectedBooking ? (<>
+                            {hasSelectedChat ? (<>
                                 <div className="px-1 pt-1 sm:px-3 sm:p-2 bg-white dark:bg-[#131836] border-t">
                                     {selectedImages.length > 0 && (
                                         <div className="flex overflow-x-auto gap-2 p-2 bg-gray-100 dark:bg-[#0a0e25] rounded-lg">
@@ -476,6 +509,6 @@ export default function List({ canAdminSendMsg, booking, vehicle, customer }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

@@ -266,6 +266,7 @@ class JobsController extends Controller
                         'booking_uuid'  => (string) $booking->uuid,
                         'job_uuid'  => (string) $job->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
                 } else {
                     $template = getNotificationTemplate('service_completed');
@@ -277,6 +278,7 @@ class JobsController extends Controller
                         'booking_uuid'  => (string) $booking->uuid,
                         'job_uuid'  => (string) $job->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
                 }
 

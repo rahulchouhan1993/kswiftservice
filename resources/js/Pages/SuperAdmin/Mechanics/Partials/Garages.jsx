@@ -19,6 +19,8 @@ export default function Garages({ garages = [], className = '' }) {
         );
     };
 
+    console.log('garages', garages);
+
     return (
         <section
             className={`

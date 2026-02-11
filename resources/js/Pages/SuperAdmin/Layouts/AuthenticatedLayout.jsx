@@ -12,7 +12,7 @@ import { MdDashboard, MdOutlineSettingsSuggest } from "react-icons/md";
 import Tooltip from '@/Components/Tooltip';
 import NotificationPanel from "../../../Components/NotificationPanel";
 import { useTheme } from 'next-themes';
-import { FaUsers } from 'react-icons/fa6';
+import { FaRegRectangleList, FaUsers } from 'react-icons/fa6';
 import { LuMessageSquareText } from 'react-icons/lu';
 import { GoChecklist } from "react-icons/go";
 import { GrFormCalendar, GrUserSettings } from 'react-icons/gr';
@@ -134,6 +134,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
         { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
         { href: route('superadmin.booking.chat.list'), active: route().current('booking.chat.list'), label: 'Chats', icon: BsChatLeftText },
+        { href: route('superadmin.ticket.list'), active: route().current('ticket.list'), label: 'Tickets', icon: FaRegRectangleList },
     ];
 
     return (

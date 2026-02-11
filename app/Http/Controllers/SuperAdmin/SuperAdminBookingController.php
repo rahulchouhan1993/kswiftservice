@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\FacebookApi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\BookingAcceptRequest;
 use App\Models\Garage;
 use App\Models\MechanicJob;
 use App\Models\Notification;
@@ -201,6 +202,7 @@ class SuperAdminBookingController extends Controller
                         'type'          => 'mechanic_assigned',
                         'booking_uuid'  => (string) $booking->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
                     if (!empty($resp) && $resp['name']) {
@@ -227,6 +229,7 @@ class SuperAdminBookingController extends Controller
                         'type'          => 'mechanic_new_job_assigned',
                         'booking_uuid'  => (string) $booking->uuid,
                         'job_uuid'     => $job->uuid,
+                        'msg_type' => 'booking'
                     ];
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
                     if (!empty($resp) && $resp['name']) {
@@ -302,6 +305,7 @@ class SuperAdminBookingController extends Controller
                     'type'          => 'booking_cancelled',
                     'booking_uuid'  => (string) $booking->uuid,
                     'hasReview'     => $booking->review ? '1' : '0',
+                    'msg_type' => 'booking'
                 ];
                 $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
                 if (!empty($resp) && $resp['name']) {
@@ -315,5 +319,50 @@ class SuperAdminBookingController extends Controller
         }
 
         return back()->with('success', 'Assigned mechanic removed');
+    }
+
+
+    /**
+     * Get Booking Requests
+     * @param Request $request
+     * @return mixed
+     */
+    public function bookingRequests(Request $request, $uuid)
+    {
+        $search = $request->query('search');
+        $status = $request->query('status');
+
+        $booking = Booking::where('uuid', $uuid)->first();
+        if (!$booking) {
+            return back()->with('error', 'Booking does not exist');
+        }
+
+        $baseQuery = BookingAcceptRequest::with([
+            'mechanic',
+            'bookingRequest',
+            'booking',
+            'booking.vehicle',
+            'booking.vehicle.vehile_make',
+        ])
+        ->where('booking_request_id', $booking->id)
+        ->when($search, function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->whereHas('mechanic', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%")
+                            ->orWhere('phone', 'LIKE', "%{$search}%");
+                    }); 
+                });
+            })
+            ->when(!is_null($status), function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+
+        $requests = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
+
+
+        return Inertia::render('SuperAdmin/Bookings/AcceptenceRequestList', [
+            'list' => $requests
+        ]);
     }
 }

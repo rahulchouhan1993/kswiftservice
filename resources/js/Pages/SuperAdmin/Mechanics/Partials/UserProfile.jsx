@@ -89,7 +89,8 @@ export default function UserProfile({ user }) {
                         </div>
 
                         <div className="flex items-center justify-center px-4 py-1.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 font-semibold text-sm min-w-[120px] text-center shadow-sm">
-                            Total Business: {displayInRupee(user?.mechanic_earnings_sum_amount || 0)}
+                            {/* Total Business: {displayInRupee(user?.mechanic_earnings_sum_amount || 0)} */}
+                            Wallet Balence: {displayInRupee(user?.balance || 0)}
                         </div>
 
                         <div className="flex items-center justify-center px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300 font-semibold text-sm min-w-[120px] text-center shadow-sm">

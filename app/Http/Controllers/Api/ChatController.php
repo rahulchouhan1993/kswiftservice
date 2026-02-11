@@ -178,6 +178,13 @@ class ChatController extends Controller
                 'message'        => $request->message,
             ]);
 
+            if ($user->id != $ticket->user_id) {
+                $ticket->update([
+                    'ticket_status' => 'in_process',
+                    'status' => 'in_process',
+                ]);
+            }
+
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
                 $deviceToken = optional($toUser->fcm_token)->token;
                 if ($deviceToken) {
@@ -193,6 +200,7 @@ class ChatController extends Controller
                         'ticket_uuid'  => (string) $ticket->uuid,
                         'chat_uuid'  => (string) $chat->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => $ticket ? 'ticket' : 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);

@@ -127,6 +127,7 @@ class ReviewController extends Controller
                         'type'          => 'mechanic_booking_review',
                         'booking_uuid'  => (string) $booking->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);

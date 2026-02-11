@@ -7,6 +7,7 @@ use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingLog;
+use App\Models\BookingRequest;
 use App\Models\BookingService;
 use App\Models\Garage;
 use App\Models\MechanicJob;
@@ -75,7 +76,8 @@ class BookingController extends Controller
 
             $serviceTypeIds = [];
             $user = $request->user();
-            $vehicle = Vehicle::where('id', $request->vehicle_id)
+            $mechanics = User::whereRole('mechanic')->whereStatus(1)->get();
+            $vehicle = Vehicle::with(['vehile_make'])->where('id', $request->vehicle_id)
                 ->where('user_id', $user->id)
                 ->first();
 
@@ -99,6 +101,8 @@ class BookingController extends Controller
             }
 
             // pickup / drop validation
+            $paddress = null;
+            $daddress = null;
             if ($request->pickup_type === 'pickup') {
                 $paddress = UserAddress::where('id', $request->pickup_address)
                     ->where('user_id', $user->id)
@@ -146,8 +150,11 @@ class BookingController extends Controller
                 'booking_date' => Carbon::now()
             ]);
 
-            // Store services
+            $allServiceNames = [];
             if ($request->services) {
+                $services = ServiceType::whereIn('id', $request->services)->pluck('name')->toArray();
+                $allServiceNames = array_merge($allServiceNames, $services);
+
                 foreach ($request->services as $serviceId) {
                     BookingService::create([
                         'user_id'         => $user->id,
@@ -159,6 +166,7 @@ class BookingController extends Controller
 
             if ($request->extra_services) {
                 foreach ($request->extra_services as $extraServiceName) {
+
                     $extraService = ServiceType::create([
                         'name'         => $extraServiceName,
                         'vehicle_type' => $vehicle->vehicle_type == 'four_wheeler' ? 'car' : 'bike',
@@ -171,6 +179,73 @@ class BookingController extends Controller
                         'booking_id'      => $booking->id,
                         'service_type_id' => $extraService->id,
                     ]);
+
+                    $allServiceNames[] = $extraServiceName;
+                }
+            }
+
+            $serviceNamesString = implode(', ', $allServiceNames);
+            $serviceRequest = BookingRequest::create([
+                'user_id' => $user->id,
+                'booking_id' => $booking->id,
+            ]);
+            if ($mechanics) {
+                foreach ($mechanics as $mechanic) {
+                    if (env("CAN_SEND_MESSAGE")) {
+                        try {
+                            $lang = "en";
+                            $templateName = "new_vehicle_service_request_available";
+                            $phone = $mechanic->phone;
+                            $data = [
+                                $mechanic->name,
+                                $vehicle->vehicle_number . '(' . $vehicle->model . '-' . $vehicle->vehile_make->name . ')',
+                                $vehicle->vehicle_type,
+                                $vehicle->fuel_type,
+                                $serviceNamesString,
+                                $daddress ? $daddress->address . '-' . $daddress->pincode : '--'
+                            ];
+                            $perameters = generateParameters($data);
+                            $msgData = createMessageData($phone, $templateName, $lang, $perameters);
+                            $fb = new FacebookApi();
+                            $resp = $fb->sendMessage($msgData);
+                            createMessageHistory($templateName, $mechanic, $phone, $resp);
+                        } catch (Throwable $e) {
+                            activityLog($user, "send message error", $e->getMessage());
+                        }
+                    }
+
+                    if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
+                        try {
+                            $deviceToken = $mechanic->fcm_token->token ?? null;
+                            if ($deviceToken) {
+                                $temp = getNotificationTemplate('new_vehicle_service_request');
+                                $uData = [
+                                    'MECHANIC_NAME' => $mechanic->name,
+                                ];
+                                $tempWData = parseNotificationTemplate($temp, $uData);
+                                $data = [
+                                    'type'          => 'new_service_request',
+                                    'service_request_uuid'  => (string) $serviceRequest->uuid,
+                                    'hasReview'     => $booking->review ? '1' : '0',
+                                    'msg_type' => 'booking'
+                                ];
+                                $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
+                                if (!empty($resp)) {
+                                    Notification::create([
+                                        'user_id' => $user->id,
+                                        'type'    => 'push',
+                                        'data'    => json_encode([
+                                            'title' => $tempWData['title'] ?? null,
+                                            'body'  => $tempWData['body'] ?? null,
+                                            'meta'  => $data,
+                                        ], JSON_UNESCAPED_UNICODE),
+                                    ]);
+                                }
+                            }
+                        } catch (Throwable $e) {
+                            activityLog($user, "send push error", $e->getMessage());
+                        }
+                    }
                 }
             }
 
@@ -338,6 +413,7 @@ class BookingController extends Controller
                         'type'          => 'new_booking',
                         'booking_uuid'  => (string) $booking->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
@@ -403,7 +479,7 @@ class BookingController extends Controller
             if (!$booking) {
                 return response()->json([
                     'status' => false,
-                    'message' => [],
+                    'message' => 'Booking not found',
                 ], 404);
             }
 
@@ -525,6 +601,9 @@ class BookingController extends Controller
                 'created_at' => $booking->created_at,
                 'updated_at' => $booking->updated_at,
                 'deleted_at' => $booking->deleted_at,
+
+                'cancellation_reason' => $booking->cancellation_reason,
+                'cancel_date' => $booking->cancelled_at,
 
                 'customer' => $booking->customer,
                 'mechanic' => $mechanic,
@@ -1112,6 +1191,7 @@ class BookingController extends Controller
                         'booking_uuid' => (string) $service->booking->uuid,
                         'service_uuid' => (string) $service->uuid,
                         'hasReview'     => $service->booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $mdata);
                     if (!empty($resp) && $resp['name']) {
@@ -1195,7 +1275,7 @@ class BookingController extends Controller
                     'vehicle_number' => $booking->vehicle->vehicle_number ?? null,
                     'vehicle_photos' => $vehiclePhotos,
                     'services' => $services,
-                    'invoice_url' => $booking->payment->invoice_url,
+                    'invoice_url' => $booking->payment?->invoice_url,
                 ],
             ], 200);
         } catch (Exception $e) {
@@ -1401,6 +1481,7 @@ class BookingController extends Controller
                         'type' => 'booking_cancelled',
                         'booking_uuid' => (string) $booking->uuid,
                         'hasReview' => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $meta);
@@ -1434,6 +1515,7 @@ class BookingController extends Controller
                             'type' => 'booking_cancelled',
                             'booking_uuid' => (string) $booking->uuid,
                             'hasReview' => $booking->review ? '1' : '0',
+                            'msg_type' => 'booking'
                         ];
 
                         $resp = $this->sendPushNotification($deviceToken, $tempWData, $meta);

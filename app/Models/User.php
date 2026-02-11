@@ -53,7 +53,8 @@ class User extends Authenticatable
         'status',
         'password',
         'is_profile_updated',
-        'is_signup_complete'
+        'is_signup_complete',
+        'balence'
     ];
 
     public static function boot()

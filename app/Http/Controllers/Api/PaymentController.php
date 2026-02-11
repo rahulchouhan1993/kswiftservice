@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\MechanicEarning;
 use App\Models\Notification;
 use App\Models\Payment;
+use App\Models\User;
 use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
@@ -79,12 +80,21 @@ class PaymentController extends Controller
                     'message' => "Mechanic not found in this booking",
                 ], 500);
             }
+
+            $mechanic = User::findOrFail($booking->mechanic_id);
+            if (!$mechanic) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Mechanic does not exist",
+                ], 500);
+            }
             MechanicEarning::create([
-                'user_id'      => $payment->user_id,
-                'mechanic_id'  => $booking->mechanic_id,
-                'booking_id'   => $payment->booking_id,
-                'amount'       => $mechanicAmount,
+                'user_id'     => $payment->user_id,
+                'mechanic_id' => $mechanic->id,
+                'booking_id'  => $payment->booking_id,
+                'amount'      => $mechanicAmount,
             ]);
+            $mechanic->increment('balance', $mechanicAmount);
 
             $payment->load([
                 'user',
@@ -177,6 +187,7 @@ class PaymentController extends Controller
                         'booking_uuid'  => (string) $booking->uuid,
                         'payment_uuid'  => (string) $payment->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
@@ -208,6 +219,7 @@ class PaymentController extends Controller
                         'booking_uuid'  => (string) $booking->uuid,
                         'payment_uuid'  => (string) $payment->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
+                        'msg_type' => 'booking'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuperAdmin\ActivityLogsController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\SuperAdmin\MechanicJobsControler;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
 use App\Http\Controllers\SuperAdmin\SuperAdminMechanicController;
+use App\Http\Controllers\SuperAdmin\SuperAdminTicketController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
 use App\Http\Controllers\SuperAdmin\UserChatsController;
 use App\Http\Controllers\SuperAdmin\UsersController;
@@ -52,8 +54,6 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::match(['get', 'post'], '/update-profile', [AdminDashboardController::class, 'updateProfile'])->name('update.profile');
         Route::post('/update-password', [AdminDashboardController::class, 'updatePassowrd'])->name('update.password');
 
-
-
         Route::prefix('settings')->name('settings.')->group(function () {
 
             Route::prefix('vehicle-makes')->name('vehicle.make.')->group(function () {
@@ -74,11 +74,11 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
             });
         });
 
-
         Route::prefix('bookings')->name('booking.')->group(function () {
             Route::get('/list/{user_id?}/{user_type?}', [SuperAdminBookingController::class, 'list'])->name('list');
             Route::post('/assign-mechanic', [SuperAdminBookingController::class, 'assignMechanic'])->name('assign.mechanic');
             Route::post('/cancel-mechanic-assign-request', [SuperAdminBookingController::class, 'cancelAssignMechanicRequest'])->name('cancel.assign.mechanic');
+            Route::get('/booking-requests/{uuid?}', [SuperAdminBookingController::class, 'bookingRequests'])->name('requests');
 
             Route::prefix('/chats')->name('chat.')->group(function () {
                 Route::get('/list/{uuid?}', [UserChatsController::class, 'list'])->name('list');
@@ -86,7 +86,6 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
                 Route::post('/{uuid?}/update-chat-status', [UserChatsController::class, 'updateChatsStatus'])->name('update.chat.status');
             });
         });
-
 
         Route::prefix('user')->name('user.')->group(function () {
             Route::get('/list', [UsersController::class, 'index'])->name('list');
@@ -116,7 +115,6 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
             });
         });
 
-
         Route::prefix('contactus-enquiries')->name('enquiries.')->group(function () {
             Route::get('/list', [ContactUsEnquiriesController::class, 'list'])->name('list');
             Route::post('/{uuid}/update-status', [ContactUsEnquiriesController::class, 'updateReadStatus'])->name('update.status');
@@ -133,11 +131,17 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::prefix('/transaction-history')->name('transaction_history.')->group(function () {
             Route::get('/list', [TransactionHistoryController::class, 'list'])->name('list');
         });
+
+        Route::prefix('/tickets')->name('ticket.')->group(function () {
+            Route::get('/list', [SuperAdminTicketController::class, 'list'])->name('list');
+            Route::get('/chats/{uuid?}', [SuperAdminTicketController::class, 'chats'])->name('chats');
+            Route::post('/{uuid?}/update-chat-status', [SuperAdminTicketController::class, 'updateChatsStatus'])->name('update.chat.status');
+            Route::post('/send-message/{uuid?}', [SuperAdminTicketController::class, 'sendMessage'])->name('sendmessage');
+            Route::post('/update-status/{uuid?}', [SuperAdminTicketController::class, 'updateStatus'])->name('update.status');
+        });
     });
 });
 // SUPERADMIN ROUTES END HERE
-
-
 
 
 Route::prefix('/test')->name('test.')->group(function () {

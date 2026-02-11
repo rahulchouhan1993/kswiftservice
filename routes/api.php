@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AadharCardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\BookingRequestController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\FeedbackController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\VehicleController;
+use App\Http\Controllers\Api\WalletController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -47,6 +49,9 @@ Route::middleware('apiauth')->group(function () {
 
     Route::get('/user-statistics', [ProfileController::class, 'getUserStatistics']);
 
+    Route::prefix('/wallet')->group(function () {
+        Route::get('/get-balance', [WalletController::class, 'getBalance']);
+    });
 
     Route::prefix('/vehicle')->group(function () {
         Route::post('/add', [VehicleController::class, 'add']);
@@ -68,6 +73,11 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/fetch-service-video-or-photo/{uuid}', [BookingController::class, 'fetchServicesVideos']);
         Route::post('/update-delivery-timing', [BookingController::class, 'updateBookingDeliveryTimeing']);
         Route::post('/cancel', [BookingController::class, 'cancelBooking']);
+    });
+
+    Route::prefix('/booking-requests')->group(function () {
+        Route::get('/list', [BookingRequestController::class, 'list']);
+        Route::post('/manage-booking-request', [BookingRequestController::class, 'acceptOrRejectBookingRequest']);
     });
 
     Route::prefix('/ticket')->group(function () {
