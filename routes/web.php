@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuperAdmin\ActivityLogsController;
 use App\Http\Controllers\SuperAdmin\AdminAuthController;
 use App\Http\Controllers\SuperAdmin\AdminDashboardController;
-use App\Http\Controllers\SuperAdmin\ChatsController;
 use App\Http\Controllers\SuperAdmin\ContactUsEnquiriesController;
 use App\Http\Controllers\SuperAdmin\MechanicJobsControler;
 use App\Http\Controllers\SuperAdmin\ServiceTypeController;
 use App\Http\Controllers\SuperAdmin\SuperAdminBookingController;
 use App\Http\Controllers\SuperAdmin\SuperAdminMechanicController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTicketController;
+use App\Http\Controllers\SuperAdmin\SuperAdminWithdrawalController;
 use App\Http\Controllers\SuperAdmin\TransactionHistoryController;
 use App\Http\Controllers\SuperAdmin\UserChatsController;
 use App\Http\Controllers\SuperAdmin\UsersController;
 use App\Http\Controllers\SuperAdmin\VehicleMakeController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
-use PHPUnit\Metadata\Group;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('aboutus');
@@ -118,6 +116,12 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
         Route::prefix('contactus-enquiries')->name('enquiries.')->group(function () {
             Route::get('/list', [ContactUsEnquiriesController::class, 'list'])->name('list');
             Route::post('/{uuid}/update-status', [ContactUsEnquiriesController::class, 'updateReadStatus'])->name('update.status');
+        });
+
+
+        Route::prefix('withdrawals')->name('withdrawal.')->group(function () {
+            Route::get('/requests', [SuperAdminWithdrawalController::class, 'getWithdrawalRequests'])->name('requests');
+            Route::post('/update-status', [SuperAdminWithdrawalController::class, 'updateStatus'])->name('update.status');
         });
 
         Route::prefix('/activity-logs')->name('activity_log.')->group(function () {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\FacebookApi;
+use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingAcceptRequest;
@@ -11,10 +12,12 @@ use App\Models\MechanicJob;
 use App\Models\Notification;
 use App\Models\User;
 use App\PushNotification;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use function App\activityLog;
 use function App\createMessageData;
 use function App\createMessageHistory;
 use function App\generateParameters;
@@ -114,6 +117,7 @@ class SuperAdminBookingController extends Controller
     public function assignMechanic(Request $request)
     {
         try {
+            $accepted_by = $request->accepted_by ?? null;
             $request->validate([
                 'garage_id' => 'required|exists:garages,id'
             ]);
@@ -136,13 +140,21 @@ class SuperAdminBookingController extends Controller
             $job = MechanicJob::create([
                 'user_id' => $garage->mechanic->id,
                 'booking_id' => $booking->id,
-                'status' => 'pending'
+                'status' => $accepted_by === 'admin' ? 'accepted' : 'pending'
             ]);
 
             $booking->update([
                 'garage_id' => $garage->id,
                 'booking_status' => 'awaiting_acceptance'
             ]);
+
+            if($accepted_by === 'admin' ){
+                $booking->update([
+                    'mechanic_id'   => $garage->mechanic->id,
+                    'booking_status' => 'awaiting_payment',
+                    'assigned_date' => Carbon::now(),
+                ]);
+            }
 
             $phone = $customer->phone;
             if (env("CAN_SEND_MESSAGE")) {
@@ -189,6 +201,27 @@ class SuperAdminBookingController extends Controller
                 createMessageHistory($templateName, $mechanic, $phone, $resp);
             }
 
+            if($accepted_by === 'admin'){
+                if (env('CAN_SEND_MESSAGE')) {
+                    $templateName = 'msg_to_customer_on_adnavce_payment';
+                    $params = [
+                        $booking->customer->name,
+                        Helpers::toRupeeCurrency(1000),
+                    ];
+
+                    $msgData = createMessageData(
+                        $booking->customer->phone,
+                        $templateName,
+                        'en',
+                        generateParameters($params)
+                    );
+
+                    $fb = new FacebookApi();
+                    $resp = $fb->sendMessage($msgData);
+                    createMessageHistory($templateName, $booking->customer, $booking->customer->phone, $resp);
+                }
+            }
+
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS")) {
                 $deviceToken = $customer->fcm_token ? $customer->fcm_token->token : null;
@@ -218,7 +251,7 @@ class SuperAdminBookingController extends Controller
 
             if (env("CAN_SEND_PUSH_NOTIFICATIONS") && $garage?->mechanic?->id) {
                 $mechanic     = $garage->mechanic;
-                $deviceToken = $mechanic->fcm_token->token;
+                $deviceToken = $mechanic->fcm_token ? $mechanic->fcm_token->token : null;
                 if ($deviceToken) {
                     $temp = getNotificationTemplate('mechanic_new_job_assigned');
                     $uData = [
@@ -339,30 +372,36 @@ class SuperAdminBookingController extends Controller
 
         $baseQuery = BookingAcceptRequest::with([
             'mechanic',
+            'mechanic.latest_garage',
             'bookingRequest',
             'booking',
             'booking.vehicle',
             'booking.vehicle.vehile_make',
         ])
-        ->where('booking_request_id', $booking->id)
-        ->when($search, function ($q) use ($search) {
-                $q->where(function ($q) use ($search) {
-                    $q->whereHas('mechanic', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%{$search}%")
-                            ->orWhere('email', 'LIKE', "%{$search}%")
-                            ->orWhere('phone', 'LIKE', "%{$search}%");
-                    }); 
+        ->where('booking_id', $booking->id)
+        ->when(filled($search), function ($q) use ($search) {
+            $q->where(function ($inner) use ($search) {
+                $inner->whereHas('booking', function ($qb) use ($search) {
+                    $qb->where('booking_id', 'LIKE', "%{$search}%");
+                })
+                ->orWhereHas('mechanic', function ($qm) use ($search) {
+                    $qm->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('email', 'LIKE', "%{$search}%")
+                        ->orWhere('phone', 'LIKE', "%{$search}%");
                 });
-            })
-            ->when(!is_null($status), function ($q) use ($status) {
+            });
+        })
+            ->when(filled($status), function ($q) use ($status) {
                 $q->where('status', $status);
             });
 
         $requests = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
 
-
         return Inertia::render('SuperAdmin/Bookings/AcceptenceRequestList', [
-            'list' => $requests
+            'list' => $requests,
+            'booking' => $booking,
+            'search' => $search,
+            'status' => $status,
         ]);
     }
 }

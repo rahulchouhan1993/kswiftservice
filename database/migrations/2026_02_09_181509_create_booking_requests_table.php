@@ -18,8 +18,13 @@ return new class extends Migration
             $table->uuid();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Booking::class);
-            $table->foreignId('assigned_mechanic')->comment('user id')->nullable();
-            $table->string('status')->default('pending');
+            $table->foreignId('mecanic_id')->nullable()->comment('users id');
+            $table->string('mechanic_status')->default('pending')->comment('pending, accepted, rejected');
+            $table->longText('note')->nullable();
+            $table->longText('rejection_reason')->nullable();
+            $table->timestamp('astimated_delivery_date')->nullable();
+            $table->timestamp('last_updated_at')->nullable();
+            $table->string('admin_status')->default('pending')->comment('pending, accepted, rejected');
             $table->timestamps();
             $table->softDeletes();
         });

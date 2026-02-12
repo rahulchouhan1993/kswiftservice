@@ -167,6 +167,11 @@ class User extends Authenticatable
         return $this->hasMany(Garage::class, 'user_id', 'id');
     }
 
+    public function latest_garage()
+    {
+        return $this->hasMany(Garage::class, 'user_id', 'id')->latest();
+    }
+
     public function user_booking()
     {
         return $this->hasMany(Booking::class, 'user_id', 'id');

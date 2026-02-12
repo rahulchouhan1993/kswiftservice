@@ -11,8 +11,13 @@ class BookingRequest extends Model
     protected $fillable = [
         'user_id',
         'booking_id',
-        'assigned_mechanic',
-        'status'
+        'mecanic_id',
+        'mechanic_status',
+        'note',
+        'rejection_reason',
+        'astimated_delivery_date',
+        'last_updated_at',
+        'admin_status',
     ];
 
     public static function boot()

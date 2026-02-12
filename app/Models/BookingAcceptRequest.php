@@ -56,7 +56,7 @@ class BookingAcceptRequest extends Model
             get: function () {
                 return Carbon::parse(
                     $this->astimated_delivery_date
-                )->format('d-M-Y');
+                )->format('d-M-Y h:i A');
             }
         );
     }

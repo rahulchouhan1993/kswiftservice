@@ -95,7 +95,6 @@ export default function AuthenticatedLayout({ header, children }) {
 
 
     const navLinks = [
-        { href: route('superadmin.dashboard'), active: route().current('dashboard'), label: 'Dashboard', icon: MdDashboard },
         {
             label: 'Settings',
             icon: IoSettingsOutline,
@@ -131,7 +130,15 @@ export default function AuthenticatedLayout({ header, children }) {
             icon: GrFormCalendar
         },
 
-        { href: route('superadmin.transaction_history.list'), active: route().current('transaction_history.list'), label: 'Transaction History', icon: GoChecklist },
+        {
+            label: 'Transactions',
+            icon: BiListUl,
+            dropdown: true,
+            items: [
+                { label: 'Transaction History', route: 'superadmin.transaction_history.list' },
+                { label: 'Withdrawal Requests', route: 'superadmin.withdrawal.requests' },
+            ]
+        },
         { href: route('superadmin.activity_log.list'), active: route().current('activity_log.list'), label: 'Activity Logs', icon: BiListUl },
         { href: route('superadmin.booking.chat.list'), active: route().current('booking.chat.list'), label: 'Chats', icon: BsChatLeftText },
         { href: route('superadmin.ticket.list'), active: route().current('ticket.list'), label: 'Tickets', icon: FaRegRectangleList },

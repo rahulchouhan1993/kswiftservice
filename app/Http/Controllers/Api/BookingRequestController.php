@@ -26,12 +26,13 @@ class BookingRequestController extends Controller
     public function list(Request $request)
     {
         try {
+            $user = $request->user();   
             $bookingRequests = BookingRequest::with([
                 'user',
                 'booking',
-                'myRequest',
             ])
-                ->latest()
+                ->where('mecanic_id', $user->id)
+                ->orderBy('created_at', 'DESC')
                 ->get();
 
             if ($bookingRequests->isEmpty()) {
@@ -43,7 +44,6 @@ class BookingRequestController extends Controller
             }
 
             $response = $bookingRequests->map(function ($bRequest) {
-
                 $user = $bRequest->user;
                 $booking = $bRequest->booking;
                 $vehicle = optional($booking)->vehicle;
@@ -52,6 +52,13 @@ class BookingRequestController extends Controller
                 return [
                     'id' => $bRequest->id,
                     'uuid' => $bRequest->uuid,
+                    'mecanic_id' => $bRequest->mecanic_id,
+                    'mechanic_status' => $bRequest->mechanic_status,
+                    'note' => $bRequest->note,
+                    'rejection_reason' => $bRequest->rejection_reason,
+                    'astimated_delivery_date' => $bRequest->astimated_delivery_date,
+                    'last_updated_at' => $bRequest->last_updated_at,
+                    'admin_status' => $bRequest->admin_status,
 
                     // ✅ USER
                     'user' => $user ? [
@@ -112,18 +119,6 @@ class BookingRequestController extends Controller
                             'country_id' => $booking->drop_address->country_id,
                             'pincode' => $booking->drop_address->pincode,
                         ] : null,
-                    ] : null,
-
-                    'my_request' => $bRequest->myRequest ? [
-                        'id' => $bRequest->myRequest->id,
-                        'uuid' => $bRequest->myRequest->uuid,
-                        'status' => $bRequest->myRequest->status,
-                        'admin_status' => $bRequest->myRequest->admin_status,
-                        'note' => $bRequest->myRequest->note,
-                        'astimated_delivery_date' => $bRequest->myRequest->astimated_delivery_date,
-                        'mechanic_id' => $bRequest->myRequest->mechanic_id,
-                        'accepted_at' => $bRequest->myRequest->accepted_at,
-                        'rejection_reason' => $bRequest->myRequest->rejection_reason,
                     ] : null,
                 ];
             });

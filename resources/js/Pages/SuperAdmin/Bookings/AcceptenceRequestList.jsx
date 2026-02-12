@@ -1,29 +1,28 @@
 import { Head, Link, router } from "@inertiajs/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { initTooltips } from "flowbite";
-
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import SelectInput from "@/Components/SelectInput";
 import Pagination from "@/Components/Pagination";
 import DataNotExist from "@/Components/DataNotExist";
 import UserAvatarCard from "@/Components/UserAvatarCard";
 import VehicleInfo from "@/Components/VehicleInfo";
-import AssignMechanic from "./AssignMechanic";
-import BookingDetails from "./BookingDetails";
-import PaymentDetails from "./PaymentDetails";
 import RowActionsMenu from "@/Components/RowActionsMenu";
-import RoundBtn from "@/Components/RoundBtn";
-
-import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
 import { useHelpers } from "@/Components/Helpers";
-import RejectedJobs from "./RejectedJobs";
 import NoteTooltip from "@/Components/NoteTooltip";
+import Button from "@/Components/Button";
+import RoundBtn from "@/Components/RoundBtn";
+import { FaWarehouse } from "react-icons/fa6";
+import ConfirmDialog from "@/Components/ConfirmDialog";
+import axios from "axios";
+import { useAlerts } from "@/Components/Alerts";
 
-export default function AcceptenceRequestList({ list, search, status }) {
+export default function AcceptenceRequestList({ list, booking, search, status }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
     const { replaceUnderscoreWithSpace } = useHelpers();
+    const { successAlert, errorAlert, errorsHandling } = useAlerts();
 
     const acceptenceStatusOptions = [
         { value: "", label: "All" },
@@ -39,10 +38,15 @@ export default function AcceptenceRequestList({ list, search, status }) {
     const debounceVisit = (params) => {
         clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
-            router.visit(route("superadmin.booking.requests", params), {
-                only: ["list", "search", "status"],
-                preserveScroll: true,
-            });
+            router.get(
+                route("superadmin.booking.requests", { uuid: booking.uuid }),
+                { search: params.search ?? "", status: params.status ?? "" },
+                {
+                    only: ["list", "search", "status", "booking"],
+                    preserveScroll: true,
+                    replace: true,
+                }
+            );
         }, 400);
     };
 
@@ -70,11 +74,51 @@ export default function AcceptenceRequestList({ list, search, status }) {
         return <span className={`${badgeBase} ${colors[status]}`}>{replaceUnderscoreWithSpace(status)}</span>;
     };
 
+
+
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const handleAssignClick = (row) => {
+        setSelectedRow(row);
+        setOpenConfirm(true);
+    };
+
+    const handleConfirmAssign = () => {
+        router.post(
+            route("superadmin.booking.assign.mechanic"),
+            {
+                garage_id: selectedRow.mechanic.latest_garage[0].id,
+                booking_id: selectedRow.booking_id,
+                accepted_by: 'admin',
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setOpenConfirm(false);
+                    successAlert("Booking assigned successfully");
+                },
+
+                onError: () => {
+                    errorAlert("Failed to assign booking");
+                }
+            }
+        );
+    };
+
+
     return (
         <AuthenticatedLayout>
             <Head title="Acceptence Request List" />
             <div className="pt-[60px]" />
 
+            <ConfirmDialog
+                isOpen={openConfirm}
+                onClose={() => setOpenConfirm(false)}
+                onConfirm={handleConfirmAssign}
+                message="Are you sure you want to assign this booking to the selected mechanic?"
+                confirmText="Yes, Assign"
+                cancelText="Cancel"
+            />
             <div className="p-2 sm:p-4">
                 <div className="rounded-2xl bg-white dark:bg-[#0f1435] shadow-xl border border-gray-200 dark:border-blue-950">
 
@@ -94,7 +138,7 @@ export default function AcceptenceRequestList({ list, search, status }) {
                                 ref={searchRef}
                                 onKeyUp={handleSearch}
                                 defaultValue={search}
-                                placeholder="Search booking ID..."
+                                placeholder="Search by mechanic name, email, phone..."
                             />
                         </div>
                     </div>
@@ -125,6 +169,10 @@ export default function AcceptenceRequestList({ list, search, status }) {
                                     </th>
 
                                     <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Admin Status
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
                                         Action
                                     </th>
                                 </tr>
@@ -144,7 +192,7 @@ export default function AcceptenceRequestList({ list, search, status }) {
                                             className="border-b border-gray-200 dark:border-blue-900 hover:bg-gray-50 dark:hover:bg-[#12184a]"
                                         >
                                             <td className="px-3 py-2 text-center">
-                                                {l.booking_id}
+                                                {l.booking.booking_id}
                                             </td>
 
                                             <td className="px-3 py-2 text-center sm:table-cell hidden">
@@ -167,9 +215,18 @@ export default function AcceptenceRequestList({ list, search, status }) {
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
+                                                {l.admin_status || '--'}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-1">
-
+                                                    <RoundBtn
+                                                        onClick={() => handleAssignClick(l)}
+                                                    >
+                                                        <FaWarehouse />
+                                                        <span>Assign Mechanic</span>
+                                                    </RoundBtn>    
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>

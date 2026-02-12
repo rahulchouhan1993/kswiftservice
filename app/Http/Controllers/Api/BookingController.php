@@ -185,12 +185,14 @@ class BookingController extends Controller
             }
 
             $serviceNamesString = implode(', ', $allServiceNames);
-            $serviceRequest = BookingRequest::create([
-                'user_id' => $user->id,
-                'booking_id' => $booking->id,
-            ]);
             if ($mechanics) {
                 foreach ($mechanics as $mechanic) {
+                    $serviceRequest = BookingRequest::create([
+                        'user_id' => $user->id,
+                        'booking_id' => $booking->id,
+                        'mecanic_id' => $mechanic->id
+                    ]);
+                    
                     if (env("CAN_SEND_MESSAGE")) {
                         try {
                             $lang = "en";
@@ -320,20 +322,16 @@ class BookingController extends Controller
                 'is_default_address' => $booking->drop_address->is_default_address,
             ] : null;
 
-            $customer = $booking->customer
-                ? [
-                    'id'   => $booking->customer->id,
-                    'name' => $booking->customer->name,
-                ]
-                : null;
+            $customer = $booking->customer ? [
+                'id'   => $booking->customer->id,
+                'name' => $booking->customer->name,
+            ] : null;
 
 
-            $mechanic = $booking->mechanic
-                ? [
-                    'id'   => $booking->mechanic->id,
-                    'name' => $booking->mechanic->name,
-                ]
-                : null;
+            $mechanic = $booking->mechanic ? [
+                'id'   => $booking->mechanic->id,
+                'name' => $booking->mechanic->name,
+            ] : null;
 
 
             $response = [
