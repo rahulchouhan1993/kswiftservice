@@ -33,6 +33,11 @@ Route::get('/business-policy', [HomeController::class, 'businessPolicy'])->name(
 Route::get('/offers', [HomeController::class, 'offers'])->name('offers');
 Route::match(['get', 'post'], '/delete-account', [HomeController::class, 'deleteAccount'])->name('delete.account');
 
+Route::post('language/{locale}', function ($locale) {
+    session()->put('locale', $locale);
+    return redirect()->back();
+})->name('language');
+
 
 Route::prefix('common')->name('common.')->group(function () {
     Route::get('/search-garages', [CommonController::class, 'serachGarages'])->name('search.garage');

@@ -1,8 +1,10 @@
 import React from 'react'
 import handimage from '../../img/hand-mobile.png'
 import { Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next';
 
 export default function Hero() {
+    const { t } = useTranslation();
     return (
         <section className="bg-black  relative overflow-hidden">
             {/* Background Grid - Hidden on mobile, responsive positioning */}
@@ -22,15 +24,15 @@ export default function Hero() {
                                 data-aos="fade-right"
                                 className="mx-auto lg:mx-[0] max-w-[500px] xl:max-w-full text-center lg:text-start text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-white"
                             >
-                                Reliable Car & Bike Service — Whenever You Need It.
+                                {t('hero.title')}
                             </h1>
 
                             <p
                                 data-aos="fade-right"
                                 className=" text-center  lg:text-start text-gray-300 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 leading-relaxed max-w-prose"
                             >
-                                Skip the garage visits. Get verified Partners, real-time updates, and doorstep pickup/drop —
-                                <span className='text-main font-bold'>all from one powerful app.</span>
+                                {t('hero.description')}
+                                <span className='text-main font-bold'>{t('hero.description_highlight')}</span>
                             </p>
 
                             <div data-aos="fade-right" className="flex flex-col sm:flex-row gap-3 sm:gap-4  justify-center lg:justify-start">
@@ -39,7 +41,7 @@ export default function Hero() {
                                     target="_blank"
                                 >
                                     <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3.5 rounded-full bg-main text-white font-medium transition-all duration-300 hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-black">
-                                        Download the App
+                                        {t('hero.download_app')}
                                     </button>
                                 </a>
                             </div>

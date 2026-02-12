@@ -1,11 +1,23 @@
 import { Head } from '@inertiajs/react';
 import Layout from './layout/Layout';
+import { useTranslation } from 'react-i18next';
 
 export default function TermsConditions() {
+    const { t } = useTranslation();
+
+    const sections = [
+        { key: '1', type: 'text' },
+        { key: '2', type: 'text' },
+        { key: '3', type: 'text' },
+        { key: '4', type: 'text' },
+        { key: '5', type: 'list' },
+        { key: '6', type: 'list' },
+        { key: '7', type: 'text' },
+    ];
 
     return (
         <Layout>
-            <Head title="Terms & Conditions - KSwift Services" />
+            <Head title={`${t('legal_pages.terms_conditions.title')} - KSwift Services`} />
 
             <div className='relative  bg-black'>
                 <div className=" flex items-center w-[90%] h-[600px] justify-center absolute top-[-70px] left-[5%] p-6 z-[-1px]">
@@ -33,76 +45,36 @@ export default function TermsConditions() {
 
                         {/* Title */}
                         <h1 className="px-4 text-2xl md:text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
-                            Terms & Conditions
+                            {t('legal_pages.terms_conditions.title')}
                         </h1>
                         <p className="text-center text-normal text-main mb-16 uppercase tracking-wider">
-                            LAST UPDATED: OCT 24, 2025
+                            {t('legal_pages.terms_conditions.last_updated')}
                         </p>
 
                         <div className="space-y-12 text-white leading-relaxed">
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">1. ACCEPTANCE OF TERMS</h2>
-                                <p className="text-gray-200">
-                                    By accessing or using this website or mobile application, the user agrees to comply with and be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately.
-                                </p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">2. SERVICE SCOPE</h2>
-                                <p className="text-gray-200">
-                                    KOUSTUBHA FAST SERVICES operates as an intermediary platform connecting customers with verified Partners. The Company does not perform any vehicle repair or servicing directly. Services are rendered independently by the Partners.
-                                </p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">3. ELIGIBILITY</h2>
-                                <p className="text-gray-200">
-                                    Users must be at least 18 years old and capable of entering into legally binding contracts under Indian law.
-                                </p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">4. USER RESPONSIBILITIES</h2>
-                                <p className="text-gray-200">
-                                    Users must provide accurate details while booking services and shall not misuse the platform for illegal or fraudulent purposes.
-                                </p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">5. PAYMENT TERMS</h2>
-                                <div className="text-gray-200 space-y-2">
-                                    <p>- All charges for services will be displayed before booking confirmation.</p>
-                                    <p>- Payments are processed through authorized payment gateways integrated into the platform.</p>
-                                    <p>- Applicable GST (18%) is included in service invoices as per SAC 9987 and HSN codes.</p>
-                                </div>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">6. BANKS & PAYMENT GATEWAYS CLAUSE</h2>
-                                <div className="text-gray-200 space-y-2">
-                                    <p>a) All payments are processed through RBI-regulated gateways such as Razorpay and PayU.</p>
-                                    <p>b) Accepted modes include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.</p>
-                                    <p>c) Funds collected from customers are routed to KOUSTUBHA DAIRY & FARMS' official current account and then transferred to the respective Partner after deductions (commission, GST, platform fees).</p>
-                                    <p>d) The Company complies with PCI-DSS and RBI's data security guidelines.</p>
-                                    <p>e) Refunds, where applicable, will be processed within 7-10 working days through the original payment mode.</p>
-                                    <p>f) The Company is not responsible for delays caused by banks or payment intermediaries.</p>
-                                    <p>g) Any fraudulent or disputed transactions will be handled as per the Payment & Settlement Systems Act, 2007.</p>
-                                </div>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">7. CANCELLATION & REFUND POLICY</h2>
-                                <p className="text-gray-200">
-                                    Details regarding cancellation and refund policies will be provided separately and form an integral part of these terms.
-                                </p>
-                            </section>
-
+                            {sections.map((section) => (
+                                <section key={section.key}>
+                                    <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
+                                        {t(`legal_pages.terms_conditions.sections.${section.key}.title`)}
+                                    </h2>
+                                    {section.type === 'text' ? (
+                                        <p className="text-gray-200">
+                                            {t(`legal_pages.terms_conditions.sections.${section.key}.content`)}
+                                        </p>
+                                    ) : (
+                                        <div className="text-gray-200 space-y-2">
+                                            {(t(`legal_pages.terms_conditions.sections.${section.key}.items`, { returnObjects: true }) || []).map((item, index) => (
+                                                <p key={index}>{item}</p>
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            ))}
                         </div>
 
                         {/* Footer */}
                         <footer className="mt-16 text-center text-sm text-gray-400">
-                            © 2025 KOUSTUBHA FAST SERVICES. All rights reserved.
+                            {t('legal_pages.terms_conditions.footer', '© 2025 KOUSTUBHA FAST SERVICES. All rights reserved.')}
                         </footer>
 
                     </div>

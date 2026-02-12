@@ -2,7 +2,11 @@ import React from 'react';
 import service1 from '../../img/service1.png';
 import service2 from '../../img/service2.png';
 import { Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
 export default function HomeServices() {
+    const { t } = useTranslation();
+
     return (
         <>
             <div className='container mx-auto '>
@@ -14,22 +18,22 @@ export default function HomeServices() {
                             <img className='z-[1]' src={service1} />
                         </div>
                         <div className='mt-4 lg:mt-0 p-6 lg:p-12 serivice-right w-full lg:max-w-[55%]'>
-                            <h2 className='text-main font-bold uppercase text-lg fading' fading>FOR CUSTOMERS</h2>
-                            <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>Designed for Drivers Who Value Transparency & Convenience</h3>
+                            <h2 className='text-main font-bold uppercase text-lg fading' fading>{t('home_services.customers.title', 'FOR CUSTOMERS')}</h2>
+                            <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>{t('home_services.customers.headline', 'Designed for Drivers Who Value Transparency & Convenience')}</h3>
                             <ul className='text-gray-400 list-disc ps-4 mt-4'>
-                                <li className='mt-2 text-[18px] fading'>Book any service in seconds</li>
-                                <li className='mt-2 text-[18px] fading'>Get doorstep pickup & drop</li>
-                                <li className='mt-2 text-[18px] fading'>Track your vehicle’s service live</li>
-                                <li className='mt-2 text-[18px] fading'>View prices upfront</li>
-                                <li className='mt-2 text-[18px] fading'>Download your service history and invoices anytime</li>
-                                <li className='mt-2 text-[18px] fading'>Pay securely after you’re satisfied</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item1', 'Book any service in seconds')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item2', 'Get doorstep pickup & drop')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item3', 'Track your vehicle’s service live')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item4', 'View prices upfront')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item5', 'Download your service history and invoices anytime')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.customers.list.item6', 'Pay securely after you’re satisfied')}</li>
                             </ul>
                             <a
                                 href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share"
                                 target='_blank'
                             >
                                 <button className="fading mt-6 rounded-full !p-[1px] bg-gradient-to-r from-gray-600 to-gray-900/5">
-                                    <span className='btn text-gray-300 border-gray-700 block text-[18px]'>Book Service</span>
+                                    <span className='btn text-gray-300 border-gray-700 block text-[18px]'>{t('home_services.customers.btn', 'Book Service')}</span>
                                 </button>
                             </a>
                         </div>
@@ -45,20 +49,20 @@ export default function HomeServices() {
                             <img className='z-[1]' src={service2} />
                         </div>
                         <div className='p-6 mt-4 lg:mt-0 lg:p-12 serivice-right w-full lg:max-w-[55%]'>
-                            <h2 className='text-main font-bold uppercase text-lg'>FOR PARTNERS </h2>
-                            <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>Grow Your Earnings with a Platform Built for You</h3>
+                            <h2 className='text-main font-bold uppercase text-lg'>{t('home_services.partners.title', 'FOR PARTNERS')} </h2>
+                            <h3 className='text-white font-bold leading-[23px] text-[24px] md:leading-[29px] md:text-[30px] lg:text-[40px] lg:leading-[39px] mt-2 fading'>{t('home_services.partners.headline', 'Grow Your Earnings with a Platform Built for You')}</h3>
                             <ul className='text-gray-400 list-disc ps-4 mt-4'>
-                                <li className='mt-2 text-[18px] fading'>Receive daily leads from customers near you</li>
-                                <li className='mt-2 text-[18px] fading'>Get car & bike jobs that match your skills</li>
-                                <li className='mt-2 text-[18px] fading'>Manage bookings, timings & payments easily</li>
-                                <li className='mt-2 text-[18px] fading'>Track your income instantly</li>
-                                <li className='mt-2 text-[18px] fading'>Build a 5-star reputation</li>
-                                <li className='mt-2 text-[18px] fading'>Zero joining fee — join and start earning</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item1', 'Receive daily leads from customers near you')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item2', 'Get car & bike jobs that match your skills')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item3', 'Manage bookings, timings & payments easily')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item4', 'Track your income instantly')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item5', 'Build a 5-star reputation')}</li>
+                                <li className='mt-2 text-[18px] fading'>{t('home_services.partners.list.item6', 'Zero joining fee — join and start earning')}</li>
                             </ul>
                             <a
                                 href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target='_blank'>
                                 <button className="mt-6 rounded-full !p-[1px] bg-gradient-to-r from-gray-600 to-gray-900/5">
-                                    <span className='btn text-gray-300 border-gray-700 block text-[18px]'>Book Service</span>
+                                    <span className='btn text-gray-300 border-gray-700 block text-[18px]'>{t('home_services.partners.btn', 'Book Service')}</span>
                                 </button>
                             </a>
                         </div>

@@ -1,11 +1,28 @@
 import { Head } from '@inertiajs/react';
 import Layout from './layout/Layout';
+import { useTranslation } from 'react-i18next';
 
 export default function PartnerTermsConditions() {
+    const { t } = useTranslation();
+
+    const sections = [
+        { key: '1', type: 'text' },
+        { key: '2', type: 'text' },
+        { key: '3', type: 'text' },
+        { key: '4', type: 'text' },
+        { key: '5', type: 'text' },
+        { key: '6', type: 'subsections' },
+        { key: '7', type: 'list' },
+        { key: '8', type: 'text' },
+        { key: '9', type: 'text' },
+        { key: '10', type: 'text' },
+        { key: '11', type: 'text' },
+    ];
+
     return (
         <>
         <Layout>
-                    <Head title="Terms & Conditions - KSwift Services" />
+                    <Head title={`${t('legal_pages.partner_terms.title')} - KSwift Services`} />
         
                     <div className='relative  bg-black'>
                             <div className=" flex items-center w-[90%] h-[600px] justify-center absolute top-[-70px] left-[5%] p-6 z-[-1px]">
@@ -34,122 +51,50 @@ export default function PartnerTermsConditions() {
                                     
                                     {/* Title */}
                                     <h1 className="px-4 text-2xl md:text-4xl font-bold mb-4 text-center text-white uppercase tracking-wide">
-                                        Partner Terms & Conditions Agreement
+                                        {t('legal_pages.partner_terms.title')}
                                     </h1>
                                     <p className="text-center text-sm text-blue-400 mb-16 uppercase tracking-wider">
-                                        LAST UPDATED: OCT 24, 2025
+                                        {t('legal_pages.partner_terms.last_updated')}
                                     </p>
 
                                     {/* Content */}
                                     <div className="space-y-12 text-white leading-relaxed">
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">1. PARTIES</h2>
-                                            <p className="text-gray-200">
-                                                This Agreement is entered into between KOUSTUBHA FAST SERVICES ("the Company") and the undersigned Partner Partner ("the Partner"), identified by Aadhaar and registered mobile number.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">2. NATURE OF RELATIONSHIP</h2>
-                                            <p className="text-gray-200">
-                                                The Company operates as a digital facilitation platform connecting customers seeking vehicle services with independent Partners. The Partner acts as an independent contractor and voluntarily participates in the platform. The Company's role is limited to facilitation.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">3. PARTNER RESPONSIBILITY</h2>
-                                            <p className="text-gray-200">
-                                                The Partner is fully responsible for workmanship, safety, and service outcomes. Any damage, negligence, or legal issue during the job shall be solely borne by the Partner.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">4. COMPANY DISCLAIMER</h2>
-                                            <p className="text-gray-200">
-                                                The Company only provides a platform for booking and coordination and is not responsible for vehicle condition, tools, or any loss or dispute arising during or after service.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">5. SERVICE ENGAGEMENT</h2>
-                                            <p className="text-gray-200">
-                                                Partners may accept or reject service requests. Upon acceptance, they must complete diagnostics, obtain approval, upload pre- and post-work photos, and close the job with customer confirmation.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">6. PLATFORM USAGE & PAYMENT POLICY</h2>
-                                            <div className="text-gray-200 space-y-4">
-                                                <div>
-                                                    <p className="font-semibold">A. Platform Charges:</p>
-                                                    <div className="ml-4 space-y-1">
-                                                        <p>- ₹800/day if using company resources, garage, or tools.</p>
-                                                        <p>- ₹500/day if using personal tools and resources.</p>
+                                        {sections.map((section) => (
+                                            <section key={section.key}>
+                                                <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
+                                                    {t(`legal_pages.partner_terms.sections.${section.key}.title`)}
+                                                </h2>
+                                                {section.type === 'text' ? (
+                                                    <p className="text-gray-200">
+                                                        {t(`legal_pages.partner_terms.sections.${section.key}.content`)}
+                                                    </p>
+                                                ) : section.type === 'list' ? (
+                                                    <div className="text-gray-200 space-y-2">
+                                                        {(t(`legal_pages.partner_terms.sections.${section.key}.items`, { returnObjects: true }) || []).map((item, index) => (
+                                                            <p key={index}>{item}</p>
+                                                        ))}
                                                     </div>
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold">B. Labour Commission:</p>
-                                                    <div className="ml-4">
-                                                        <p>- The Company will deduct 8% from the total labour charges as a facilitation fee.</p>
+                                                ) : section.type === 'subsections' ? (
+                                                    <div className="text-gray-200 space-y-4">
+                                                        {(t(`legal_pages.partner_terms.sections.${section.key}.subsections`, { returnObjects: true }) || []).map((subsection, index) => (
+                                                            <div key={index}>
+                                                                <p className="font-semibold">{subsection.title}</p>
+                                                                <div className="ml-4 space-y-1">
+                                                                    {(subsection.items || []).map((item, idx) => (
+                                                                        <p key={idx}>{item}</p>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold">C. GST & Taxation:</p>
-                                                    <div className="ml-4 space-y-1">
-                                                        <p>- Labour (SAC 9987): 18% GST (9% CGST + 9% SGST).</p>
-                                                        <p>- Parts/Spares: 18% under applicable HSN codes.</p>
-                                                        <p>- GST changes per government notification are automatically applicable.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">7. BANKS & PAYMENT GATEWAYS CLAUSE</h2>
-                                            <div className="text-gray-200 space-y-2">
-                                                <p>a) All online payments are securely processed through RBI-registered payment gateways such as Razorpay or PayU.</p>
-                                                <p>b) Accepted payment methods include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.</p>
-                                                <p>c) Collections from customers are credited to the official current account of KOUSTUBHA DAIRY & FARMS and settled to Partners via NEFT, IMPS, or Wallet transfer after deduction of applicable charges and taxes.</p>
-                                                <p>d) The Company complies with PCI-DSS and RBI data protection regulations and does not store card details.</p>
-                                                <p>e) Refunds or reversals, if applicable, will be processed within 7-10 working days via the original payment method, subject to banking timelines.</p>
-                                                <p>f) Any fraudulent or disputed transactions will be handled as per the Payment & Settlement Systems Act, 2007 and Indian banking norms.</p>
-                                            </div>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">8. DATA PRIVACY & AADHAAR E-SIGN</h2>
-                                            <p className="text-gray-200">
-                                                The Partner consents to Aadhaar-based digital signing of this Agreement. Data is stored securely under the Information Technology Act, 2000 and UIDAI e-Sign Regulations.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">9. INDEMNITY</h2>
-                                            <p className="text-gray-200">
-                                                The Partner agrees to indemnify and hold harmless KOUSTUBHA DAIRY & FARMS and its affiliates from any claim, loss, or liability arising out of their service actions.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">10. GOVERNING LAW & ARBITRATION</h2>
-                                            <p className="text-gray-200">
-                                                This Agreement is governed by Indian law and subject to arbitration in Bangalore under the Arbitration and Conciliation Act, 1996.
-                                            </p>
-                                        </section>
-
-                                        <section>
-                                            <h2 className="text-xl font-bold mb-4 uppercase tracking-wide">11. ACKNOWLEDGMENT</h2>
-                                            <p className="text-gray-200">
-                                                By e-signing, the Partner confirms understanding of all terms, assumes full responsibility for service quality, and accepts that the Company is not liable for operational or financial outcomes.
-                                            </p>
-                                        </section>
-
+                                                ) : null}
+                                            </section>
+                                        ))}
                                     </div>
 
                                     {/* Footer */}
                                     <footer className="mt-16 text-center text-sm text-gray-400">
-                                        © 2025 KOUSTUBHA FAST SERVICES. All rights reserved.
+                                        {t('legal_pages.partner_terms.footer', '© 2025 KOUSTUBHA FAST SERVICES. All rights reserved.')}
                                     </footer>
 
                                 </div>
@@ -157,7 +102,7 @@ export default function PartnerTermsConditions() {
                           </div>
                     </div>
                 </Layout>
-            <Head title="Partner Terms & Conditions Agreement - KSwift Services" />
+            <Head title={`${t('legal_pages.partner_terms.title')} - KSwift Services`} />
 
         </>
     );

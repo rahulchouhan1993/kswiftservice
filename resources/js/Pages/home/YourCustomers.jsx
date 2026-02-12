@@ -1,6 +1,9 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next';
 
 export default function YourCustomers() {
+    const { t } = useTranslation();
+
     return (
         <div className='container mx-auto'>
             <div className='py-20 bg-black relative'>
@@ -13,12 +16,12 @@ export default function YourCustomers() {
                 </div>
 
                 <div className='relative z-[30]'>
-                    <h2 className='text-white text-center text-[50px] font-bold leading-[40px] fading'>Your Car. Your Customers. <br></br> <span className='text-main'>One App.</span></h2>
-                    <p className='text-white text-center mt-2 fading'>Download the <a href='#' className='text-main2'>kswiftservices</a> and experience the easiest way to connect drivers and Partners .</p>
+                    <h2 className='text-white text-center text-[50px] font-bold leading-[40px] fading'>{t('your_customers.title_part1', 'Your Car. Your Customers.')} <br></br> <span className='text-main'>{t('your_customers.title_part2', 'One App.')}</span></h2>
+                    <p className='text-white text-center mt-2 fading'>{t('your_customers.description_part1', 'Download the')} <a href='#' className='text-main2'>kswiftservices</a> {t('your_customers.description_part2', 'and experience the easiest way to connect drivers and Partners .')}</p>
                     <div className='flex justify-center mt-8'>
                         <a href="https://play.google.com/store/apps/details?id=com.kswiftservice&pcampaignid=web_share" target="_blank">
                             <button className="rounded-full !p-[1px] bg-gradient-to-r fading from-gray-400 to-gray-900/40">
-                                <span className='btn text-white border-gray-700 block '>Download our app today!</span>
+                                <span className='btn text-white border-gray-700 block '>{t('your_customers.btn', 'Download our app today!')}</span>
                             </button>
                         </a>
                     </div>

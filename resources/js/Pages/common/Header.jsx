@@ -3,7 +3,11 @@ import logo from '../../img/swiftlogo.png'
 import { Link, router } from '@inertiajs/react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+
 export default function Header() {
+    const { t } = useTranslation();
     const [mobileOpen, setMobileOpen] = useState(false);
     useEffect(() => {
         AOS.init();
@@ -37,11 +41,11 @@ export default function Header() {
     };
 
     const navLinks = [
-        { href: '/', label: 'Home' },
-        { href: '/#services', label: 'Services' },
-        { href: '/offers', label: 'Offers' },
-        { href: '/about-us', label: 'About Us' },
-        { href: '/delete-account', label: 'Delete Account' }
+        { href: '/', label: t('nav.home') },
+        { href: '/#services', label: t('nav.services') },
+        { href: '/offers', label: t('nav.offers') },
+        { href: '/about-us', label: t('nav.about_us') },
+        { href: '/delete-account', label: t('nav.delete_account') }
     ];
 
     return (
@@ -73,12 +77,17 @@ export default function Header() {
                                 {link.label}
                             </Link>
                         ))}
+                        
+                        <LanguageSwitcher 
+                            iconClassName="text-gray-300"
+                            selectClassName="bg-transparent text-gray-300 border-gray-500 focus:border-main focus:ring-main"
+                        />
                     </nav>
 
                     <a
                         href="/contact-us"
                         className="hidden md:block px-6 py-2.5 rounded-full bg-main text-white font-medium transition-all duration-300 hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-black">
-                        Contact
+                        {t('nav.contact')}
                     </a>
 
                     <button
@@ -119,12 +128,18 @@ export default function Header() {
                                     {link.label}
                                 </Link>
                             ))}
+                            <div className="py-3 px-2">
+                                <LanguageSwitcher 
+                                    iconClassName="text-gray-300"
+                                    selectClassName="focus:border-0 focus:ring-0 bg-transparent text-gray-300   w-full"
+                                />
+                            </div>
                         </nav>
 
                         {/* Mobile CTA Button */}
                         <div className="px-4 py-4">
                             <button className="w-full px-6 py-3 rounded-full bg-main text-white font-medium transition-all duration-300 hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main">
-                                Contact
+                                {t('nav.contact')}
                             </button>
                         </div>
                     </div>
