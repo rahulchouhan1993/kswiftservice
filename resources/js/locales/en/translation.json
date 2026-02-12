@@ -1,0 +1,461 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "profile": "Profile",
+    "logout": "Log Out"
+  },
+  "common": {
+    "language": "Language",
+    "select_language": "Select Language"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "offers": "Offers",
+    "about_us": "About Us",
+    "delete_account": "Delete Account",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Reliable Car & Bike Service — Whenever You Need It.",
+    "description": "Skip the garage visits. Get verified Partners, real-time updates, and doorstep pickup/drop — ",
+    "description_highlight": "all from one powerful app.",
+    "download_app": "Download the App"
+  },
+  "how_works": {
+    "title": "How it",
+    "title_highlight": "Works",
+    "description": "Discover how our platform empowers car and bike repair services to thrive in the digital world.",
+    "tab_customers": "Customers",
+    "tab_partners": "Partners",
+    "download_btn": "Download",
+    "customers": {
+      "item1_title": "Set Up Your Profile and Vehicle",
+      "item1_desc": "Install the app, select whether you’re a customer or Partner, and register your car or bike with its basic details so the system can tailor services accurately.",
+      "item2_title": "Choose the Service and Mode of Delivery",
+      "item2_desc": "Pick the required service (repair, maintenance) and choose delivery mode — pickup, at-home, or at a partner workshop.",
+      "item3_title": "Automatic Partner Allocation With Live Tracking",
+      "item3_desc": "Our system assigns the best nearby partner automatically and provides live tracking so you know ETA and progress.",
+      "item4_title": "Approve & Monitor Work and Pay Securely",
+      "item4_desc": "Review the work, confirm completion, and pay through secure integrated payment options with digital receipts."
+    },
+    "partners": {
+      "item1_title": "Create Your Partner Profile",
+      "item1_desc": "Sign up as a Partner, complete your profile with necessary details, and get verified to start receiving service requests.",
+      "item2_title": "Receive Service Requests",
+      "item2_desc": "Get notified of service requests from customers in your area through the app, allowing you to choose jobs that fit your schedule.",
+      "item3_title": "Provide Quality Service",
+      "item3_desc": "Use the app to manage appointments, track service progress, and communicate with customers for a seamless experience.",
+      "item4_title": "Get Paid Securely",
+      "item4_desc": "Complete the service, get customer approval, and receive payments directly through the app with our secure payment system."
+    }
+  },
+  "why_us": {
+    "title": "Why Choose Us?",
+    "description": "Discover how partnering with us can elevate your car and bike repair experience, helping you thrive in the digital world.",
+    "item1_title": "Verified Partners",
+    "item1_desc": "Every Partner passes verified skill checks.",
+    "item2_title": "Transparent Pricing",
+    "item2_desc": "Instant estimates and digital invoices.",
+    "item3_title": "Live Tracking",
+    "item3_desc": "Know exactly what's happening with your car."
+  },
+  "vehicle_needs": {
+    "title": "Everything Your Vehicle Needs",
+    "description": "From routine maintenance to urgent repairs, get the right service delivered by verified experts",
+    "item1_title": "Car and Bike Periodic Service",
+    "item1_desc": "Routine servicing with oil change, filter replacement, and essential system checks.",
+    "item2_title": "Engine Repair and Diagnostics",
+    "item2_desc": "Accurate fault detection and repair for noise, power loss, and performance issues.",
+    "item3_title": "Car AC Repair",
+    "item3_desc": "Compressor service, gas refill, and leak checks to restore steady cooling.",
+    "item4_title": "Tyres, Wheels and Alignment",
+    "item4_desc": "Alignment, balancing, and tyre services for stable handling and even wear.",
+    "item5_title": "Brakes, Clutch and Gearbox",
+    "item5_desc": "Repair and replacement for responsive braking, smooth shifts, and steady control.",
+    "item6_title": "Battery Replacement",
+    "item6_desc": "Quick, genuine battery replacement with reliable performance.",
+    "item7_title": "Bike Care Essentials",
+    "item7_desc": "Chain, sprocket, tuning, and oil services for consistent bike performance.",
+    "item8_title": "Denting and Painting",
+    "item8_desc": "Panel correction and repainting for a clean, uniform finish.",
+    "item9_title": "Emergency On-Road Support",
+    "item9_desc": "Towing, jump-starts, tyre change, and recovery support during breakdowns."
+  },
+  "home_services": {
+    "customers": {
+      "title": "FOR CUSTOMERS",
+      "headline": "Designed for Drivers Who Value Transparency & Convenience",
+      "list": {
+        "item1": "Book any service in seconds",
+        "item2": "Get doorstep pickup & drop",
+        "item3": "Track your vehicle’s service live",
+        "item4": "View prices upfront",
+        "item5": "Download your service history and invoices anytime",
+        "item6": "Pay securely after you’re satisfied"
+      },
+      "btn": "Book Service"
+    },
+    "partners": {
+      "title": "FOR PARTNERS",
+      "headline": "Grow Your Earnings with a Platform Built for You",
+      "list": {
+        "item1": "Receive daily leads from customers near you",
+        "item2": "Get car & bike jobs that match your skills",
+        "item3": "Manage bookings, timings & payments easily",
+        "item4": "Track your income instantly",
+        "item5": "Build a 5-star reputation",
+        "item6": "Zero joining fee — join and start earning"
+      },
+      "btn": "Book Service"
+    }
+  },
+  "testimonials": {
+    "title": "This is what is said.",
+    "description": "See what we’ve built and how we’ve helped businesses just like yours crush it online.",
+    "items": [
+      { "message": "Very professional and quick. I didn’t expect such fast results, but they delivered!" },
+      { "message": "I was honestly surprised by how smooth everything went. The interface is clean and simple. Support was always available whenever I needed help. Truly a great experience!" },
+      { "message": "Loved using the platform! Easy to understand, easy to navigate. The whole process felt effortless. Highly recommended for anyone looking for a reliable service." },
+      { "message": "Super convenient and user-friendly. Everything worked exactly as described." },
+      { "message": "The experience was fantastic from start to finish. Clear steps, helpful prompts, and a very clean design. I got exactly what I needed without any confusion." },
+      { "message": "Very reliable service. I’ve already recommended it to my friends and colleagues." },
+      { "message": "I had a great time using this platform. It's rare to find something this smooth. Everything just works!" },
+      { "message": "Amazing customer support! They guided me patiently step by step. The entire process became so easy because of their clarity. Extremely happy with the experience." },
+      { "message": "Fast and efficient. Loved the simplicity!" },
+      { "message": "One of the best online experiences I’ve had. The layout is easy, the steps are clear, and the response time is amazing. Definitely coming back!" }
+    ]
+  },
+  "your_customers": {
+    "title_part1": "Your Car. Your Customers.",
+    "title_part2": "One App.",
+    "description_part1": "Download the",
+    "description_part2": "and experience the easiest way to connect drivers and Partners .",
+    "btn": "Download our app today!"
+  },
+
+  
+  "home_faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Explore our FAQ section to discover how we've empowered businesses like yours to thrive online.",
+      "items": {
+      "0": {
+        "question": "What is KOUSTUBHA FAST SERVICES?",
+        "answer": "It is a digital platform connecting vehicle owners with verified Partners for on-site servicing and repairs."
+      },
+      "1": {
+        "question": "How does the platform work?",
+        "answer": "Customers request a service, we match them with a verified partner nearby, and the partner comes to the customer's location to perform the requested service."
+      },
+      "2": {
+        "question": "What types of services are available?",
+        "answer": "From routine maintenance to repairs and diagnostics, we support a wide range of vehicle services. Check the service list in the app for details."
+      },
+      "3": {
+        "question": "How are payments handled?",
+        "answer": "Payments are processed securely through our payment gateway. Customers can pay via cards or UPI depending on availability."
+      },
+      "4": {
+        "question": "When do Partners receive their payments?",
+        "answer": "Partners receive payouts after successful completion of the service and after any necessary verification/processes are completed."
+      },
+      "5": {
+        "question": "Are payments safe on this platform?",
+        "answer": "Yes. We use industry-standard encryption and a trusted payment gateway to secure transactions."
+      },
+      "6": {
+        "question": "How are refunds processed?",
+        "answer": "Refunds are handled case-by-case. If eligible, refunds will be processed to the original payment method within the timeline described in our policy."
+      }
+    }
+  },
+  "cta": {
+    "title": "Join the Network. Grow Your Business.",
+    "description": "Thousands of Partners and garages trust us to bring them verified customers daily.",
+    "features": {
+      "item1": "Build 5 star reputation",
+      "item2": "Instant customer leads",
+      "item3": "Dedicated garage dashboard",
+      "item4": "Weekly payments"
+    },
+    "btn": "Partner With Us"
+  },
+  "footer": {
+    "quick_links": {
+      "title": "Quick Links",
+      "why_us": "Why choose us",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "for_customers": {
+      "title": "For Customers",
+      "services": "Services",
+      "download_app": "Download our app",
+      "faqs": "FAQs",
+      "terms": "Customer Terms & Conditions"
+    },
+    "for_partners": {
+      "title": "For Partners",
+      "support": "Support",
+      "download_app": "Download our app",
+      "terms": "Partner Terms & Conditions"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "business": "Business Policy"
+    },
+    "copyright": "© KSWIFTSERVICES 2025",
+    "bottom": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "customer_terms": "Customer Terms",
+      "partner_terms": "Partner Terms",
+      "business_policy": "Business Policy"
+    }
+  },
+  "about": {
+    "title": "Built to Fix How India Maintains Its Vehicles",
+    "description_1": "This platform was created after recognizing a common problem: people don't trust how their vehicles are serviced, and Partners don't have the tools or structure to deliver consistent service. Both sides operate manually, leading to confusion, delays, and disputes.",
+    "description_2": "We designed a system that brings clarity and structure to a broken process.",
+    "mission": {
+      "title": "Our Mission",
+      "description": "To revolutionize vehicle maintenance by connecting drivers with trusted Partners through a seamless digital platform, ensuring transparency, convenience, and quality service for all."
+    },
+    "vision": {
+        "title": "Our Vision",
+        "description": "To build a unified, technology-first ecosystem that becomes the standard for vehicle care. We aim to give customers consistent, accountable service and empower Partners with a stable, efficient workflow. Our vision is a future where quality, transparency, and reliability define every vehicle service."
+      },
+      "numbers": {
+        "title": "Numbers That Matter",
+        "description": "Join the thousands of Partners and garages who rely on <1>kswiftservices</1> for a steady stream of verified customers every day.",
+        "stats": {
+          "0": { "value": "50,000+", "label": "Happy Customers" },
+          "1": { "value": "2,000+", "label": "Verified Partners" },
+          "2": { "value": "4.8★", "label": "Average Service Rating" },
+          "3": { "value": "30+", "label": "Operating Cities" }
+        }
+      },
+
+    "features": {
+        "title": "Our Approach",
+        "description": "A System, Not Just an App. Every feature exists to reduce friction:",
+        "items": [
+            {"title": "Instant job allocation based on skill and location"},
+            {"title": "Live progress updates with status checkpoints"},
+            {"title": "Direct chat to remove miscommunication"},
+            {"title": "Digitized invoices and service records"},
+            {"title": "Weekly payouts to partner garages"},
+            {"title": "A Workflows for pickup, drop-off, and inspection"}
+        ]
+    },
+    "teams": {
+        "title": "The Team Behind the Platform",
+        "description": "A cross-functional team of engineers, designers, and automotive professionals focused on building a predictable, technology-driven service ecosystem.",
+        "roles": {
+            "ceo_founder": "CEO & Founder"
+        }
+    }
+  },
+  "contact": {
+    "title": "Get in Touch With Us",
+    "description": "We're here to help with service queries, partnership requests, or support needs.",
+    "address": "#14 & 1, Chowdeshwari Layout, Near ABS Bricks Factory, Honnenahalli, Yelahanka, B.B.M.P North, Karnataka — 560064",
+    "form": {
+      "title": "Send Us a Message",
+      "name": "Name *",
+      "phone": "Phone Number *",
+      "email": "Email *",
+      "message": "Message *",
+      "submit": "Submit"
+    }
+  },
+  "offers": {
+    "title": "We are updating offers"
+  },
+  "delete_account": {
+    "title": "Submit Account Delete Request",
+    "last_updated": "LAST UPDATED: OCT 24, 2025",
+    "form_title": "Send Us a Message",
+    "phone": "Phone Number *",
+    "submit": "Submit",
+    "footer": "© 2025 KOUSTUBHA FAST SERVICES. All rights reserved."
+  },
+  "services_page": {
+    "title": "Our Services",
+    "updating_message": "We are updating our services."
+  },
+  "legal_pages": {
+    "privacy_policy": {
+      "title": "Privacy Policy",
+      "last_updated": "LAST UPDATED: OCT 24, 2025",
+      "sections": {
+        "1": {
+          "title": "1. INFORMATION COLLECTION",
+          "content": "KOUSTUBHA FAST SERVICES collects user information including personal details, contact information, vehicle details, location data, and payment information to facilitate service bookings and improve user experience."
+        },
+        "2": {
+          "title": "2. DATA USAGE",
+          "content": "Collected data is used for service facilitation, customer support, payment processing, service improvements, and regulatory compliance. We do not sell or rent user data to third parties."
+        },
+        "3": {
+          "title": "3. DATA SHARING",
+          "items": [
+            "- Information is shared with verified Partners for service delivery",
+            "- Payment data is processed through secure RBI-regulated gateways",
+            "- Location data is shared with Partners for service location identification",
+            "- Contact information is shared for service coordination"
+          ]
+        },
+        "4": {
+          "title": "4. DATA SECURITY",
+          "items": [
+            "a) All data transmission uses encrypted SSL/TLS protocols",
+            "b) Payment information is tokenized and not stored on our servers",
+            "c) Access to user data is restricted to authorized personnel only",
+            "d) Regular security audits are conducted to maintain data integrity",
+            "e) User authentication uses secure token-based systems"
+          ]
+        },
+        "5": {
+          "title": "5. USER RIGHTS",
+          "items": [
+            "- Right to access personal information",
+            "- Right to update or correct personal data",
+            "- Right to request data deletion",
+            "- Right to opt-out of marketing communications",
+            "- Right to data portability"
+          ]
+        },
+        "6": {
+          "title": "6. COOKIES & TRACKING",
+          "content": "The platform uses cookies and similar technologies for session management, user preferences, analytics, and service optimization. Users can manage cookie preferences through browser settings."
+        },
+        "7": {
+          "title": "7. THIRD-PARTY SERVICES",
+          "content": "We integrate with third-party services including payment gateways (Razorpay, PayU), mapping services, and communication providers. These services have their own privacy policies and data handling practices."
+        },
+        "8": {
+          "title": "8. DATA RETENTION",
+          "content": "User data is retained for the duration necessary to provide services, comply with legal obligations, resolve disputes, and enforce agreements. Users can request data deletion as per applicable regulations."
+        },
+        "9": {
+          "title": "9. CONTACT INFORMATION",
+          "content": "For privacy-related queries, contact our Data Protection Officer at privacy@koustubhafastservices.com or through the contact details provided on our platform."
+        }
+      },
+      "footer": "© 2025 KOUSTUBHA FAST SERVICES. All rights reserved."
+    },
+    "terms_conditions": {
+      "title": "Terms & Conditions",
+      "last_updated": "LAST UPDATED: OCT 24, 2025",
+      "sections": {
+        "1": { "title": "1. ACCEPTANCE OF TERMS", "content": "By accessing or using this website or mobile application, the user agrees to comply with and be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately." },
+        "2": { "title": "2. SERVICE SCOPE", "content": "KOUSTUBHA FAST SERVICES operates as an intermediary platform connecting customers with verified Partners. The Company does not perform any vehicle repair or servicing directly. Services are rendered independently by the Partners." },
+        "3": { "title": "3. ELIGIBILITY", "content": "Users must be at least 18 years old and capable of entering into legally binding contracts under Indian law." },
+        "4": { "title": "4. USER RESPONSIBILITIES", "content": "Users must provide accurate details while booking services and shall not misuse the platform for illegal or fraudulent purposes." },
+        "5": { "title": "5. PAYMENT TERMS", "items": ["- All charges for services will be displayed before booking confirmation.", "- Payments are processed through authorized payment gateways integrated into the platform.", "- Applicable GST (18%) is included in service invoices as per SAC 9987 and HSN codes."] },
+        "6": { "title": "6. BANKS & PAYMENT GATEWAYS CLAUSE", "items": ["a) All payments are processed through RBI-regulated gateways such as Razorpay and PayU.", "b) Accepted modes include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.", "c) Funds collected from customers are routed to KOUSTUBHA DAIRY & FARMS' official current account and then transferred to the respective Partner after deductions (commission, GST, platform fees).", "d) The Company complies with PCI-DSS and RBI's data security guidelines.", "e) Refunds, where applicable, will be processed within 7-10 working days through the original payment mode.", "f) The Company is not responsible for delays caused by banks or payment intermediaries.", "g) Any fraudulent or disputed transactions will be handled as per the Payment & Settlement Systems Act, 2007."] },
+        "7": { "title": "7. CANCELLATION & REFUND POLICY", "content": "Details regarding cancellation and refund policies will be provided separately and form an integral part of these terms." }
+      }
+    },
+    "business_policy": {
+      "title": "Business Policy",
+      "last_updated": "LAST UPDATED: OCT 24, 2025",
+      "sections": {
+        "1": {
+          "title": "1. INTRODUCTION",
+          "content": "This Business Policy outlines the operational standards and business ethics of KOUSTUBHA FAST SERVICES (\"the Company\"). It governs the functioning of the platform connecting vehicle owners with independent Partners through the \"Swift Service\" app."
+        },
+        "2": {
+          "title": "2. OBJECTIVE",
+          "content": "To provide transparent, affordable, and efficient vehicle servicing solutions while empowering independent Partners with fair earning opportunities and customers with quality service."
+        },
+        "3": {
+          "title": "3. BUSINESS MODEL",
+          "content": "The Company operates as a digital facilitator. Partners and Customers voluntarily interact through the platform. The Company does not employ Partners nor perform services directly."
+        },
+        "4": {
+          "title": "4. PAYMENT & CHARGES STRUCTURE",
+          "items": [
+            "- Platform Fee: ₹800/day (Partners using company resources), ₹500/day (own resources).",
+            "- Commission: 8% of total labour charges.",
+            "- GST: 18% on labour and parts (as per SAC 9987 and HSN codes).",
+            "- Prices and taxes are subject to government changes."
+          ]
+        },
+        "5": {
+          "title": "5. BANKS & PAYMENT GATEWAYS CLAUSE",
+          "items": [
+            "a) All payments made by Customers are processed through RBI-authorized gateways such as Razorpay and PayU.",
+            "b) Accepted methods include UPI, IMPS, NEFT, debit/credit cards, and wallets.",
+            "c) All customer collections are routed through the official current account of KOUSTUBHA DAIRY & FARMS and transferred to Partners via NEFT, IMPS, or Wallet transfers.",
+            "d) The Company is compliant with PCI-DSS and RBI's data protection regulations.",
+            "e) Refunds, if applicable, are processed within 7-10 working days through the same payment channel.",
+            "f) Disputes or chargebacks will be resolved under the Payment & Settlement Systems Act, 2007."
+          ]
+        },
+        "6": {
+          "title": "6. DATA & CONFIDENTIALITY",
+          "content": "All operational data, including Partner and customer details, is confidential and used strictly for business analysis, compliance, and service improvement under the Privacy Policy."
+        },
+        "7": {
+          "title": "7. LIABILITY & RESPONSIBILITY",
+          "content": "The Company is not liable for damage, loss, or service disputes arising between Customers and Partners. Both parties act independently. The Company's responsibility ends at providing a secure facilitation platform."
+        },
+        "8": {
+          "title": "8. TAXATION & ACCOUNTING",
+          "content": "All financial operations comply with the Indian GST Act and Income Tax regulations. The Company maintains transparent accounting practices and provides tax invoices for every transaction."
+        },
+        "9": {
+          "title": "9. COMPLIANCE",
+          "content": "The Company abides by Indian laws, RBI regulations, and Information Technology guidelines. Any breach may lead to suspension or termination from the platform."
+        },
+        "10": {
+          "title": "10. LEGAL FRAMEWORK",
+          "content": "All disputes arising from business transactions are subject to arbitration under the Arbitration and Conciliation Act, 1996, and jurisdiction of Bangalore courts."
+        }
+      },
+      "footer": "© 2025 KOUSTUBHA FAST SERVICES. All rights reserved."
+    },
+    "customer_terms": {
+      "title": "Customer Terms & Conditions Agreement",
+      "last_updated": "LAST UPDATED: OCT 24, 2025",
+      "sections": {
+        "1": { "title": "1. INTRODUCTION", "content": "This Agreement governs the relationship between the Customer and KOUSTUBHA FAST SERVICES (\"the Company\") when using the Swift Service mobile or web application for vehicle repair and maintenance bookings." },
+        "2": { "title": "2. SERVICE SCOPE", "content": "The Company operates as a digital platform facilitating the connection between Customers and independent Partners. The Company does not provide repair services directly but enables transparent communication, tracking, and payment systems." },
+        "3": { "title": "3. CUSTOMER RESPONSIBILITIES", "items": ["- Customers shall provide accurate details regarding vehicle type, issue, and location.", "- Customers must ensure availability at the chosen service slot.", "- Payment must be made only through approved channels integrated into the application."] },
+        "4": { "title": "4. SERVICE DELIVERY", "content": "Upon job confirmation, a verified Partner will visit the Customer's specified location to perform the service. Customers are encouraged to review pre-work and post-work photos before making payment." },
+        "5": { "title": "5. SPARES & CONSUMABLES", "content": "Spares and consumables used in services are mutually procured by the Customer and Partner. The Company is not responsible for supply, warranty, or quality of any consumable or spare part." },
+        "6": { "title": "6. PAYMENTS & CHARGES", "items": ["- Charges will be shown to the Customer before confirmation of the booking.", "- Payments can be made through UPI, Debit/Credit cards, Internet Banking, IMPS, NEFT, or Wallets integrated via authorized gateways.", "- GST applicable (18%) on labour and parts, billed separately as per law."] },
+        "7": { "title": "7. BANKS & PAYMENT GATEWAYS CLAUSE", "items": ["a) All transactions are processed through RBI-approved payment gateways such as Razorpay or PayU.", "b) Accepted payment methods include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.", "c) Amounts collected from the Customer are credited to the Company's current account and subsequently transferred to the Partner after applicable deductions (GST, platform fees, commission).", "d) The Company follows PCI-DSS and RBI compliance guidelines; no payment credentials are stored.", "e) Refunds (if applicable) are processed within 7-10 working days, subject to bank and gateway timelines.", "f) Disputes or fraudulent transactions will be handled as per the Payment & Settlement Systems Act, 2007 and RBI circulars."] },
+        "8": { "title": "8. CANCELLATION & REFUND POLICY", "items": ["- Jobs canceled before Partner assignment incur no charges.", "- Jobs canceled after Partner dispatch may attract a nominal visit fee.", "- Refunds are processed in accordance with gateway timelines and refund rules."] },
+        "9": { "title": "9. DATA PRIVACY", "content": "All customer information is protected under the Company's Privacy Policy and the Information Technology Act, 2000. Data may be used internally for service analytics and quality improvement." },
+        "10": { "title": "10. LIABILITY DISCLAIMER", "content": "The Company is not liable for damages or loss arising from third-party actions, parts malfunction, or Partner negligence. Customers are advised to verify all service details before final acceptance." },
+        "11": { "title": "11. GOVERNING LAW & ARBITRATION", "content": "This Agreement shall be governed by Indian law. All disputes shall be resolved through arbitration in Bangalore in accordance with the Arbitration and Conciliation Act, 1996." },
+        "12": { "title": "12. ACCEPTANCE", "content": "By proceeding with booking or payment, the Customer agrees to these Terms and Conditions in full and acknowledges that the Company acts solely as a facilitation platform." }
+      },
+      "footer": "© 2025 KOUSTUBHA FAST SERVICES. All rights reserved."
+    },
+    "partner_terms": {
+      "title": "Partner Terms & Conditions Agreement",
+      "last_updated": "LAST UPDATED: OCT 24, 2025",
+      "sections": {
+        "1": { "title": "1. PARTIES", "content": "This Agreement is entered into between KOUSTUBHA FAST SERVICES (\"the Company\") and the undersigned Partner Partner (\"the Partner\"), identified by Aadhaar and registered mobile number." },
+        "2": { "title": "2. NATURE OF RELATIONSHIP", "content": "The Company operates as a digital facilitation platform connecting customers seeking vehicle services with independent Partners. The Partner acts as an independent contractor and voluntarily participates in the platform. The Company's role is limited to facilitation." },
+        "3": { "title": "3. PARTNER RESPONSIBILITY", "content": "The Partner is fully responsible for workmanship, safety, and service outcomes. Any damage, negligence, or legal issue during the job shall be solely borne by the Partner." },
+        "4": { "title": "4. COMPANY DISCLAIMER", "content": "The Company only provides a platform for booking and coordination and is not responsible for vehicle condition, tools, or any loss or dispute arising during or after service." },
+        "5": { "title": "5. SERVICE ENGAGEMENT", "content": "Partners may accept or reject service requests. Upon acceptance, they must complete diagnostics, obtain approval, upload pre- and post-work photos, and close the job with customer confirmation." },
+        "6": { "title": "6. PLATFORM USAGE & PAYMENT POLICY", "subsections": [ { "title": "A. Platform Charges:", "items": ["- ₹800/day if using company resources, garage, or tools.", "- ₹500/day if using personal tools and resources."] }, { "title": "B. Labour Commission:", "items": ["- The Company will deduct 8% from the total labour charges as a facilitation fee."] }, { "title": "C. GST & Taxation:", "items": ["- Labour (SAC 9987): 18% GST (9% CGST + 9% SGST).", "- Parts/Spares: 18% under applicable HSN codes.", "- GST changes per government notification are automatically applicable."] } ] },
+        "7": { "title": "7. BANKS & PAYMENT GATEWAYS CLAUSE", "items": ["a) All online payments are securely processed through RBI-registered payment gateways such as Razorpay or PayU.", "b) Accepted payment methods include UPI, IMPS, NEFT, debit/credit cards, and digital wallets.", "c) Collections from customers are credited to the official current account of KOUSTUBHA DAIRY & FARMS and settled to Partners via NEFT, IMPS, or Wallet transfer after deduction of applicable charges and taxes.", "d) The Company complies with PCI-DSS and RBI data protection regulations and does not store card details.", "e) Refunds or reversals, if applicable, will be processed within 7-10 working days via the original payment method, subject to banking timelines.", "f) Any fraudulent or disputed transactions will be handled as per the Payment & Settlement Systems Act, 2007 and Indian banking norms."] },
+        "8": { "title": "8. DATA PRIVACY & AADHAAR E-SIGN", "content": "The Partner consents to Aadhaar-based digital signing of this Agreement. Data is stored securely under the Information Technology Act, 2000 and UIDAI e-Sign Regulations." },
+        "9": { "title": "9. INDEMNITY", "content": "The Partner agrees to indemnify and hold harmless KOUSTUBHA DAIRY & FARMS and its affiliates from any claim, loss, or liability arising out of their service actions." },
+        "10": { "title": "10. GOVERNING LAW & ARBITRATION", "content": "This Agreement is governed by Indian law and subject to arbitration in Bangalore under the Arbitration and Conciliation Act, 1996." },
+        "11": { "title": "11. ACKNOWLEDGMENT", "content": "By e-signing, the Partner confirms understanding of all terms, assumes full responsibility for service quality, and accepts that the Company is not liable for operational or financial outcomes." }
+      },
+      "footer": "© 2025 KOUSTUBHA FAST SERVICES. All rights reserved."
+    }
+  }
+}
