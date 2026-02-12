@@ -1,11 +1,9 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-
 import en from './locales/en/translation.json';
 import kn from './locales/kn/translation.json';
 import hi from './locales/hi/translation.json';
-
 import enO from './locales/overrides/en.json';
 import knO from './locales/overrides/kn.json';
 import hiO from './locales/overrides/hi.json';

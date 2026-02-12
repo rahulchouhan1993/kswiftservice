@@ -44,4 +44,9 @@ Homestead.yaml
 public/storage/ # For symlinked public storage
 
 *.json
+!resources/js/locales/**/*.json
+!package.json
+!package-lock.json
+!composer.json
+!jsconfig.json 
 !public/keep.json   # (optional) un-ignore any required json
