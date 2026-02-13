@@ -53,6 +53,7 @@ Route::middleware('apiauth')->group(function () {
         Route::get('/get-balance', [WalletController::class, 'getBalance']);
         Route::post('/submit-withdrawal-request', [WalletController::class, 'submitWithdrawalRequest']);
         Route::get('/withdrawal-requests', [WalletController::class, 'getWithdrawalRequests']);
+        Route::get('/wallet-transitions', [WalletController::class, 'getWalletTransitions']);
     });
 
     Route::prefix('/vehicle')->group(function () {

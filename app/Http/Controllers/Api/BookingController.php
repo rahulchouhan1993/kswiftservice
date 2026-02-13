@@ -229,7 +229,7 @@ class BookingController extends Controller
                                     'type'          => 'new_service_request',
                                     'service_request_uuid'  => (string) $serviceRequest->uuid,
                                     'hasReview'     => $booking->review ? '1' : '0',
-                                    'msg_type' => 'booking'
+                                    'msg_type' => 'new_service_request'
                                 ];
                                 $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
                                 if (!empty($resp)) {
@@ -411,7 +411,7 @@ class BookingController extends Controller
                         'type'          => 'new_booking',
                         'booking_uuid'  => (string) $booking->uuid,
                         'hasReview'     => $booking->review ? '1' : '0',
-                        'msg_type' => 'booking'
+                        'msg_type' => 'new_service_request'
                     ];
 
                     $resp = $this->sendPushNotification($deviceToken, $tempWData, $data);
@@ -484,14 +484,21 @@ class BookingController extends Controller
             $services = $booking->services->map(function ($service) {
                 return [
                     'id' => $service->id,
-                    'service_type' => [
-                        'id' => $service->service_type->id,
-                        'name' => $service->service_type->name,
-                        'base_price' => $service->service_type->base_price,
-                        'video_url' => $service->video_url,
-                        'photo_url' => $service->photo_url,
-                        'note' => $service->note,
-                    ]
+                    // 'service_type' => [
+                    //     // 'id' => $service->service_type->id,
+                    //     // 'name' => $service->service_type->name,
+                    //     // 'base_price' => $service->service_type->base_price,
+                    //     // 'video_url' => $service->video_url,
+                    //     // 'photo_url' => $service->photo_url,
+                    //     // 'note' => $service->note,
+
+                    //     ]
+                    "service_id" => $service->service_type->id,
+                    "service_name" => $service->service_type->name,
+                    "service_price" => $service->service_type->base_price,
+                    "photo_url" => $service->photo_url,
+                    "video_url" => $service->video_url,
+                    "note" => $service->note,
                 ];
             });
 
@@ -1029,6 +1036,13 @@ class BookingController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => "Booking does not exist",
+                ], 500);
+            }
+
+            if(!empty($booking->mechanic_id)){
+                return response()->json([
+                    'status' => false,
+                    'message' => "Mechanic already assigned to this booking.",
                 ], 500);
             }
 

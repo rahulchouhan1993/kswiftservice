@@ -182,6 +182,11 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class, 'mechanic_id', 'id');
     }
 
+    public function wallet_transitions()
+    {
+        return $this->hasMany(WalletTransition::class, 'user_id', 'id');
+    }
+
 
     public function getMechanicReviewsAttribute()
     {

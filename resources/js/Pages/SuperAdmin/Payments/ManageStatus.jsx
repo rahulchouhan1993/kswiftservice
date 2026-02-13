@@ -35,19 +35,30 @@ export default function ManageStatus({ request }) {
 
     console.log('request', request);    
     useEffect(() => {
-        if (request?.uuid) {
-            setData('uuid', request.uuid);
+        if (open && request?.uuid) {
+            setData((prev) => ({
+                ...prev,
+                uuid: request.uuid,
+            }));
         }
-    }, [request]);
+    }, [open, request?.uuid]);
+
 
     const closeModal = () => {
         setOpen(false);
-        reset();
-    }
+        reset({
+            uuid: '',
+            status: '',
+            note: '',
+            rejection_reason: '',
+            astimated_payment_date: '',
+        });
+    };
 
     const statusOptions = [
-        { value: "accept", label: "Accept" },
-        { value: "reject", label: "Reject" },
+        { value: "in_process", label: "In Process" },
+        { value: "rejected", label: "Rejected" },
+        { value: "completed", label: "Completed" },
     ];
 
     const handleSubmit = (e) => {
@@ -91,7 +102,7 @@ export default function ManageStatus({ request }) {
                         <InputError className="mt-2" message={errors.status} />   
                     </div>
 
-                    {data.status === 'reject' && (
+                    {data.status === 'rejected' && (
                         <div>
                             <InputLabel htmlFor="rejection_reason" value="Rejection Reason *" />
                             <TextAreaWithCount
@@ -105,7 +116,7 @@ export default function ManageStatus({ request }) {
                         </div>
                     )}
 
-                    {data.status === 'accept' && (
+                    {data.status === 'in_process' && (
                         <>
                             <div>
                                 <InputLabel htmlFor="astimated_payment_date" value="Estimated Payment Date *" />

@@ -50,9 +50,15 @@ class Garage extends Model
 
         if ($logo) {
             return asset('storage/garage_photos/' . $logo);
+        }else{
+            $avatarText = trim(
+                collect(explode(' ', $this->name))->map(function ($segment) {
+                    return mb_substr($segment, 0, 1);
+                })->join('')
+            );
         }
-
-        return null;
+        return 'https://ui-avatars.com/api/?name=' . urlencode($avatarText)
+            . '&color=B8EA3F&background=000000&size=128';
     }
 
 

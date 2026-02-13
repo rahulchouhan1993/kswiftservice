@@ -17,8 +17,10 @@ import { FaWarehouse } from "react-icons/fa6";
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import axios from "axios";
 import { useAlerts } from "@/Components/Alerts";
+import GarageAvtar from "@/Components/GarageAvtar";
+import AssignRequestToMechanic from "./AssignRequestToMechanic";
 
-export default function AcceptenceRequestList({ list, booking, search, status }) {
+export default function BookingRequestList({ list, booking, search, status }) {
     const timerRef = useRef(null);
     const searchRef = useRef(null);
     const { replaceUnderscoreWithSpace } = useHelpers();
@@ -70,6 +72,7 @@ export default function AcceptenceRequestList({ list, booking, search, status })
         const colors = {
             rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
             accepted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+            pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
         };
         return <span className={`${badgeBase} ${colors[status]}`}>{replaceUnderscoreWithSpace(status)}</span>;
     };
@@ -161,6 +164,10 @@ export default function AcceptenceRequestList({ list, booking, search, status })
                                     </th>
 
                                     <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
+                                        Garage
+                                    </th>
+
+                                    <th className="px-3 py-2 text-xs font-semibold uppercase text-center">
                                         Estimated Delivery Date / Note
                                     </th>
 
@@ -203,30 +210,36 @@ export default function AcceptenceRequestList({ list, booking, search, status })
                                                 <UserAvatarCard user={l.mechanic} />
                                             </td>
 
+                                            <td className="px-3 py-2">
+                                                {l.mechanic?.latest_garage[0] ? (<>
+                                                    <GarageAvtar garage={l.mechanic?.latest_garage[0]} />
+                                                </>) : '--'}
+                                            </td>
+
                                             <td className="px-3 py-2 text-center">
                                                  <div className="flex items-center justify-center gap-2">
-                                                    {l.delivery_date || "--"}
-                                                    <NoteTooltip note={l.note} />
+                                                    {l?.astimated_delivery_date ? l.delivery_date : "--"}
+                                                    {l.note ? (<>
+                                                        <NoteTooltip note={l.note} />
+                                                    </>) : ''}
                                                 </div>
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {statusBadge(l.status)}
+                                                {statusBadge(l.mechanic_status)}
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
-                                                {l.admin_status || '--'}
+                                                {statusBadge(l.admin_status)}
                                             </td>
 
                                             <td className="px-3 py-2 text-center">
                                                 <RowActionsMenu>
                                                     <div className="flex flex-col gap-1">
-                                                    <RoundBtn
-                                                        onClick={() => handleAssignClick(l)}
-                                                    >
-                                                        <FaWarehouse />
-                                                        <span>Assign Mechanic</span>
-                                                    </RoundBtn>    
+                                                        {booking.mechanic_id ? (<>
+                                                        </>) : <>
+                                                            <AssignRequestToMechanic request={l}/>
+                                                        </>}
                                                     </div>
                                                 </RowActionsMenu>
                                             </td>

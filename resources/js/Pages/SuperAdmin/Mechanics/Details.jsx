@@ -6,6 +6,7 @@ import Addresses from "./Partials/Addresses";
 import Garages from "./Partials/Garages";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
+import WalletTransitions from "./Partials/WalletTransitions";
 
 export default function Details({ user }) {
     const [selectedTab, setSelectedTab] = useState("user-info");
@@ -20,6 +21,9 @@ export default function Details({ user }) {
 
             case "garages-list":
                 return <Garages garages={user.garage} />;
+
+            case "wallet-transitions":
+                return <WalletTransitions wallet_transitions={user.wallet_transitions} />;
 
             case "change-password":
                 return <UpdatePasswordForm user={user} />;
@@ -92,6 +96,20 @@ export default function Details({ user }) {
                                     `}
                                 >
                                     <FaMapMarkedAlt /> Garage List
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTab("wallet-transitions")}
+                                    className={`
+                                        flex items-center gap-3 px-4 py-3 rounded-xl border text-left font-medium
+                                        transition-all
+                                        ${selectedTab === "wallet-transitions"
+                                            ? "bg-blue-600 text-white border-blue-700 shadow-md scale-[1.02]"
+                                            : "bg-gray-200 dark:bg-[#131836] border-gray-300 dark:border-blue-900 text-gray-900 dark:text-white"
+                                        }
+                                    `}
+                                >
+                                    <FaExchangeAlt /> Wallet Transitions
                                 </button>
 
                                 {/* ADDRESS LIST TAB */}

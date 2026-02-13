@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 
 class BookingRequest extends Model
 {
@@ -33,14 +36,29 @@ class BookingRequest extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function mechanic()
+    {
+        return $this->belongsTo(User::class, 'mecanic_id', 'id');
+    }
+
     public function booking()
     {
         return $this->belongsTo(Booking::class, 'booking_id');
     }
 
-    public function myRequest()
+    protected $appends = [
+        'delivery_date',
+    ];
+
+    public function DeliveryDate(): Attribute
     {
-        return $this->hasOne(BookingAcceptRequest::class, 'booking_request_id', 'id');
+        return Attribute::make(
+            get: function () {
+                return Carbon::parse(
+                    $this->astimated_delivery_date
+                )->format('d-M-Y h:i A');
+            }
+        );
     }
 
 }

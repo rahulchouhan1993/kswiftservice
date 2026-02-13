@@ -7,6 +7,7 @@ use App\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingAcceptRequest;
+use App\Models\BookingRequest;
 use App\Models\Garage;
 use App\Models\MechanicJob;
 use App\Models\Notification;
@@ -118,6 +119,13 @@ class SuperAdminBookingController extends Controller
     {
         try {
             $accepted_by = $request->accepted_by ?? null;
+            $bRequest = null;
+            if($accepted_by == 'admin'){
+                $bRequest = BookingRequest::where('uuid',$request->uuid)->first();
+                if(!$bRequest){
+                    return back()->with('error', "Booking request does not exist.");
+                }
+            }
             $request->validate([
                 'garage_id' => 'required|exists:garages,id'
             ]);
@@ -128,12 +136,16 @@ class SuperAdminBookingController extends Controller
             }
 
             if (empty($garage->mechanic)) {
-                return back()->with('error', "Garage mechanic account deleted.");
+                return back()->with('error', "Garage mechanic does not exist.");
             }
 
             $booking = Booking::find($request->booking_id);
             if (!$booking) {
                 return back()->with('error', "Booking does not exist.");
+            }
+
+            if(!empty($booking->mechanic_id)){
+                return back()->with('error', "Booking mechanic already assigned.");
             }
 
             $customer = $booking->customer;
@@ -148,16 +160,22 @@ class SuperAdminBookingController extends Controller
                 'booking_status' => 'awaiting_acceptance'
             ]);
 
-            if($accepted_by === 'admin' ){
+            if($accepted_by == 'admin' ){
                 $booking->update([
                     'mechanic_id'   => $garage->mechanic->id,
                     'booking_status' => 'awaiting_payment',
                     'assigned_date' => Carbon::now(),
                 ]);
+
+                $bRequest->update([
+                    'note' => $request->note ?? null,
+                    'admin_status' => 'accepted',
+                    'mechanic_status' => 'accepted',
+                ]);
             }
 
             $phone = $customer->phone;
-            if (env("CAN_SEND_MESSAGE")) {
+            if (env("CAN_SEND_MESSAGE") && empty($accepted_by)) {
                 $templateName = "msg_to_customer_on_assign_mechanic";
                 $lang = "en";
                 $phone = $customer->phone;
@@ -171,7 +189,7 @@ class SuperAdminBookingController extends Controller
                 createMessageHistory($templateName, $customer, $phone, $resp);
             }
 
-            if (env("CAN_SEND_MESSAGE") && $garage?->mechanic?->id) {
+            if (env("CAN_SEND_MESSAGE") && $garage?->mechanic?->id && empty($accepted_by)) {
                 $mechanic     = $garage->mechanic;
                 $vehicle      = $booking->vehicle;
                 $vehicleMake  = $vehicle?->vehile_make;
@@ -201,7 +219,7 @@ class SuperAdminBookingController extends Controller
                 createMessageHistory($templateName, $mechanic, $phone, $resp);
             }
 
-            if($accepted_by === 'admin'){
+            if($accepted_by == 'admin'){
                 if (env('CAN_SEND_MESSAGE')) {
                     $templateName = 'msg_to_customer_on_adnavce_payment';
                     $params = [
@@ -370,10 +388,10 @@ class SuperAdminBookingController extends Controller
             return back()->with('error', 'Booking does not exist');
         }
 
-        $baseQuery = BookingAcceptRequest::with([
+        $baseQuery = BookingRequest::with([
+            'user',
             'mechanic',
             'mechanic.latest_garage',
-            'bookingRequest',
             'booking',
             'booking.vehicle',
             'booking.vehicle.vehile_make',
@@ -392,12 +410,11 @@ class SuperAdminBookingController extends Controller
             });
         })
             ->when(filled($status), function ($q) use ($status) {
-                $q->where('status', $status);
+                $q->where('mechanic_status', $status);
             });
 
         $requests = (clone $baseQuery)->paginate($this->per_page ?? 50)->withQueryString();
-
-        return Inertia::render('SuperAdmin/Bookings/AcceptenceRequestList', [
+        return Inertia::render('SuperAdmin/Bookings/BookingRequestList', [
             'list' => $requests,
             'booking' => $booking,
             'search' => $search,

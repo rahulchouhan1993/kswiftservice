@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\FacebookApi;
 use App\Http\Controllers\Controller;
+use App\Models\WalletTransition;
 use App\Models\WithdrawalRequest;
 use Exception;
 use Illuminate\Http\Request;
@@ -128,6 +129,32 @@ class WalletController extends Controller
                 'status' => true,
                 'message' => 'Withdrawal requests retrieved successfully',
                 'requests' => $withdrawalRequests->toArray()
+            ]);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    /**
+     * Get Wallet Transitions
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function getWalletTransitions(Request $request)
+    {
+        try{
+            $user = $request->user();
+            $walletTransitions = WalletTransition::whereUserId($user->id)->orderBy('created_at', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Wallet transitions retrieved successfully',
+                'transitions' => $walletTransitions,
+                'current_balance' => $user->balence
             ]);
         }catch(Exception $e){
             return response()->json([

@@ -144,24 +144,19 @@ class BookingRequestController extends Controller
     public function acceptOrRejectBookingRequest(Request $request)
     {
         try{
+            $user = $request->user();
             $request->validate([
                 'request_uuid' => 'required|string|exists:booking_requests,uuid',
                 'status' => 'required|string|in:accepted,rejected',
                 'rejection_reason' => 'required_if:status,rejected|string|nullable',
                 'note' => 'nullable|string',
-                'astimated_delivery_date' => 'nullable|date',
-                'mechanic_id' => 'required|integer|exists:users,id',
+                'astimated_delivery_date' => 'required_if:status,accepted|nullable|date',
             ]);
 
-            $mechanic = User::find($request->mechanic_id);
-            if(!$mechanic){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User is not a mechanic or does not exist.',
-                ], 400);
-            }
-
+            $mechanic = User::find($user->id);
             $bookingRequest = BookingRequest::where('uuid', $request->request_uuid)->firstOrFail();
+            $booking = $bookingRequest->booking;
+
             if(!$bookingRequest){
                 return response()->json([
                     'status' => false,
@@ -169,34 +164,19 @@ class BookingRequestController extends Controller
                 ], 400);
             }
 
-            $booking = Booking::find($bookingRequest->booking_id);
-            if(!$booking){
+            if($bookingRequest->mechanic_status != 'pending'){
                 return response()->json([
                     'status' => false,
-                    'message' => 'Booking does not exist.',
+                    'message' => 'You have already submitted a response.',
                 ], 400);
             }
 
-            $alreadyResponded = BookingAcceptRequest::where('booking_request_id', $bookingRequest->id)
-                ->where('user_id', $request->mechanic_id)
-                ->exists();
-
-            if ($alreadyResponded) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'You have already responded to this booking request.',
-                ], 400);
-            }
-
-            BookingAcceptRequest::create([
-                'booking_request_id' => $bookingRequest->id,
-                'booking_id' => $booking->id,
-                'user_id' => $request->mechanic_id,
+            $bookingRequest->update([
                 'note' => $request->note,
-                'astimated_delivery_date' => Carbon::parse($request->astimated_delivery_date),
-                'accepted_at' => Carbon::now(),
-                'status' => $request->status,
-                'rejection_reason' => $request->rejection_reason,
+                'astimated_delivery_date' => $request->astimated_delivery_date ? Carbon::parse($request->astimated_delivery_date) : null,
+                'last_updated_at' => Carbon::now(),
+                'mechanic_status' => $request->status,
+                'rejection_reason' => $request->rejection_reason ?? null,
             ]);
 
             if (env("CAN_SEND_MESSAGE") && $mechanic) {

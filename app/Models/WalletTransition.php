@@ -2,23 +2,19 @@
 
 namespace App\Models;
 
+use App\Helpers;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
 
-class WithdrawalRequest extends Model
+class WalletTransition extends Model
 {
     protected $fillable = [
+        'txn_id',
         'user_id',
         'amount',
-        'status',
-        'transaction_id',
-        'rejection_reason',
-        'note',
-        'admin_note',
-        'astimated_transfer_time',
-        'screenshot_path',
+        'txn_type',
+        'current_balance',
         'invoice_path',
     ];
 
@@ -27,21 +23,16 @@ class WithdrawalRequest extends Model
         parent::boot();
         static::creating(function ($model) {
             $model->uuid = Uuid::uuid4();
+            $model->txn_id = 'TXN'.strtoupper(Helpers::shortUuid());
         });
     }
 
-
-    public function mechanic()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     protected $appends = [
-        'received_at',
+        'txn_date',
         'invoice_url',
     ];
 
-    public function getReceivedAtAttribute()
+    public function getTxnDateAttribute()
     {
         return $this->created_at ? Carbon::parse($this->created_at)->format('d M Y h:i A') : null;
     }

@@ -18,6 +18,7 @@ import { MdMarkUnreadChatAlt, MdOutlineChat } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
 import { useHelpers } from "@/Components/Helpers";
 import RejectedJobs from "./RejectedJobs";
+import { CiViewList } from "react-icons/ci";
 
 export default function List({ list, search, status, mechanics, user_id, user_type, role }) {
     const timerRef = useRef(null);
@@ -253,7 +254,7 @@ export default function List({ list, search, status, mechanics, user_id, user_ty
                                                             href={route("superadmin.booking.requests", { uuid: l.uuid })}
                                                         >
                                                             <RoundBtn>
-                                                                <MdOutlineChat />
+                                                                <CiViewList />
                                                                 <span>Requests</span>
                                                             </RoundBtn>
                                                         </Link>

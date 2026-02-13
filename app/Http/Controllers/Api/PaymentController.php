@@ -10,6 +10,7 @@ use App\Models\MechanicEarning;
 use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\User;
+use App\Models\WalletTransition;
 use App\PushNotification;
 use Carbon\Carbon;
 use Exception;
@@ -94,7 +95,14 @@ class PaymentController extends Controller
                 'booking_id'  => $payment->booking_id,
                 'amount'      => $mechanicAmount,
             ]);
-            $mechanic->increment('balance', $mechanicAmount);
+
+            $mechanic->increment('balence', $mechanicAmount);
+            WalletTransition::create([
+                'user_id' => $mechanic->id,
+                'amount' => $mechanicAmount,
+                'txn_type' => 'credit',
+                'current_balance' => $mechanic->balence,
+            ]);
 
             $payment->load([
                 'user',

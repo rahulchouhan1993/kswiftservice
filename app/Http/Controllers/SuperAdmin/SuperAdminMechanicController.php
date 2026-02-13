@@ -242,7 +242,7 @@ class SuperAdminMechanicController extends Controller
      */
     public function details($uuid)
     {
-        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'garage', 'garage.state', 'garage.city'])
+        $user = User::with(['addresses', 'addresses.state', 'addresses.city', 'garage', 'garage.state', 'garage.city', 'wallet_transitions'])
             ->withSum('mechanic_earnings', 'amount')
             ->withCount(['mechanic_booking'])
             ->where('uuid', $uuid)

@@ -66,8 +66,7 @@ Route::prefix('/superadmin')->name('superadmin.')->group(function () {
                 Route::post('/{uuid}/update-status', [VehicleMakeController::class, 'updateStatus'])->name('update.status');
                 Route::post('/{uuid}/delete', [VehicleMakeController::class, 'delete'])->name('delete');
             });
-
-
+            
             Route::prefix('service-type')->name('service.type.')->group(function () {
                 Route::get('list', [ServiceTypeController::class, 'index'])->name('list');
                 Route::post('/create', [ServiceTypeController::class, 'add'])->name('create');
